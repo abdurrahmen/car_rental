@@ -7,6 +7,7 @@ import { Footer } from '@/components/layout/Footer'
 import { VehicleCard } from '@/components/vehicles/VehicleCard'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
 import type { Language, Vehicle, VehiclePhoto } from '@/types'
+import { FALLBACK_VEHICLES, FALLBACK_BRANCHES } from '@/lib/data/fallback'
 
 interface HomePageProps {
   params: Promise<{ lang: string }>
@@ -33,17 +34,25 @@ export default async function HomePage({ params }: HomePageProps) {
     .order('created_at', { ascending: false })
     .limit(6)
 
-  // Cast vehicles
-  const vehicles = (vehiclesData || []) as unknown as (Vehicle & {
-    photos: VehiclePhoto[]
-    category?: { name_ar: string; name_fr: string; name_en: string }
-  })[]
-
   // Get active branches for network overview
-  const { data: branches } = await supabase
+  const { data: branchesData } = await supabase
     .from('branches')
     .select('*')
     .eq('is_active', true)
+
+  const vehicles = (vehiclesData && vehiclesData.length > 0)
+    ? (vehiclesData as unknown as (Vehicle & {
+        photos: VehiclePhoto[]
+        category?: { name_ar: string; name_fr: string; name_en: string }
+      })[])
+    : (FALLBACK_VEHICLES.slice(0, 6) as unknown as (Vehicle & {
+        photos: VehiclePhoto[]
+        category?: { name_ar: string; name_fr: string; name_en: string }
+      })[])
+
+  const branches = (branchesData && branchesData.length > 0)
+    ? branchesData
+    : FALLBACK_BRANCHES
 
   const isArabic = locale === 'ar'
 

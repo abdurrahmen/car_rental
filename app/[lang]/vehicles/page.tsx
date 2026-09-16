@@ -6,6 +6,12 @@ import { VehicleCard } from '@/components/vehicles/VehicleCard'
 import { VehicleFilters } from '@/components/vehicles/VehicleFilters'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
 import type { Language, Vehicle, Branch, VehicleCategory } from '@/types'
+import {
+  FALLBACK_VEHICLES,
+  FALLBACK_BRANCHES,
+  FALLBACK_CATEGORIES,
+  type FallbackVehicleWithRelations,
+} from '@/lib/data/fallback'
 
 interface VehiclesPageProps {
   params: Promise<{ lang: string }>
@@ -17,6 +23,7 @@ export default async function VehiclesPage({
   searchParams,
 }: VehiclesPageProps) {
   const { lang } = await params
+
   const resolvedSearchParams = await searchParams
   const dict = await getDictionaryByLocale(lang)
   const supabase = await createClient()
@@ -41,14 +48,40 @@ export default async function VehiclesPage({
     query = query.eq('branch_id', resolvedSearchParams.branch as string)
   }
 
-  const { data: vehicles } = await query
-  const { data: branches } = await supabase.from('branches').select('*')
-  const { data: categories } = await supabase
+  const { data: dbVehicles } = await query
+  const { data: dbBranches } = await supabase.from('branches').select('*')
+  const { data: dbCategories } = await supabase
     .from('vehicle_categories')
     .select('*')
 
+  // Use database data if populated; otherwise use fallback demo data with active filters applied
+  let vehicles = (dbVehicles && dbVehicles.length > 0) ? (dbVehicles as unknown as FallbackVehicleWithRelations[]) : null
+
+  if (!vehicles) {
+    let filteredFallback = [...FALLBACK_VEHICLES]
+    if (resolvedSearchParams.category) {
+      filteredFallback = filteredFallback.filter(
+        (v) => v.category_id === resolvedSearchParams.category
+      )
+    }
+    if (resolvedSearchParams.transmission) {
+      filteredFallback = filteredFallback.filter(
+        (v) => v.transmission === resolvedSearchParams.transmission
+      )
+    }
+    if (resolvedSearchParams.branch) {
+      filteredFallback = filteredFallback.filter(
+        (v) => v.branch_id === resolvedSearchParams.branch
+      )
+    }
+    vehicles = filteredFallback
+  }
+
+  const branches = (dbBranches && dbBranches.length > 0) ? dbBranches : FALLBACK_BRANCHES
+  const categories = (dbCategories && dbCategories.length > 0) ? dbCategories : FALLBACK_CATEGORIES
+
   const locale = lang as Language
-  const vehicleCount = vehicles?.length || 0
+  const vehicleCount = vehicles.length
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FBFBFD] text-neutral-900">

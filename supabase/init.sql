@@ -296,22 +296,22 @@ CREATE POLICY "Admin full access profiles" ON public.profiles FOR ALL
 USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- branches
-CREATE POLICY "Anyone authenticated SELECT active branches" ON public.branches FOR SELECT
-USING (auth.role() = 'authenticated' AND is_active = true);
+CREATE POLICY "Public SELECT active branches" ON public.branches FOR SELECT
+USING (is_active = true);
 
 CREATE POLICY "Admin full access branches" ON public.branches FOR ALL
 USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- vehicle_categories
-CREATE POLICY "Anyone authenticated SELECT categories" ON public.vehicle_categories FOR SELECT
-USING (auth.role() = 'authenticated');
+CREATE POLICY "Public SELECT categories" ON public.vehicle_categories FOR SELECT
+USING (true);
 
 CREATE POLICY "Admin full access categories" ON public.vehicle_categories FOR ALL
 USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- vehicles
-CREATE POLICY "Anyone authenticated SELECT unretired vehicles" ON public.vehicles FOR SELECT
-USING (auth.role() = 'authenticated' AND status != 'retired');
+CREATE POLICY "Public SELECT unretired vehicles" ON public.vehicles FOR SELECT
+USING (status != 'retired');
 
 CREATE POLICY "Staff UPDATE branch vehicles" ON public.vehicles FOR UPDATE
 USING (
@@ -327,8 +327,8 @@ CREATE POLICY "Admin full access vehicles" ON public.vehicles FOR ALL
 USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- vehicle_photos
-CREATE POLICY "Anyone authenticated SELECT vehicle photos" ON public.vehicle_photos FOR SELECT
-USING (auth.role() = 'authenticated');
+CREATE POLICY "Public SELECT vehicle photos" ON public.vehicle_photos FOR SELECT
+USING (true);
 
 CREATE POLICY "Staff modify branch vehicle photos" ON public.vehicle_photos FOR ALL
 USING (
@@ -440,8 +440,8 @@ CREATE POLICY "Admin full access documents" ON public.documents FOR ALL
 USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- reviews
-CREATE POLICY "Anyone authenticated SELECT reviews" ON public.reviews FOR SELECT
-USING (auth.role() = 'authenticated');
+CREATE POLICY "Public SELECT reviews" ON public.reviews FOR SELECT
+USING (true);
 
 CREATE POLICY "Customer INSERT review for completed reservation" ON public.reviews FOR INSERT
 WITH CHECK (

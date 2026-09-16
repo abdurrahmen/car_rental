@@ -7,7 +7,8 @@ import { ReservationForm } from '@/components/reservations/ReservationForm'
 import { VehicleGallery } from '@/components/vehicles/VehicleGallery'
 import { formatDZD } from '@/lib/utils/constants'
 import { notFound } from 'next/navigation'
-import type { Language, Branch, Vehicle } from '@/types'
+import type { Language, Branch, Vehicle, VehiclePhoto, VehicleCategory } from '@/types'
+import { FALLBACK_VEHICLES, FALLBACK_BRANCHES } from '@/lib/data/fallback'
 
 interface VehicleDetailPageProps {
   params: Promise<{ lang: string; id: string }>
@@ -20,7 +21,7 @@ export default async function VehicleDetailPage({
   const dict = await getDictionaryByLocale(lang)
   const supabase = await createClient()
 
-  const { data: vehicle } = await supabase
+  const { data: dbVehicle } = await supabase
     .from('vehicles')
     .select(
       '*, branch:branches(*), category:vehicle_categories(*), photos:vehicle_photos(*)'
@@ -28,14 +29,27 @@ export default async function VehicleDetailPage({
     .eq('id', id)
     .single()
 
+  let vehicle = dbVehicle as unknown as (Vehicle & {
+    branch?: Branch
+    category?: VehicleCategory
+    photos?: VehiclePhoto[]
+  }) | null
+
   if (!vehicle) {
-    notFound()
+    const fallback = FALLBACK_VEHICLES.find((v) => v.id === id)
+    if (fallback) {
+      vehicle = fallback
+    } else {
+      notFound()
+    }
   }
 
-  const { data: branches } = await supabase
+  const { data: dbBranches } = await supabase
     .from('branches')
     .select('*')
     .eq('is_active', true)
+
+  const branches = (dbBranches && dbBranches.length > 0) ? dbBranches : FALLBACK_BRANCHES
 
   const locale = lang as Language
   const catName =
