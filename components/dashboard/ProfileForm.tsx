@@ -1,22 +1,25 @@
-'use client';
+'use client'
 
-import React, { useActionState } from 'react';
-import { updateProfile, uploadLicense } from '@/lib/actions/profiles';
-import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
-import { Button } from '@/components/ui/Button';
-import { FileUpload } from '@/components/ui/FileUpload';
-import { Badge } from '@/components/ui/Badge';
-import type { Profile, Language, Dictionary } from '@/types';
+import React, { useActionState } from 'react'
+import { updateProfile, uploadLicense } from '@/lib/actions/profiles'
+import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
+import { Button } from '@/components/ui/Button'
+import { FileUpload } from '@/components/ui/FileUpload'
+import { Badge } from '@/components/ui/Badge'
+import type { Profile, Language, Dictionary } from '@/types'
 
 export interface ProfileFormProps {
-  profile: Profile | null;
-  locale?: Language;
-  lang?: Language;
-  dictionary?: Dictionary;
-  dict?: Dictionary;
+  profile: Profile | null
+  locale?: Language
+  lang?: Language
+  dictionary?: Dictionary
+  dict?: Dictionary
 }
 
+/**
+ * Apple-style Customer Profile Form with license upload & verification badge.
+ */
 export function ProfileForm({
   profile,
   locale,
@@ -24,51 +27,63 @@ export function ProfileForm({
   dictionary,
   dict,
 }: ProfileFormProps) {
-  const effectiveLocale = (locale || lang || 'ar') as Language;
-  const effectiveDict = dictionary || dict;
+  const effectiveLocale = (locale || lang || 'ar') as Language
+  const effectiveDict = dictionary || dict
 
   const [updateState, updateAction, isUpdating] = useActionState(
     updateProfile,
-    null,
-  );
+    null
+  )
   const [uploadState, uploadAction, isUploading] = useActionState(
     uploadLicense,
-    null,
-  );
+    null
+  )
+
+  const isArabic = effectiveLocale === 'ar'
 
   return (
     <div className="space-y-8 max-w-2xl">
-      {/* Verification Status */}
-      <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl border border-neutral-200">
+      {/* Verification Status Pill Banner */}
+      <div className="flex items-center justify-between p-5 bg-neutral-50/80 dark:bg-neutral-800/50 rounded-2xl border border-black/[0.04] dark:border-white/[0.06]">
         <div>
-          <span className="text-sm font-medium text-neutral-600 block">
-            {effectiveDict?.profile?.license_verified || 'Driver License Status'}
+          <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400 block mb-1">
+            {effectiveDict?.profile?.license_verified || 'License Status'}
           </span>
-          <span className="text-xs text-neutral-500">
+          <span className="text-xs text-neutral-600 dark:text-neutral-300">
             {profile?.license_verified
-              ? 'Your license has been reviewed and verified by staff.'
-              : 'Your license is pending verification.'}
+              ? isArabic
+                ? 'رخصة السياقة معتمدة ومحققة من قبل طاقم الوكالة.'
+                : 'Your driver license is fully verified.'
+              : isArabic
+              ? 'الرخصة قيد المراجعة أو بانتظار رفع الوثيقة.'
+              : 'Driver license pending upload or verification.'}
           </span>
         </div>
-        <Badge variant={profile?.license_verified ? 'success' : 'warning'}>
-          {profile?.license_verified ? 'Verified' : 'Pending Verification'}
+        <Badge
+          variant={profile?.license_verified ? 'success' : 'warning'}
+          showDot={true}
+          className="text-xs font-semibold px-3 py-1"
+        >
+          {profile?.license_verified
+            ? isArabic ? 'معتمدة' : 'Verified'
+            : isArabic ? 'قيد التدقيق' : 'Pending'}
         </Badge>
       </div>
 
       {/* Personal Info Form */}
       <form action={updateAction} className="space-y-4">
-        <h2 className="text-lg font-heading font-bold text-brand-900 border-b border-neutral-100 pb-2">
+        <h2 className="text-base font-semibold tracking-tight text-neutral-900 dark:text-white border-b border-black/[0.05] dark:border-white/[0.06] pb-3">
           {effectiveDict?.profile?.my_profile || 'Personal Information'}
         </h2>
 
         {updateState?.error && (
-          <div className="p-3 bg-danger-50 text-danger-700 border border-danger-200 rounded-lg text-sm">
+          <div className="p-3.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
             {updateState.error}
           </div>
         )}
 
         {updateState?.success && (
-          <div className="p-3 bg-success-50 text-success-700 border border-success-200 rounded-lg text-sm">
+          <div className="p-3.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
             {effectiveDict?.profile?.save_changes || 'Profile updated successfully!'}
           </div>
         )}
@@ -89,6 +104,14 @@ export function ProfileForm({
           required
         />
 
+        <Input
+          type="text"
+          name="license_number"
+          label={effectiveDict?.profile?.license_number || 'Driver License Number'}
+          defaultValue={profile?.license_number || ''}
+          placeholder="e.g. 16/1234567"
+        />
+
         <Select
           name="preferred_language"
           label={effectiveDict?.profile?.language || 'Preferred Language'}
@@ -100,63 +123,41 @@ export function ProfileForm({
           ]}
         />
 
-        <Input
-          type="text"
-          name="license_number"
-          label={effectiveDict?.profile?.license_number || 'Driver License Number'}
-          defaultValue={profile?.license_number || ''}
-        />
-
         <Button
           type="submit"
           variant="primary"
           loading={isUpdating}
           disabled={isUpdating}
+          className="mt-2"
         >
-          {effectiveDict?.profile?.save_changes || 'Save Changes'}
+          {effectiveDict?.profile?.edit_profile || 'Save Changes'}
         </Button>
       </form>
 
-      {/* License Upload Section */}
-      <form action={uploadAction} className="space-y-4 pt-6 border-t border-neutral-200">
-        <h2 className="text-lg font-heading font-bold text-brand-900 border-b border-neutral-100 pb-2">
-          {effectiveDict?.profile?.upload_license || "Upload Driver's License"}
+      {/* Driver License Document Upload */}
+      <form action={uploadAction} className="space-y-4 pt-6 border-t border-black/[0.05] dark:border-white/[0.06]">
+        <h2 className="text-base font-semibold tracking-tight text-neutral-900 dark:text-white">
+          {effectiveDict?.profile?.upload_license || 'Upload License Document'}
         </h2>
 
         {uploadState?.error && (
-          <div className="p-3 bg-danger-50 text-danger-700 border border-danger-200 rounded-lg text-sm">
+          <div className="p-3.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
             {uploadState.error}
           </div>
         )}
 
         {uploadState?.success && (
-          <div className="p-3 bg-success-50 text-success-700 border border-success-200 rounded-lg text-sm">
-            License document uploaded successfully!
+          <div className="p-3.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
+            License uploaded successfully!
           </div>
         )}
 
-        <p className="text-sm text-neutral-600">
-          Please upload a clear copy of your driver's license (front or both sides). Documents are stored securely and reviewed by our branch staff.
-        </p>
-
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-neutral-700">
-            Document File (JPG, PNG, PDF)
-          </label>
-          <input
-            type="file"
-            name="file"
-            accept="image/*,.pdf"
-            required
-            className="block w-full text-sm text-neutral-500 file:me-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 min-h-[44px]"
-          />
-        </div>
-
-        {profile?.license_document_url && (
-          <p className="text-xs text-success-700 font-medium">
-            ✓ You have an uploaded license document on file.
-          </p>
-        )}
+        <FileUpload
+          accept="image/*,application/pdf"
+          onFileSelect={() => {}}
+          label="License Photo or Scan (Front & Back)"
+          preview={true}
+        />
 
         <Button
           type="submit"
@@ -164,9 +165,9 @@ export function ProfileForm({
           loading={isUploading}
           disabled={isUploading}
         >
-          {effectiveDict?.profile?.upload_license || 'Upload Document'}
+          Upload Document
         </Button>
       </form>
     </div>
-  );
+  )
 }

@@ -5,12 +5,14 @@ import type { Language } from '@/types';
 
 const cairo = Cairo({
   subsets: ['arabic', 'latin'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-cairo',
   display: 'swap',
 });
 
 const inter = Inter({
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-inter',
   display: 'swap',
 });
@@ -48,7 +50,7 @@ export default async function LangLayout({
       dir={rtl ? 'rtl' : 'ltr'}
       className={`${cairo.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-body bg-background text-foreground">
+      <body className="min-h-full flex flex-col font-body bg-background text-foreground selection:bg-brand-500/20 selection:text-brand-900">
         {children}
       </body>
     </html>

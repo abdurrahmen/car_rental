@@ -1,27 +1,31 @@
-'use client';
+'use client'
 
-import React, { useActionState, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
-import type { Branch, Vehicle, Language, Dictionary } from '@/types';
-import { formatDZD } from '@/lib/utils/constants';
-import { createReservation } from '@/lib/actions/reservations';
+import React, { useActionState, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
+import type { Branch, Vehicle, Language, Dictionary } from '@/types'
+import { formatDZD } from '@/lib/utils/constants'
+import { createReservation } from '@/lib/actions/reservations'
 
 export interface ReservationFormProps {
-  vehicleId?: string;
-  vehicle?: Vehicle;
-  dailyRate?: number;
-  branches?: Branch[];
-  dictionary?: Dictionary;
-  lang?: Language;
+  vehicleId?: string
+  vehicle?: Vehicle
+  dailyRate?: number
+  branches?: Branch[]
+  dictionary?: Dictionary
+  lang?: Language
   action?: (
     state: unknown,
-    payload: FormData,
-  ) => Promise<{ error?: string; success?: boolean; reservationId?: string }>;
+    payload: FormData
+  ) => Promise<{ error?: string; success?: boolean; reservationId?: string }>
 }
 
+/**
+ * Apple-style Reservation Request Form with live calculation,
+ * smooth inputs, and clear pricing summary.
+ */
 export function ReservationForm({
   vehicleId,
   vehicle,
@@ -31,55 +35,55 @@ export function ReservationForm({
   lang = 'ar',
   action = createReservation,
 }: ReservationFormProps) {
-  const router = useRouter();
-  const [state, formAction, isPending] = useActionState(action, null);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [days, setDays] = useState(0);
+  const router = useRouter()
+  const [state, formAction, isPending] = useActionState(action, null)
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [days, setDays] = useState(0)
 
-  const effectiveVehicleId = vehicleId || vehicle?.id || '';
-  const effectiveDailyRate = propDailyRate ?? vehicle?.daily_rate ?? 0;
-  const initialBranch = vehicle?.branch_id || branches[0]?.id || '';
-  const [pickupBranch, setPickupBranch] = useState(initialBranch);
+  const effectiveVehicleId = vehicleId || vehicle?.id || ''
+  const effectiveDailyRate = propDailyRate ?? vehicle?.daily_rate ?? 0
+  const initialBranch = vehicle?.branch_id || branches[0]?.id || ''
+  const [pickupBranch, setPickupBranch] = useState(initialBranch)
 
   useEffect(() => {
     if (state?.success) {
-      router.push(`/${lang}/dashboard/reservations`);
+      router.push(`/${lang}/dashboard/reservations`)
     }
-  }, [state, router, lang]);
+  }, [state, router, lang])
 
   useEffect(() => {
     if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const diffTime = end.getTime() - start.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      setDays(diffDays > 0 ? diffDays : 0);
+      const start = new Date(startDate)
+      const end = new Date(endDate)
+      const diffTime = end.getTime() - start.getTime()
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      setDays(diffDays > 0 ? diffDays : 0)
     } else {
-      setDays(0);
+      setDays(0)
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate])
 
   const branchOptions = branches.map((b) => {
     const label =
-      lang === 'ar' ? b.name_ar : lang === 'fr' ? b.name_fr : b.name_en;
-    return { value: b.id, label };
-  });
+      lang === 'ar' ? b.name_ar : lang === 'fr' ? b.name_fr : b.name_en
+    return { value: b.id, label }
+  })
 
-  const totalPrice = days * effectiveDailyRate;
+  const totalPrice = days * effectiveDailyRate
 
   return (
     <form action={formAction} className="space-y-4">
       <input type="hidden" name="vehicle_id" value={effectiveVehicleId} />
 
       {state?.error && (
-        <div className="p-3 bg-danger-50 text-danger-700 border border-danger-200 rounded-lg text-sm">
+        <div className="p-3.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
           {state.error}
         </div>
       )}
 
       {state?.success && (
-        <div className="p-3 bg-success-50 text-success-700 border border-success-200 rounded-lg text-sm">
+        <div className="p-3.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
           {dictionary?.reservations?.reservation_submitted ||
             'Reservation request submitted successfully! Redirecting...'}
         </div>
@@ -124,32 +128,43 @@ export function ReservationForm({
         />
       </div>
 
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5">
         <label
           htmlFor="notes"
-          className="text-sm font-medium text-neutral-700"
+          className="text-xs font-medium text-neutral-600 dark:text-neutral-300 ps-0.5"
         >
-          {dictionary?.reservations?.notes || 'Notes (Optional)'}
+          {dictionary?.reservations?.notes || 'Additional Requests (Optional)'}
         </label>
         <textarea
           id="notes"
           name="notes"
           rows={3}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+          className="w-full rounded-xl border border-neutral-300/80 bg-white dark:bg-neutral-900 px-3.5 py-2.5 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 transition-all duration-200"
+          placeholder={
+            lang === 'ar'
+              ? 'أي متطلبات خاصة بالرحلة أو مقعد أطفال...'
+              : 'Any special requirements or child seat requests...'
+          }
         />
       </div>
 
-      <div className="bg-neutral-50 p-4 rounded-lg flex justify-between items-center mt-6">
+      {/* Live Apple Price Summary Card */}
+      <div className="bg-neutral-100/70 dark:bg-neutral-800/60 p-5 rounded-2xl border border-black/[0.04] dark:border-white/[0.06] flex justify-between items-center mt-6">
         <div>
-          <span className="block text-sm text-neutral-600">
-            {days} {dictionary?.vehicles?.per_day || 'days'} ×{' '}
-            {formatDZD(effectiveDailyRate, lang)}
+          <span className="block text-xs text-neutral-500">
+            {days > 0
+              ? `${days} ${
+                  dictionary?.vehicles?.per_day || 'days'
+                } × ${formatDZD(effectiveDailyRate, lang)}`
+              : lang === 'ar'
+              ? 'اختر تواريخ الكراء'
+              : 'Select dates'}
           </span>
-          <span className="text-lg font-bold text-neutral-900">
-            {dictionary?.reservations?.total_price || 'Total'}
+          <span className="text-base font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
+            {dictionary?.reservations?.total_price || 'Estimated Total'}
           </span>
         </div>
-        <div className="text-2xl font-bold text-accent-600">
+        <div className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
           {formatDZD(totalPrice, lang)}
         </div>
       </div>
@@ -161,9 +176,10 @@ export function ReservationForm({
         size="lg"
         loading={isPending}
         disabled={days <= 0 || !pickupBranch || isPending}
+        className="mt-2 text-sm font-semibold"
       >
         {dictionary?.reservations?.reserve || 'Request Reservation'}
       </Button>
     </form>
-  );
+  )
 }

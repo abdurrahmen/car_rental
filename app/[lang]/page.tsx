@@ -1,21 +1,27 @@
-import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
-import { getDictionary, hasLocale } from './dictionaries';
-import { notFound } from 'next/navigation';
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import { getDictionary, hasLocale } from './dictionaries'
+import { notFound } from 'next/navigation'
+import { Header } from '@/components/layout/Header'
+import { Footer } from '@/components/layout/Footer'
+import { VehicleCard } from '@/components/vehicles/VehicleCard'
+import { ScrollReveal } from '@/components/ui/ScrollReveal'
+import type { Language, Vehicle, VehiclePhoto } from '@/types'
 
 interface HomePageProps {
-  params: Promise<{ lang: string }>;
+  params: Promise<{ lang: string }>
 }
 
 export default async function HomePage({ params }: HomePageProps) {
-  const { lang } = await params;
-  if (!hasLocale(lang)) notFound();
+  const { lang } = await params
+  if (!hasLocale(lang)) notFound()
 
-  const dict = await getDictionary(lang);
-  const supabase = await createClient();
+  const locale = lang as Language
+  const dict = await getDictionary(locale)
+  const supabase = await createClient()
 
-  // Get featured vehicles
-  const { data: vehicles } = await supabase
+  // Get featured vehicles with photos and relations
+  const { data: vehiclesData } = await supabase
     .from('vehicles')
     .select(`
       *,
@@ -25,349 +31,355 @@ export default async function HomePage({ params }: HomePageProps) {
     `)
     .eq('status', 'available')
     .order('created_at', { ascending: false })
-    .limit(6);
+    .limit(6)
 
-  // Get branches for the hero section
+  // Cast vehicles
+  const vehicles = (vehiclesData || []) as unknown as (Vehicle & {
+    photos: VehiclePhoto[]
+    category?: { name_ar: string; name_fr: string; name_en: string }
+  })[]
+
+  // Get active branches for network overview
   const { data: branches } = await supabase
     .from('branches')
     .select('*')
-    .eq('is_active', true);
+    .eq('is_active', true)
 
-  const rtl = lang === 'ar';
+  const isArabic = locale === 'ar'
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Header */}
-      <header className="bg-brand-900 text-white">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href={`/${lang}`} className="flex items-center gap-2">
-              <svg
-                className="w-8 h-8 text-accent-500"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" />
-              </svg>
-              <span className="font-heading text-lg font-bold">
-                {dict.common.app_name}
-              </span>
-            </Link>
+    <div className="flex flex-col min-h-screen bg-[#FBFBFD] text-neutral-900 selection:bg-brand-500/20">
+      {/* Frosted Glass Navigation */}
+      <Header locale={locale} dictionary={dict} />
 
-            <div className="flex items-center gap-4">
-              <Link
-                href={`/${lang}/vehicles`}
-                className="hidden sm:inline-flex text-sm hover:text-accent-400 transition-colors"
-              >
-                {dict.vehicles.browse_vehicles}
-              </Link>
+      {/* =============================================================
+          HERO SECTION — Apple Minimalist Headline & Ambient Lighting
+          ============================================================= */}
+      <section className="relative pt-16 pb-20 sm:pt-24 sm:pb-28 overflow-hidden">
+        {/* Subtle ambient light gradient */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-40 start-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-brand-500/10 via-accent-500/5 to-transparent blur-3xl opacity-70"
+        />
 
-              {/* Language switcher */}
-              <div className="flex items-center gap-1 text-xs">
-                {(['ar', 'fr', 'en'] as const).map((l) => (
-                  <Link
-                    key={l}
-                    href={`/${l}`}
-                    className={`px-2 py-1 rounded transition-colors ${
-                      lang === l
-                        ? 'bg-accent-500 text-brand-900 font-semibold'
-                        : 'hover:bg-brand-800'
-                    }`}
-                  >
-                    {l.toUpperCase()}
-                  </Link>
-                ))}
-              </div>
-
-              <Link
-                href={`/${lang}/login`}
-                className="bg-accent-500 text-brand-900 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-accent-400 transition-colors min-h-[44px] flex items-center"
-              >
-                {dict.auth.login}
-              </Link>
-            </div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          {/* Tag Pill */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] text-xs font-semibold text-neutral-700 dark:text-neutral-300 tracking-tight mb-6 animate-apple-fade-in shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>
+              {isArabic
+                ? 'منصة كراء السيارات المعتمدة في الجزائر • أسطول 2024-2025'
+                : locale === 'fr'
+                ? 'Plateforme officielle de location de véhicules en Algérie'
+                : 'Premier Vehicle Rental Platform Across Algeria'}
+            </span>
           </div>
-        </nav>
-      </header>
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-brand-900 via-brand-800 to-brand-700 text-white py-16 sm:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl">
-            <h1 className="font-heading text-4xl sm:text-5xl font-bold mb-6 leading-tight">
-              {lang === 'ar'
-                ? 'استأجر سيارتك المثالية في الجزائر'
-                : lang === 'fr'
-                  ? 'Louez votre voiture idéale en Algérie'
-                  : 'Rent Your Perfect Car in Algeria'}
-            </h1>
-            <p className="text-neutral-300 text-lg mb-8">
-              {lang === 'ar'
-                ? 'احجز بسهولة وأمان. ادفع العربون إلكترونيًا والباقي نقدًا عند الاستلام.'
-                : lang === 'fr'
-                  ? 'Réservez facilement et en toute sécurité. Payez un acompte en ligne et le reste en espèces à la prise en charge.'
-                  : 'Book easily and securely. Pay a deposit online and the rest in cash at pickup.'}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                href={`/${lang}/vehicles`}
-                className="bg-accent-500 text-brand-900 px-8 py-3 rounded-lg font-bold text-lg hover:bg-accent-400 transition-colors text-center min-h-[44px] flex items-center justify-center"
-              >
-                {dict.vehicles.browse_vehicles}
-              </Link>
-              <Link
-                href={`/${lang}/signup`}
-                className="border-2 border-white text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-white/10 transition-colors text-center min-h-[44px] flex items-center justify-center"
-              >
-                {dict.auth.create_account}
-              </Link>
+          {/* Main Display Headline */}
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-neutral-900 leading-[1.08] mb-6 animate-apple-fade-up">
+            {isArabic ? (
+              <>
+                انطلق بثقة عبر الجزائر <br className="hidden sm:inline" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-neutral-900 via-neutral-700 to-neutral-500">
+                  بأسهل وأأمن تجربة كراء.
+                </span>
+              </>
+            ) : locale === 'fr' ? (
+              <>
+                Voyagez en toute sérénité <br className="hidden sm:inline" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-neutral-900 via-neutral-700 to-neutral-500">
+                  avec notre flotte premium en Algérie.
+                </span>
+              </>
+            ) : (
+              <>
+                Drive With Complete Confidence <br className="hidden sm:inline" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-neutral-900 via-neutral-700 to-neutral-500">
+                  Across Algeria.
+                </span>
+              </>
+            )}
+          </h1>
+
+          {/* Subheadline */}
+          <p className="max-w-2xl mx-auto text-base sm:text-lg text-neutral-500 leading-relaxed mb-10 animate-apple-fade-up delay-100">
+            {isArabic
+              ? 'احجز سيارتك السياحية أو النفعية في دقائق. عربون رمزي 5,000 دج مسترجع عبر بريدي موب أو CIB، والباقي نقدًا عند الاستلام مع محضر فحص رقمي شفاف.'
+              : locale === 'fr'
+              ? 'Réservez votre véhicule en quelques clics. Acompte garanti de 5 000 DZD via Edahabia/CIB, solde à la prise en charge et état des lieux numérique complet.'
+              : 'Reserve your car, SUV or utility truck in minutes. Small 5,000 DZD deposit via Edahabia/CIB, balance upon pickup, and seamless digital condition reports.'}
+          </p>
+
+          {/* CTA Action Pill Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-apple-fade-up delay-200">
+            <Link
+              href={`/${locale}/vehicles`}
+              className="apple-press w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full text-sm font-semibold tracking-tight bg-brand-500 text-white hover:bg-brand-600 shadow-[0_4px_14px_rgba(0,113,227,0.3)] transition-all min-h-[48px]"
+            >
+              {dict.vehicles.browse_vehicles || 'Browse Our Fleet'}
+            </Link>
+            <Link
+              href={`/${locale}/signup`}
+              className="apple-press w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full text-sm font-semibold tracking-tight bg-neutral-100 text-neutral-900 hover:bg-neutral-200/80 border border-black/[0.06] transition-all min-h-[48px]"
+            >
+              {dict.auth.create_account || 'Create Account'}
+            </Link>
+          </div>
+
+          {/* Key Confidence Badges */}
+          <div className="mt-12 pt-8 border-t border-black/[0.05] grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-medium text-neutral-500 animate-apple-fade-up delay-300">
+            <div className="flex items-center justify-center gap-2">
+              <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>{isArabic ? 'ضمان عدم تكرار الحجز' : 'Zero Double Booking'}</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <svg className="w-4 h-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+              <span>{isArabic ? 'عربون 5000 دج مسترجع' : '5,000 DZD Safe Deposit'}</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <svg className="w-4 h-4 text-accent-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              </svg>
+              <span>{isArabic ? '6 وكالات في أهم المدن' : '6 National Hubs'}</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <svg className="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>{isArabic ? 'محضر استلام رقمي فوري' : 'Digital Inspection PV'}</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-16 bg-neutral-50">
+      {/* =============================================================
+          FEATURED FLEET SECTION — Scroll-Triggered Reveal
+          ============================================================= */}
+      {vehicles && vehicles.length > 0 && (
+        <section className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <ScrollReveal>
+            <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-brand-500">
+                  {isArabic ? 'أسطولنا الحديث' : 'Featured Fleet'}
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 mt-1">
+                  {dict.vehicles.browse_vehicles || 'Ready For Departure'}
+                </h2>
+              </div>
+              <Link
+                href={`/${locale}/vehicles`}
+                className="mt-3 sm:mt-0 text-xs font-semibold text-brand-500 hover:text-brand-600 flex items-center gap-1 group"
+              >
+                <span>{isArabic ? 'عرض كل السيارات' : 'View full catalog'}</span>
+                <svg
+                  className={`w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 ${
+                    isArabic ? 'rotate-180 group-hover:-translate-x-0.5' : ''
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {vehicles.map((vehicle, index) => (
+              <ScrollReveal key={vehicle.id} delay={index * 100}>
+                <VehicleCard
+                  vehicle={vehicle}
+                  locale={locale}
+                  dictionary={dict}
+                />
+              </ScrollReveal>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* =============================================================
+          HOW IT WORKS — 4 Clear Apple-Style Steps
+          ============================================================= */}
+      <section className="py-20 bg-white/70 dark:bg-neutral-900/60 border-y border-black/[0.05]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-heading text-2xl sm:text-3xl font-bold text-center mb-12 text-brand-900">
-            {lang === 'ar'
-              ? 'كيف يعمل؟'
-              : lang === 'fr'
-                ? 'Comment ça marche ?'
-                : 'How It Works'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <ScrollReveal>
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <span className="text-xs font-semibold uppercase tracking-wider text-brand-500">
+                {isArabic ? 'بكل بساطة' : 'Transparent Process'}
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 mt-1">
+                {isArabic ? 'كيف يعمل كراء السيارات معنا؟' : 'How DZ Rent Works'}
+              </h2>
+              <p className="text-sm text-neutral-500 mt-2">
+                {isArabic
+                  ? 'من الحجز الأولي عبر هاتفك إلى استلام المفاتيح في الوكالة، خطوات واضحة وموثوقة.'
+                  : 'From your online request to collecting keys at the branch, a streamlined experience.'}
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
-                step: '1',
-                title:
-                  lang === 'ar'
-                    ? 'اختر سيارتك'
-                    : lang === 'fr'
-                      ? 'Choisissez votre voiture'
-                      : 'Choose Your Car',
-                desc:
-                  lang === 'ar'
-                    ? 'تصفح مجموعتنا واختر السيارة المناسبة لك'
-                    : lang === 'fr'
-                      ? 'Parcourez notre flotte et choisissez le véhicule qui vous convient'
-                      : 'Browse our fleet and pick the vehicle that suits you',
+                step: '01',
+                title: isArabic ? 'اختر مركبتك' : 'Choose Vehicle',
+                desc: isArabic
+                  ? 'تصفح السيارات السياحية، رباعيات الدفع، أو الشاحنات مع أسعار واضحة بدون رسوم خفية.'
+                  : 'Browse compacts, 4x4s, utility vans with upfront daily rates.',
               },
               {
-                step: '2',
-                title:
-                  lang === 'ar'
-                    ? 'أرسل الطلب'
-                    : lang === 'fr'
-                      ? 'Envoyez la demande'
-                      : 'Submit Request',
-                desc:
-                  lang === 'ar'
-                    ? 'أرسل طلب الحجز مع تواريخ الإيجار ورخصة القيادة'
-                    : lang === 'fr'
-                      ? 'Envoyez votre demande avec les dates et votre permis de conduire'
-                      : 'Send your booking request with dates and your driver\'s license',
+                step: '02',
+                title: isArabic ? 'أرسل طلب الحجز' : 'Submit Request',
+                desc: isArabic
+                  ? 'حدد تواريخ الانطلاق وفرع الاستلام مع رفع صورة رخصة السياقة لتسريع الإجراءات.'
+                  : 'Select your dates and branches with driver license verification.',
               },
               {
-                step: '3',
-                title:
-                  lang === 'ar'
-                    ? 'التأكيد والعربون'
-                    : lang === 'fr'
-                      ? 'Confirmation et acompte'
-                      : 'Confirm & Deposit',
-                desc:
-                  lang === 'ar'
-                    ? 'بعد التأكيد، ادفع عربونًا صغيرًا عبر بريدي موب أو CIB'
-                    : lang === 'fr'
-                      ? 'Après confirmation, payez un petit acompte via BaridiMob ou CIB'
-                      : 'After confirmation, pay a small deposit via BaridiMob or CIB',
+                step: '03',
+                title: isArabic ? 'تأكيد ودفع العربون' : 'Confirm & Deposit',
+                desc: isArabic
+                  ? 'بعد موافقة الوكالة، ادفع عربون 5,000 دج بأمان عبر الذهبية أو CIB خلال 48 ساعة.'
+                  : 'Pay a 5,000 DZD refundable deposit via BaridiMob/CIB once approved.',
               },
               {
-                step: '4',
-                title:
-                  lang === 'ar'
-                    ? 'استلم سيارتك'
-                    : lang === 'fr'
-                      ? 'Récupérez votre voiture'
-                      : 'Pick Up Your Car',
-                desc:
-                  lang === 'ar'
-                    ? 'ادفع الباقي نقدًا عند الاستلام وانطلق!'
-                    : lang === 'fr'
-                      ? 'Payez le reste en espèces à la prise en charge et partez !'
-                      : 'Pay the rest in cash at pickup and go!',
+                step: '04',
+                title: isArabic ? 'استلام وانطلاق' : 'Pickup & Drive',
+                desc: isArabic
+                  ? 'فحص رقمي مشترك لحالة السيارة، دفع المتبقي نقدًا، وانطلق في رحلتك بكل راحة.'
+                  : 'Quick digital check-in report, pay remainder in cash, and drive away.',
               },
-            ].map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="w-12 h-12 bg-accent-500 text-brand-900 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
-                  {item.step}
+            ].map((item, index) => (
+              <ScrollReveal key={item.step} delay={index * 120}>
+                <div className="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_16px_rgba(0,0,0,0.03)] apple-card-hover h-full flex flex-col justify-between">
+                  <div>
+                    <span className="text-2xl font-bold font-mono text-brand-500/80 block mb-3">
+                      {item.step}
+                    </span>
+                    <h3 className="text-base font-semibold text-neutral-900 dark:text-white tracking-tight mb-2">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs text-neutral-500 leading-relaxed">
+                      {item.desc}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="font-heading font-bold text-lg mb-2 text-brand-900">
-                  {item.title}
-                </h3>
-                <p className="text-neutral-600 text-sm">{item.desc}</p>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Featured Vehicles */}
-      {vehicles && vehicles.length > 0 && (
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="font-heading text-2xl sm:text-3xl font-bold mb-8 text-brand-900">
-              {lang === 'ar'
-                ? 'سيارات مميزة'
-                : lang === 'fr'
-                  ? 'Véhicules en vedette'
-                  : 'Featured Vehicles'}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {vehicles.map((vehicle) => {
-                const nameKey = `name_${lang}` as 'name_ar' | 'name_fr' | 'name_en';
-                return (
-                  <Link
-                    key={vehicle.id}
-                    href={`/${lang}/vehicles/${vehicle.id}`}
-                    className="bg-card rounded-xl shadow-sm border border-border overflow-hidden hover:shadow-md transition-shadow group"
-                  >
-                    <div className="aspect-video bg-neutral-200 relative overflow-hidden">
-                      {vehicle.photos?.[0] ? (
-                        <div className="w-full h-full bg-neutral-300 flex items-center justify-center text-neutral-500">
-                          <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
-                          </svg>
-                        </div>
-                      ) : (
-                        <div className="w-full h-full bg-neutral-300 flex items-center justify-center text-neutral-500">
-                          <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-heading font-bold text-lg text-brand-900 group-hover:text-accent-600 transition-colors">
-                        {vehicle.make} {vehicle.model}
-                      </h3>
-                      <p className="text-neutral-500 text-sm mb-3">
-                        {vehicle.year} · {vehicle.category?.[nameKey] || ''}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 text-neutral-600 text-xs">
-                          <span className="flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            {vehicle.transmission === 'automatic'
-                              ? dict.vehicles.automatic
-                              : dict.vehicles.manual}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            {vehicle.seats}
-                          </span>
-                        </div>
-                        <div className="text-end">
-                          <span className="text-accent-600 font-bold text-lg">
-                            {new Intl.NumberFormat(lang === 'ar' ? 'ar-DZ' : 'fr-DZ').format(vehicle.daily_rate)}
-                          </span>
-                          <span className="text-neutral-500 text-xs block">
-                            DZD/{dict.vehicles.per_day}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-            <div className="text-center mt-8">
-              <Link
-                href={`/${lang}/vehicles`}
-                className="inline-flex items-center gap-2 bg-brand-800 text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-700 transition-colors min-h-[44px]"
-              >
-                {dict.vehicles.browse_vehicles}
-                <svg
-                  className={`w-4 h-4 ${rtl ? 'rotate-180' : ''}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Branches */}
+      {/* =============================================================
+          NATIONAL NETWORK SECTION — 6 Strategic Branches
+          ============================================================= */}
       {branches && branches.length > 0 && (
-        <section className="py-16 bg-neutral-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="font-heading text-2xl sm:text-3xl font-bold mb-8 text-brand-900">
-              {lang === 'ar'
-                ? 'فروعنا'
-                : lang === 'fr'
-                  ? 'Nos agences'
-                  : 'Our Branches'}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {branches.map((branch) => {
-                const nameKey = `name_${lang}` as 'name_ar' | 'name_fr' | 'name_en';
-                return (
-                  <div
-                    key={branch.id}
-                    className="bg-card rounded-xl shadow-sm border border-border p-6"
-                  >
-                    <h3 className="font-heading font-bold text-lg text-brand-900 mb-2">
-                      {branch[nameKey]}
-                    </h3>
-                    <p className="text-neutral-600 text-sm mb-1">{branch.address}</p>
-                    <p className="text-neutral-500 text-sm mb-3">{branch.city}</p>
+        <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <ScrollReveal>
+            <div className="text-center max-w-2xl mx-auto mb-14">
+              <span className="text-xs font-semibold uppercase tracking-wider text-brand-500">
+                {isArabic ? 'تغطية واسعة' : 'National Coverage'}
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 mt-1">
+                {isArabic ? 'وكالاتنا عبر القطر الجزائري' : 'Our Branch Network'}
+              </h2>
+              <p className="text-sm text-neutral-500 mt-2">
+                {isArabic
+                  ? 'متواجدون في المطارات والموانئ والمراكز الحيوية لتسهيل استلام وإرجاع مركبتك.'
+                  : 'Present at key airports, ports, and commercial hubs for seamless pickup and drop-off.'}
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {branches.map((branch, index) => {
+              const name =
+                isArabic ? branch.name_ar : locale === 'fr' ? branch.name_fr : branch.name_en
+
+              return (
+                <ScrollReveal key={branch.id} delay={index * 80}>
+                  <div className="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] apple-card-hover flex flex-col justify-between h-full">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-semibold text-brand-600 bg-brand-500/10 px-2.5 py-0.5 rounded-full">
+                          {branch.city}
+                        </span>
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      </div>
+                      <h3 className="text-base font-semibold text-neutral-900 dark:text-white tracking-tight mb-1.5">
+                        {name}
+                      </h3>
+                      <p className="text-xs text-neutral-500 leading-relaxed mb-4">
+                        {branch.address}
+                      </p>
+                    </div>
+
                     <a
                       href={`tel:${branch.phone}`}
-                      className="text-accent-600 text-sm font-semibold hover:text-accent-700"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-500 hover:text-brand-600 pt-3 border-t border-black/[0.04]"
                     >
-                      {branch.phone}
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      <span>{branch.phone}</span>
                     </a>
                   </div>
-                );
-              })}
-            </div>
+                </ScrollReveal>
+              )
+            })}
           </div>
         </section>
       )}
 
-      {/* Footer */}
-      <footer className="bg-brand-950 text-neutral-400 py-8 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm">
-              © {new Date().getFullYear()}{' '}
-              {dict.common.app_name}.{' '}
-              {lang === 'ar'
-                ? 'جميع الحقوق محفوظة'
-                : lang === 'fr'
-                  ? 'Tous droits réservés'
-                  : 'All rights reserved'}
-            </p>
-            <div className="flex items-center gap-4 text-sm">
-              <Link href={`/${lang}/vehicles`} className="hover:text-white transition-colors">
-                {dict.vehicles.browse_vehicles}
-              </Link>
-              <Link href={`/${lang}/login`} className="hover:text-white transition-colors">
-                {dict.auth.login}
-              </Link>
+      {/* =============================================================
+          BOTTOM CALL TO ACTION — Dark Apple Accent Card
+          ============================================================= */}
+      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mb-12">
+        <ScrollReveal>
+          <div className="relative rounded-3xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800 text-white p-8 sm:p-14 overflow-hidden shadow-2xl">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -end-24 -bottom-24 w-80 h-80 bg-brand-500/20 rounded-full blur-3xl"
+            />
+
+            <div className="relative z-10 max-w-2xl">
+              <h2 className="text-2xl sm:text-4xl font-bold tracking-tight mb-4">
+                {isArabic
+                  ? 'جاهز لبدء رحلتك القادمة؟'
+                  : 'Ready to Hit the Road?'}
+              </h2>
+              <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-8">
+                {isArabic
+                  ? 'اختر سيارتك الآن، أتمم الحجز في دقائق، واستلمها من أقرب وكالة إليك مع ضمان الخدمة والشفافية التامة.'
+                  : 'Select your vehicle today, complete reservation in minutes, and pick up from your nearest branch.'}
+              </p>
+              <div className="flex flex-wrap items-center gap-4">
+                <Link
+                  href={`/${locale}/vehicles`}
+                  className="apple-press inline-flex items-center justify-center px-7 py-3 rounded-full text-xs font-semibold tracking-tight bg-brand-500 text-white hover:bg-brand-600 transition-all min-h-[44px]"
+                >
+                  {dict.vehicles.browse_vehicles || 'Browse Fleet'}
+                </Link>
+                <Link
+                  href={`/${locale}/signup`}
+                  className="apple-press inline-flex items-center justify-center px-7 py-3 rounded-full text-xs font-semibold tracking-tight bg-white/10 hover:bg-white/15 text-white border border-white/20 transition-all min-h-[44px]"
+                >
+                  {dict.auth.create_account || 'Create Account'}
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-      </footer>
+        </ScrollReveal>
+      </section>
+
+      {/* Minimalist Footer */}
+      <Footer locale={locale} dictionary={dict} />
     </div>
-  );
+  )
 }

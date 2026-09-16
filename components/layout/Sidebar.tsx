@@ -16,56 +16,88 @@ export interface SidebarProps {
   locale: Language
 }
 
+/**
+ * Apple-style Sidebar with frosted backdrop, rounded-xl links,
+ * and clean active indicators.
+ */
 export function Sidebar({ links, locale }: SidebarProps) {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
 
   return (
     <>
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-20 start-4 z-40 p-2 bg-brand-900 text-white rounded-lg shadow-md min-h-[44px] min-w-[44px] flex items-center justify-center"
+        className="md:hidden fixed bottom-6 end-6 z-40 p-3 bg-brand-500 text-white rounded-full shadow-lg min-h-[48px] min-w-[48px] flex items-center justify-center cursor-pointer apple-press"
+        aria-label="Toggle Navigation"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 6h16M4 12h16M4 18h16"
+          />
         </svg>
       </button>
 
-      <aside className={`
-        fixed md:static inset-y-0 start-0 z-30 w-64 bg-brand-900 text-white transform transition-transform duration-300 ease-in-out border-e border-brand-800
-        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-      `}>
-        <div className="p-4 pt-20 md:pt-4 h-full overflow-y-auto">
+      {/* Mobile backdrop */}
+      {isOpen && (
+        <div
+          onClick={() => setIsOpen(false)}
+          className="md:hidden fixed inset-0 z-30 bg-black/20 backdrop-blur-sm"
+        />
+      )}
+
+      <aside
+        className={`
+          fixed md:static inset-y-0 start-0 z-30 w-64
+          bg-white/85 dark:bg-neutral-900/85 backdrop-blur-xl
+          border-e border-black/[0.06] dark:border-white/[0.08]
+          transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
+          ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}
+      >
+        <div className="p-4 pt-20 md:pt-6 h-full overflow-y-auto">
+          <div className="px-3 mb-4">
+            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+              Workspace
+            </span>
+          </div>
+
           <nav className="space-y-1">
             {links.map((link) => {
               const fullHref = `/${locale}${link.href}`
-              const isActive = pathname === fullHref || pathname.startsWith(fullHref + '/')
-              
+              const isActive =
+                pathname === fullHref || pathname.startsWith(fullHref + '/')
+
               return (
                 <Link
                   key={link.href}
                   href={fullHref}
                   className={`
-                    flex items-center gap-3 px-3 py-2 rounded-lg transition-colors min-h-[44px]
-                    ${isActive ? 'bg-brand-800 text-accent-400 font-medium' : 'text-neutral-300 hover:bg-brand-800 hover:text-white'}
+                    flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm min-h-[44px]
+                    ${
+                      isActive
+                        ? 'bg-brand-500/10 text-brand-600 dark:text-brand-400 font-semibold shadow-xs'
+                        : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100/70 dark:hover:bg-neutral-800/60 font-medium'
+                    }
                   `}
                   onClick={() => setIsOpen(false)}
                 >
-                  {link.icon && <span className="w-5 h-5">{link.icon}</span>}
-                  {link.label}
+                  {link.icon && <span className="w-5 h-5 shrink-0">{link.icon}</span>}
+                  <span>{link.label}</span>
                 </Link>
               )
             })}
           </nav>
         </div>
       </aside>
-
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-20 md:hidden"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
     </>
   )
 }

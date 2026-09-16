@@ -6,9 +6,13 @@ import type { Language } from '@/types'
 
 export interface LanguageSwitcherProps {
   locale: Language
+  className?: string
 }
 
-export function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
+/**
+ * Apple-style Language Switcher pill with smooth transitions.
+ */
+export function LanguageSwitcher({ locale, className = '' }: LanguageSwitcherProps) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -20,19 +24,30 @@ export function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
   }
 
   return (
-    <div className="relative inline-block text-left">
+    <div className={`relative inline-flex items-center ${className}`}>
       <select
         value={locale}
         onChange={(e) => switchLocale(e.target.value)}
-        className="appearance-none bg-brand-800 text-white rounded-lg px-3 py-2 pe-8 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-accent-500 min-h-[44px]"
+        className="appearance-none bg-neutral-100/90 dark:bg-neutral-800/90 hover:bg-neutral-200/70 text-neutral-800 dark:text-neutral-200 rounded-full px-3.5 pe-8 py-1.5 text-xs font-semibold tracking-tight border border-black/[0.06] dark:border-white/[0.08] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 cursor-pointer min-h-[38px]"
+        aria-label="Select language"
       >
-        <option value="en">EN</option>
-        <option value="fr">FR</option>
-        <option value="ar">AR</option>
+        <option value="ar">العربية (AR)</option>
+        <option value="fr">Français (FR)</option>
+        <option value="en">English (EN)</option>
       </select>
-      <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center px-2 text-white">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+      <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-2.5 text-neutral-500">
+        <svg
+          className="w-3.5 h-3.5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </div>
     </div>

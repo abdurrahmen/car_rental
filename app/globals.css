@@ -1,74 +1,71 @@
 @import "tailwindcss";
 
 /* ===================================================================
-   ALGERIA CAR RENTAL — Design Tokens (Tailwind v4)
+   ALGERIA CAR RENTAL — Apple-Inspired Design System (Tailwind v4)
    ===================================================================
-   Semantic color tokens, font families, and spacing.
-   These replace the traditional tailwind.config.ts approach.
+   Cohesive Apple aesthetic:
+   - Off-white canvas (#FBFBFD) with crisp elevated white surfaces
+   - Sub-pixel borders (rgba(0,0,0,0.06))
+   - Deep obsidian typography (#1D1D1F) with subtle secondary gray (#86868B)
+   - Apple Blue (#0071E3) + warm amber accents (#E08A00)
+   - Translucent status pills & multi-layer Apple shadows
+   - Deceleration motion curve: cubic-bezier(0.16, 1, 0.3, 1)
    =================================================================== */
 
 @theme inline {
   /* ---------------------------------------------------------------
-     BRAND COLORS — Deep navy for trust/premium
+     APPLE BRAND & ACCENT COLORS
      --------------------------------------------------------------- */
-  --color-brand-50: #E8ECF2;
-  --color-brand-100: #C5CEE0;
-  --color-brand-200: #9FACCA;
-  --color-brand-300: #7889B4;
-  --color-brand-400: #5A6FA3;
-  --color-brand-500: #3D5692;
-  --color-brand-600: #2D4372;
-  --color-brand-700: #1A3358;
-  --color-brand-800: #12233F;
-  --color-brand-900: #0F1E36;
-  --color-brand-950: #0A1525;
+  --color-brand-50: #F5F9FF;
+  --color-brand-100: #E6F0FE;
+  --color-brand-200: #C7DEFD;
+  --color-brand-300: #93C2FB;
+  --color-brand-400: #579EF6;
+  --color-brand-500: #0071E3; /* Apple Signature Blue */
+  --color-brand-600: #0062C4;
+  --color-brand-700: #004FA1;
+  --color-brand-800: #003F80;
+  --color-brand-900: #1D1D1F; /* Deep obsidian */
+  --color-brand-950: #0A0A0C;
+
+  /* Amber accents for Algerian DZD highlights & premium markers */
+  --color-accent-50: #FFFBEB;
+  --color-accent-100: #FEF3C7;
+  --color-accent-200: #FDE68A;
+  --color-accent-300: #FCD34D;
+  --color-accent-400: #FBBF24;
+  --color-accent-500: #F59E0B;
+  --color-accent-600: #D97706;
+  --color-accent-700: #B45309;
+  --color-accent-800: #92400E;
+  --color-accent-900: #78350F;
+  --color-accent-950: #451A03;
 
   /* ---------------------------------------------------------------
-     ACCENT COLORS — Warm amber/gold for CTAs and highlights
+     SEMANTIC STATUS COLORS (Soft, refined Apple tints)
      --------------------------------------------------------------- */
-  --color-accent-50: #FEF7E8;
-  --color-accent-100: #FDEBC4;
-  --color-accent-200: #FBDA8D;
-  --color-accent-300: #F7C355;
-  --color-accent-400: #F5B63E;
-  --color-accent-500: #F2A93B;
-  --color-accent-600: #E09220;
-  --color-accent-700: #B87218;
-  --color-accent-800: #8F5812;
-  --color-accent-900: #6B420E;
-  --color-accent-950: #3D2508;
+  --color-success-50: #F0FDF4;
+  --color-success-100: #DCFCE7;
+  --color-success-200: #BBF7D0;
+  --color-success-300: #86EFAC;
+  --color-success-400: #4ADE80;
+  --color-success-500: #10B981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-success-800: #065F46;
+  --color-success-900: #064E3B;
 
-  /* ---------------------------------------------------------------
-     SUCCESS — Teal/emerald for confirmed states
-     --------------------------------------------------------------- */
-  --color-success-50: #ECFDF6;
-  --color-success-100: #D1FAE5;
-  --color-success-200: #A7F3D0;
-  --color-success-300: #6EE7B7;
-  --color-success-400: #34D399;
-  --color-success-500: #1F8A70;
-  --color-success-600: #18725C;
-  --color-success-700: #155E4C;
-  --color-success-800: #11493C;
-  --color-success-900: #0D3730;
-
-  /* ---------------------------------------------------------------
-     DANGER — Red for cancelled/no-show states
-     --------------------------------------------------------------- */
   --color-danger-50: #FEF2F2;
-  --color-danger-100: #FDE2E2;
-  --color-danger-200: #FBC5C5;
-  --color-danger-300: #F59898;
-  --color-danger-400: #EC6B6B;
-  --color-danger-500: #D64545;
-  --color-danger-600: #BE3333;
-  --color-danger-700: #9F2828;
-  --color-danger-800: #832525;
-  --color-danger-900: #6D2525;
+  --color-danger-100: #FEE2E2;
+  --color-danger-200: #FECACA;
+  --color-danger-300: #FCA5A5;
+  --color-danger-400: #F87171;
+  --color-danger-500: #EF4444;
+  --color-danger-600: #DC2626;
+  --color-danger-700: #B91C1C;
+  --color-danger-800: #991B1B;
+  --color-danger-900: #7F1D1D;
 
-  /* ---------------------------------------------------------------
-     WARNING — Amber for pending/attention states
-     --------------------------------------------------------------- */
   --color-warning-50: #FFFBEB;
   --color-warning-100: #FEF3C7;
   --color-warning-200: #FDE68A;
@@ -80,9 +77,6 @@
   --color-warning-800: #92400E;
   --color-warning-900: #78350F;
 
-  /* ---------------------------------------------------------------
-     INFO — Blue for informational/deposit_paid states
-     --------------------------------------------------------------- */
   --color-info-50: #EFF6FF;
   --color-info-100: #DBEAFE;
   --color-info-200: #BFDBFE;
@@ -95,107 +89,253 @@
   --color-info-900: #1E3A8A;
 
   /* ---------------------------------------------------------------
-     NEUTRAL — Gray ramp for backgrounds, borders, text
-     Not pure black/white
+     APPLE NEUTRAL RAMP (Obsidian, SF Gray, Pure White)
      --------------------------------------------------------------- */
-  --color-neutral-50: #F8F9FA;
-  --color-neutral-100: #F1F3F5;
-  --color-neutral-200: #E9ECEF;
-  --color-neutral-300: #DEE2E6;
-  --color-neutral-400: #CED4DA;
-  --color-neutral-500: #ADB5BD;
-  --color-neutral-600: #868E96;
-  --color-neutral-700: #495057;
-  --color-neutral-800: #343A40;
-  --color-neutral-900: #1A1D23;
-  --color-neutral-950: #111318;
+  --color-neutral-50: #FBFBFD;  /* Apple subtle canvas */
+  --color-neutral-100: #F5F5F7; /* Apple card background / secondary */
+  --color-neutral-200: #E8E8ED; /* Apple subtle divider */
+  --color-neutral-300: #D2D2D7; /* Apple input border */
+  --color-neutral-400: #B0B0B8;
+  --color-neutral-500: #86868B; /* Apple secondary text */
+  --color-neutral-600: #6E6E73; /* Apple tertiary text */
+  --color-neutral-700: #424245;
+  --color-neutral-800: #2C2C2E;
+  --color-neutral-900: #1D1D1F; /* Apple primary text */
+  --color-neutral-950: #0B0B0C;
 
   /* ---------------------------------------------------------------
-     FONT FAMILIES
-     Loaded via next/font/google in the root layout.
-     Cairo handles both Arabic and Latin scripts.
+     FONT FAMILIES: SF Pro / Inter + Cairo (Arabic Sans-Serif)
+     Clean modern sans-serif stack, strictly no serifs.
      --------------------------------------------------------------- */
-  --font-heading: var(--font-cairo), "Cairo", system-ui, sans-serif;
-  --font-body: var(--font-cairo), var(--font-inter), "Inter", system-ui, sans-serif;
-  --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", monospace;
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-inter), "Inter", var(--font-cairo), "Cairo", system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-inter), "Inter", var(--font-cairo), "Cairo", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
 
   /* ---------------------------------------------------------------
-     BACKGROUND / FOREGROUND semantic aliases
+     SEMANTIC APPLICATION ALIASES
      --------------------------------------------------------------- */
   --color-background: var(--color-neutral-50);
   --color-foreground: var(--color-neutral-900);
-  --color-muted: var(--color-neutral-600);
-  --color-border: var(--color-neutral-300);
-  --color-input: var(--color-neutral-200);
+  --color-muted: var(--color-neutral-500);
+  --color-border: var(--color-neutral-200);
+  --color-input: #FFFFFF;
   --color-ring: var(--color-brand-500);
   --color-card: #FFFFFF;
   --color-card-foreground: var(--color-neutral-900);
 }
 
-/* Dark mode overrides */
+/* Dark mode subtle adjustments */
 @media (prefers-color-scheme: dark) {
   @theme inline {
-    --color-background: var(--color-neutral-950);
-    --color-foreground: var(--color-neutral-100);
-    --color-muted: var(--color-neutral-400);
-    --color-border: var(--color-neutral-700);
-    --color-input: var(--color-neutral-800);
-    --color-card: var(--color-neutral-900);
-    --color-card-foreground: var(--color-neutral-100);
+    --color-background: #000000;
+    --color-foreground: #F5F5F7;
+    --color-muted: #86868B;
+    --color-border: rgba(255, 255, 255, 0.12);
+    --color-input: #1C1C1E;
+    --color-ring: #0A84FF;
+    --color-card: #1C1C1E;
+    --color-card-foreground: #F5F5F7;
   }
 }
 
 /* ===================================================================
-   BASE STYLES
+   BASE TYPOGRAPHY & SMOOTH SCROLLING
    =================================================================== */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-body);
+  letter-spacing: -0.01em;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
+  letter-spacing: -0.025em;
+  font-weight: 600;
 }
 
 /* ===================================================================
-   STATUS BADGE COLORS — Consistent across the whole app
-   Reservation states: pending, confirmed, deposit_paid, active,
-   completed, cancelled, no_show
+   APPLE MOTION & EASING
+   Apple signature deceleration curve: cubic-bezier(0.16, 1, 0.3, 1)
    =================================================================== */
 
+:root {
+  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-apple-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Entrance Animations */
+@keyframes appleFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes appleFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes appleScaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes subtleFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-apple-fade-up {
+  animation: appleFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-apple-fade-in {
+  animation: appleFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-apple-scale-in {
+  animation: appleScaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-subtle-float {
+  animation: subtleFloat 6s ease-in-out infinite;
+}
+
+/* Stagger animation helpers */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+
+/* Micro-interaction utilities */
+.apple-press {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.apple-press:active {
+  transform: scale(0.975);
+}
+
+.apple-card-hover {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+.apple-card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.07), 0 10px 15px -5px rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 113, 227, 0.18);
+}
+
+/* ===================================================================
+   GLASSMORPHISM & FROSTED SURFACES
+   =================================================================== */
+
+.glass-nav {
+  background-color: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass-nav {
+    background-color: rgba(0, 0, 0, 0.75);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .glass-card {
+    background-color: rgba(28, 28, 30, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* ===================================================================
+   APPLE STATUS BADGE PILLS
+   =================================================================== */
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.2rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1rem;
+  transition: all 0.2s ease;
+}
+
 .status-pending {
-  background-color: var(--color-warning-100);
-  color: var(--color-warning-800);
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #B45309;
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .status-confirmed {
-  background-color: var(--color-info-100);
-  color: var(--color-info-800);
+  background-color: rgba(0, 113, 227, 0.1);
+  color: #0062C4;
+  border: 1px solid rgba(0, 113, 227, 0.22);
 }
 
 .status-deposit_paid {
-  background-color: var(--color-info-100);
-  color: var(--color-info-700);
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #1D4ED8;
+  border: 1px solid rgba(59, 130, 246, 0.22);
 }
 
 .status-active {
-  background-color: var(--color-success-100);
-  color: var(--color-success-800);
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .status-completed {
-  background-color: var(--color-success-100);
-  color: var(--color-success-700);
+  background-color: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .status-cancelled {
-  background-color: var(--color-neutral-200);
-  color: var(--color-neutral-700);
+  background-color: rgba(110, 110, 115, 0.1);
+  color: #6E6E73;
+  border: 1px solid rgba(110, 110, 115, 0.2);
 }
 
 .status-no_show {
-  background-color: var(--color-danger-100);
-  color: var(--color-danger-800);
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #B91C1C;
+  border: 1px solid rgba(239, 68, 68, 0.25);
 }

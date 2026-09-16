@@ -1,24 +1,28 @@
-import React from 'react';
-import Link from 'next/link';
-import { ReservationStatusBadge } from '@/components/reservations/ReservationStatusBadge';
-import type { Reservation, Language, Profile, Vehicle, Dictionary } from '@/types';
-import { formatDZD } from '@/lib/utils/constants';
+import React from 'react'
+import Link from 'next/link'
+import { ReservationStatusBadge } from '@/components/reservations/ReservationStatusBadge'
+import type { Reservation, Language, Profile, Vehicle, Dictionary } from '@/types'
+import { formatDZD } from '@/lib/utils/constants'
 
 export type ReservationWithRelations = Reservation & {
-  customer?: Profile;
-  profiles?: Profile;
-  vehicle?: Vehicle;
-};
-
-export interface ReservationTableProps {
-  reservations: ReservationWithRelations[];
-  locale: Language;
-  dictionary?: Dictionary;
-  showCustomer?: boolean;
-  showActions?: boolean;
-  baseActionPath?: string;
+  customer?: Profile
+  profiles?: Profile
+  vehicle?: Vehicle
 }
 
+export interface ReservationTableProps {
+  reservations: ReservationWithRelations[]
+  locale: Language
+  dictionary?: Dictionary
+  showCustomer?: boolean
+  showActions?: boolean
+  baseActionPath?: string
+}
+
+/**
+ * Apple-style Data Table / Card List with subtle hairline rows,
+ * clean typography, and tactile pill actions.
+ */
 export function ReservationTable({
   reservations,
   locale,
@@ -29,132 +33,135 @@ export function ReservationTable({
 }: ReservationTableProps) {
   if (!reservations || reservations.length === 0) {
     return (
-      <div className="bg-card rounded-xl shadow-sm border border-neutral-200 p-8 text-center text-neutral-500">
-        {dictionary?.reservations?.no_reservations || 'No reservations found.'}
+      <div className="bg-white dark:bg-neutral-900 rounded-3xl border border-black/[0.06] dark:border-white/[0.08] p-12 text-center text-neutral-400 text-sm">
+        {dictionary?.reservations?.no_reservations || 'No reservations recorded.'}
       </div>
-    );
+    )
   }
 
   const getActionHref = (id: string) => {
-    if (baseActionPath) return `${baseActionPath}/${id}`;
-    return `/${locale}/dashboard/reservations/${id}`;
-  };
+    if (baseActionPath) return `${baseActionPath}/${id}`
+    return `/${locale}/dashboard/reservations/${id}`
+  }
 
   return (
-    <div className="bg-card rounded-xl shadow-sm border border-neutral-200 overflow-hidden">
+    <div className="bg-white dark:bg-neutral-900 rounded-3xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)] overflow-hidden">
       {/* Mobile Card View */}
-      <div className="md:hidden divide-y divide-neutral-200">
+      <div className="md:hidden divide-y divide-black/[0.05] dark:divide-white/[0.06]">
         {reservations.map((res) => {
           const customerName =
-            res.customer?.full_name || res.profiles?.full_name || 'Customer';
+            res.customer?.full_name || res.profiles?.full_name || 'Customer'
           return (
-            <div key={res.id} className="p-4 space-y-3">
+            <div key={res.id} className="p-5 space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <div className="font-bold text-neutral-900">
+                  <div className="font-semibold text-neutral-900 dark:text-white tracking-tight">
                     {res.vehicle?.make} {res.vehicle?.model}
                   </div>
-                  <div className="text-xs text-neutral-500 font-mono">
+                  <div className="text-[11px] text-neutral-400 font-mono mt-0.5">
                     #{res.id.substring(0, 8)}
                   </div>
                 </div>
                 <ReservationStatusBadge status={res.status} locale={locale} />
               </div>
 
-              <div className="text-sm text-neutral-600">
-                {res.start_date} → {res.end_date}
+              <div className="text-xs text-neutral-500 flex items-center gap-1.5">
+                <span>{res.start_date}</span>
+                <span className="text-neutral-300">→</span>
+                <span>{res.end_date}</span>
               </div>
 
               {showCustomer && (
-                <div className="text-sm">
-                  <span className="text-neutral-500">Customer: </span>
-                  <span className="font-medium text-neutral-900">
+                <div className="text-xs">
+                  <span className="text-neutral-400">Customer: </span>
+                  <span className="font-medium text-neutral-800 dark:text-neutral-200">
                     {customerName}
                   </span>
                 </div>
               )}
 
-              <div className="flex justify-between items-center pt-2 border-t border-neutral-100">
-                <div className="font-bold text-accent-600">
+              <div className="flex justify-between items-center pt-3 border-t border-black/[0.04] dark:border-white/[0.06]">
+                <div className="font-bold text-neutral-900 dark:text-white tracking-tight">
                   {formatDZD(res.total_price, locale)}
                 </div>
                 {showActions && (
                   <Link
                     href={getActionHref(res.id)}
-                    className="text-sm text-brand-800 hover:text-brand-900 font-medium px-3 py-1.5 bg-neutral-100 rounded-lg min-h-[44px] flex items-center"
+                    className="apple-press inline-flex items-center text-xs font-semibold px-3.5 py-1.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200/70 rounded-full transition-colors min-h-[36px]"
                   >
-                    View Details
+                    Details
                   </Link>
                 )}
               </div>
             </div>
-          );
+          )
         })}
       </div>
 
       {/* Desktop Table View */}
       <div className="hidden md:block overflow-x-auto">
-        <table className="w-full text-start text-sm text-neutral-600 rtl:text-right">
-          <thead className="bg-neutral-50 text-neutral-900 font-medium border-b border-neutral-200">
+        <table className="w-full text-start text-sm text-neutral-600 dark:text-neutral-300 rtl:text-right">
+          <thead className="bg-neutral-50/70 dark:bg-neutral-800/40 text-neutral-400 font-medium border-b border-black/[0.05] dark:border-white/[0.06] text-[11px] uppercase tracking-wider">
             <tr>
-              <th className="px-4 py-3">ID</th>
-              {showCustomer && <th className="px-4 py-3">Customer</th>}
-              <th className="px-4 py-3">Vehicle</th>
-              <th className="px-4 py-3">Dates</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Total</th>
-              {showActions && <th className="px-4 py-3 text-end">Actions</th>}
+              <th className="px-5 py-3.5">ID</th>
+              {showCustomer && <th className="px-5 py-3.5">Customer</th>}
+              <th className="px-5 py-3.5">Vehicle</th>
+              <th className="px-5 py-3.5">Dates</th>
+              <th className="px-5 py-3.5">Status</th>
+              <th className="px-5 py-3.5">Total</th>
+              {showActions && <th className="px-5 py-3.5 text-end">Actions</th>}
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-200">
+          <tbody className="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
             {reservations.map((res) => {
               const customerName =
-                res.customer?.full_name || res.profiles?.full_name || 'Customer';
+                res.customer?.full_name || res.profiles?.full_name || 'Customer'
               return (
                 <tr
                   key={res.id}
-                  className="hover:bg-neutral-50 transition-colors"
+                  className="hover:bg-neutral-50/70 dark:hover:bg-neutral-800/50 transition-colors duration-150"
                 >
-                  <td className="px-4 py-3 font-mono text-xs">
+                  <td className="px-5 py-4 font-mono text-xs text-neutral-400">
                     #{res.id.substring(0, 8)}
                   </td>
                   {showCustomer && (
-                    <td className="px-4 py-3 font-medium text-neutral-900">
+                    <td className="px-5 py-4 font-medium text-neutral-900 dark:text-neutral-100">
                       {customerName}
                     </td>
                   )}
-                  <td className="px-4 py-3 font-medium text-neutral-900">
+                  <td className="px-5 py-4 font-medium text-neutral-900 dark:text-neutral-100">
                     {res.vehicle?.make} {res.vehicle?.model}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-xs">
+                  <td className="px-5 py-4 whitespace-nowrap text-xs text-neutral-500">
                     {res.start_date} <br />
-                    <span className="text-neutral-400">→</span> {res.end_date}
+                    <span className="text-neutral-300 dark:text-neutral-600">→</span>{' '}
+                    {res.end_date}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-4">
                     <ReservationStatusBadge
                       status={res.status}
                       locale={locale}
                     />
                   </td>
-                  <td className="px-4 py-3 font-bold text-accent-600 whitespace-nowrap">
+                  <td className="px-5 py-4 font-bold text-neutral-900 dark:text-white whitespace-nowrap tracking-tight">
                     {formatDZD(res.total_price, locale)}
                   </td>
                   {showActions && (
-                    <td className="px-4 py-3 text-end">
+                    <td className="px-5 py-4 text-end">
                       <Link
                         href={getActionHref(res.id)}
-                        className="inline-flex items-center text-brand-800 hover:text-brand-900 font-medium px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors min-h-[36px]"
+                        className="apple-press inline-flex items-center text-xs font-semibold px-3 py-1.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200/80 rounded-full transition-colors min-h-[32px]"
                       >
-                        View
+                        Details
                       </Link>
                     </td>
                   )}
                 </tr>
-              );
+              )
             })}
           </tbody>
         </table>
       </div>
     </div>
-  );
+  )
 }

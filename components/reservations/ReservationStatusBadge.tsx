@@ -1,46 +1,55 @@
-import React from 'react';
-import { Badge, type BadgeProps } from '@/components/ui/Badge';
-import type { ReservationStatus, Language } from '@/types';
-import { RESERVATION_STATUSES } from '@/lib/utils/constants';
+import React from 'react'
+import { Badge, type BadgeProps } from '@/components/ui/Badge'
+import type { ReservationStatus, Language } from '@/types'
+import { RESERVATION_STATUSES } from '@/lib/utils/constants'
 
 export interface ReservationStatusBadgeProps {
-  status: ReservationStatus;
-  locale: Language;
+  status: ReservationStatus
+  locale: Language
+  className?: string
 }
 
+/**
+ * Apple-style reservation status pill with matching indicator dot.
+ */
 export function ReservationStatusBadge({
   status,
   locale,
+  className = '',
 }: ReservationStatusBadgeProps) {
   const getVariant = (
-    status: ReservationStatus,
+    status: ReservationStatus
   ): NonNullable<BadgeProps['variant']> => {
     switch (status) {
       case 'pending':
-        return 'warning';
+        return 'warning'
       case 'confirmed':
-        return 'info';
+        return 'info'
       case 'deposit_paid':
-        return 'info';
+        return 'info'
       case 'active':
-        return 'success';
+        return 'success'
       case 'completed':
-        return 'neutral';
+        return 'success'
       case 'cancelled':
-        return 'danger';
+        return 'neutral'
       case 'no_show':
-        return 'danger';
+        return 'danger'
       default:
-        return 'default';
+        return 'default'
     }
-  };
+  }
 
   const label =
-    RESERVATION_STATUSES[status]?.label[locale] || status.replace('_', ' ');
+    RESERVATION_STATUSES[status]?.label[locale] || status.replace('_', ' ')
 
   return (
-    <Badge variant={getVariant(status)} className="capitalize">
+    <Badge
+      variant={getVariant(status)}
+      showDot={true}
+      className={`capitalize font-medium ${className}`}
+    >
       {label}
     </Badge>
-  );
+  )
 }

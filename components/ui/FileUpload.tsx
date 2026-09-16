@@ -11,13 +11,17 @@ export interface FileUploadProps {
   preview?: boolean
 }
 
+/**
+ * Apple-style FileUpload with subtle dashed border, drag-and-drop support,
+ * and image thumbnail preview with removal action.
+ */
 export function FileUpload({
   accept = 'image/*',
   maxSize = 5 * 1024 * 1024, // 5MB default
   onFileSelect,
   label,
   error,
-  preview = false
+  preview = false,
 }: FileUploadProps) {
   const [dragActive, setDragActive] = useState(false)
   const [file, setFile] = useState<File | null>(null)
@@ -36,12 +40,12 @@ export function FileUpload({
 
   const processFile = (selectedFile: File) => {
     if (selectedFile.size > maxSize) {
-      alert('File too large')
+      alert('File size exceeds the limit')
       return
     }
     setFile(selectedFile)
     onFileSelect(selectedFile)
-    
+
     if (preview && selectedFile.type.startsWith('image/')) {
       const url = URL.createObjectURL(selectedFile)
       setPreviewUrl(url)
@@ -68,16 +72,32 @@ export function FileUpload({
     inputRef.current?.click()
   }
 
+  const removeFile = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setFile(null)
+    setPreviewUrl(null)
+    onFileSelect(null)
+    if (inputRef.current) {
+      inputRef.current.value = ''
+    }
+  }
+
   return (
-    <div className="w-full flex flex-col gap-1">
+    <div className="w-full flex flex-col gap-1.5">
       {label && (
-        <span className="text-sm font-medium text-neutral-700">{label}</span>
+        <span className="text-xs font-medium text-neutral-600 dark:text-neutral-300 ps-0.5">
+          {label}
+        </span>
       )}
-      
-      <div 
-        className={`relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl cursor-pointer transition-colors
-          ${dragActive ? 'border-brand-500 bg-brand-50' : 'border-neutral-300 bg-neutral-50 hover:bg-neutral-100'}
-          ${error ? 'border-danger-500' : ''}
+
+      <div
+        className={`relative flex flex-col items-center justify-center w-full min-h-[160px] p-4 border border-dashed rounded-2xl cursor-pointer transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
+          ${
+            dragActive
+              ? 'border-brand-500 bg-brand-500/5 ring-4 ring-brand-500/15'
+              : 'border-neutral-300/90 dark:border-neutral-700 bg-neutral-50/70 hover:bg-neutral-100/70 hover:border-neutral-400'
+          }
+          ${error ? 'border-danger-500 bg-danger-50/30' : ''}
         `}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -85,37 +105,63 @@ export function FileUpload({
         onDrop={handleDrop}
         onClick={onButtonClick}
       >
-        <input 
+        <input
           ref={inputRef}
-          type="file" 
-          className="hidden" 
-          accept={accept} 
-          onChange={handleChange} 
+          type="file"
+          className="hidden"
+          accept={accept}
+          onChange={handleChange}
         />
-        
+
         {preview && previewUrl ? (
-          <div className="absolute inset-0 p-2">
-            <img 
-              src={previewUrl} 
-              alt="Preview" 
-              className="w-full h-full object-contain rounded-lg"
-            />
+          <div className="relative w-full flex flex-col items-center gap-2">
+            <div className="relative w-32 h-24 rounded-xl overflow-hidden shadow-sm border border-black/[0.08]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewUrl}
+                alt="Upload preview"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={removeFile}
+              className="text-xs text-danger-600 hover:text-danger-700 font-medium px-2 py-1 rounded-full hover:bg-danger-50 transition-colors"
+            >
+              Remove photo
+            </button>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-            <svg className="w-8 h-8 mb-4 text-neutral-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-            </svg>
-            <p className="mb-2 text-sm text-neutral-500">
-              <span className="font-semibold">Click to upload</span> or drag and drop
+          <div className="flex flex-col items-center justify-center text-center p-2">
+            <div className="w-10 h-10 mb-2.5 rounded-full bg-brand-500/10 text-brand-600 flex items-center justify-center">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.75}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                />
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+              Drop your document here or <span className="text-brand-500">browse</span>
             </p>
-            <p className="text-xs text-neutral-500">Max size: {Math.round(maxSize / 1024 / 1024)}MB</p>
+            <p className="text-xs text-neutral-400 mt-1">
+              Supports JPEG, PNG up to {Math.round(maxSize / 1024 / 1024)}MB
+            </p>
           </div>
         )}
       </div>
-      
+
       {error && (
-        <p className="text-sm text-danger-500 mt-1">{error}</p>
+        <p className="text-xs text-danger-600 font-medium ps-1 animate-apple-fade-in">
+          {error}
+        </p>
       )}
     </div>
   )

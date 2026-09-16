@@ -1,45 +1,62 @@
-import React from 'react';
-import Link from 'next/link';
-import type { Language, Dictionary } from '@/types';
+import React from 'react'
+import Link from 'next/link'
+import type { Language, Dictionary } from '@/types'
 
 export interface FooterProps {
-  locale?: Language;
-  lang?: Language;
-  dictionary?: Dictionary;
-  dict?: Dictionary;
+  locale?: Language
+  lang?: Language
+  dictionary?: Dictionary
+  dict?: Dictionary
 }
 
+/**
+ * Apple-style minimalist footer with generous spacing and hairline borders.
+ */
 export function Footer({ locale, lang, dictionary, dict }: FooterProps) {
-  const effectiveLocale = (locale || lang || 'ar') as Language;
-  const effectiveDict = dictionary || dict;
-  const appName = effectiveDict?.common?.app_name || 'DZ Rent';
+  const effectiveLocale = (locale || lang || 'ar') as Language
+  const effectiveDict = dictionary || dict
+  const appName = effectiveDict?.common?.app_name || 'DZ Rent'
 
   return (
-    <footer className="bg-brand-950 text-neutral-400 py-8 border-t border-brand-900 mt-auto">
-      <div className="container mx-auto px-4 text-center">
-        <p className="mb-4">
-          &copy; {new Date().getFullYear()} {appName}.{' '}
-          {effectiveLocale === 'ar'
-            ? 'جميع الحقوق محفوظة'
-            : effectiveLocale === 'fr'
-              ? 'Tous droits réservés'
-              : 'All rights reserved'}
-        </p>
-        <div className="flex justify-center gap-4 text-sm">
-          <Link
-            href={`/${effectiveLocale}/vehicles`}
-            className="hover:text-white transition-colors min-h-[44px] flex items-center px-2"
-          >
-            {effectiveDict?.vehicles?.browse_vehicles || 'Vehicles'}
-          </Link>
-          <Link
-            href={`/${effectiveLocale}/login`}
-            className="hover:text-white transition-colors min-h-[44px] flex items-center px-2"
-          >
-            {effectiveDict?.auth?.login || 'Login'}
-          </Link>
+    <footer className="mt-auto border-t border-black/[0.06] dark:border-white/[0.08] bg-neutral-100/60 dark:bg-neutral-950/60 text-neutral-500 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <span className="w-6 h-6 rounded-lg bg-brand-500 text-white flex items-center justify-center font-bold text-xs">
+              DZ
+            </span>
+            <span className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">
+              {appName}
+            </span>
+            <span className="text-xs text-neutral-400">
+              &copy; {new Date().getFullYear()}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-medium">
+            <Link
+              href={`/${effectiveLocale}/vehicles`}
+              className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
+            >
+              {effectiveDict?.vehicles?.browse_vehicles || 'Browse Fleet'}
+            </Link>
+            <Link
+              href={`/${effectiveLocale}/login`}
+              className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
+            >
+              {effectiveDict?.auth?.login || 'Sign In'}
+            </Link>
+            <span className="text-neutral-300 dark:text-neutral-700">|</span>
+            <span className="text-neutral-400">
+              {effectiveLocale === 'ar'
+                ? 'منصة كراء السيارات الأولى في الجزائر • دفع إلكتروني ونقدي'
+                : effectiveLocale === 'fr'
+                ? 'Plateforme de location de véhicules en Algérie • CIB / Edahabia / Espèces'
+                : 'Premier Algerian Vehicle Rental Platform • CIB / Edahabia / Cash'}
+            </span>
+          </div>
         </div>
       </div>
     </footer>
-  );
+  )
 }
