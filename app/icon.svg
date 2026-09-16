@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="dzGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0077ED"/>
+      <stop offset="50%" stop-color="#0071E3"/>
+      <stop offset="100%" stop-color="#0055B3"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.15"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Apple Squircle container -->
+  <rect width="48" height="48" rx="12" fill="url(#dzGrad)"/>
+  <rect width="48" height="48" rx="12" fill="url(#shine)"/>
+  <rect x="0.5" y="0.5" width="47" height="47" rx="11.5" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+
+  <!-- DZ Top Monogram -->
+  <text x="24" y="16" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="900" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif" letter-spacing="-0.5">DZ</text>
+
+  <!-- Highway Curve -->
+  <path d="M8 38C15 34 33 34 40 38" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-opacity="0.4"/>
+
+  <!-- Aerodynamic Car Roofline & Pillars -->
+  <path d="M9 31L14 22.5C15 20.8 16.8 19.8 18.8 19.8H29.2C31.2 19.8 33 20.8 34 22.5L39 31" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M23.5 20.5V30" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.7"/>
+
+  <!-- Car Base and Bumper -->
+  <path d="M6 31H42C43 31 43.8 31.8 43.6 32.8L42.2 37C42 37.6 41.4 38 40.8 38H7.2C6.6 38 6 37.6 5.8 37L4.4 32.8C4.2 31.8 5 31 6 31Z" fill="#ffffff"/>
+
+  <!-- Headlights Amber Glow -->
+  <circle cx="10" cy="34.5" r="1.8" fill="#F59E0B"/>
+  <circle cx="38" cy="34.5" r="1.8" fill="#F59E0B"/>
+</svg>

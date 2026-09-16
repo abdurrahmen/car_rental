@@ -6,6 +6,8 @@ import { signUp, type AuthState } from '@/lib/actions/auth'
 import Link from 'next/link'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { Logo } from '@/components/ui/Logo'
+import type { Language } from '@/types'
 
 export function SignupForm({ lang }: { lang: string }) {
   const router = useRouter()
@@ -24,11 +26,9 @@ export function SignupForm({ lang }: { lang: string }) {
 
   return (
     <div className="w-full bg-white dark:bg-neutral-900 p-8 sm:p-10 rounded-3xl shadow-[0_16px_40px_-12px_rgba(0,0,0,0.08)] border border-black/[0.06] dark:border-white/[0.08] animate-apple-fade-up">
-      {/* Brand icon */}
+      {/* Brand logo */}
       <div className="flex justify-center mb-6">
-        <span className="w-12 h-12 rounded-2xl bg-brand-500 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-          DZ
-        </span>
+        <Logo variant="vertical" size="lg" locale={lang as Language} href={`/${lang}`} />
       </div>
 
       <h1 className="text-2xl font-bold tracking-tight text-center text-neutral-900 dark:text-white mb-2">

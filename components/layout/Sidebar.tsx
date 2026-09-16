@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { Logo } from '@/components/ui/Logo'
 import type { Language } from '@/types'
 
 export interface SidebarLink {
@@ -64,6 +65,9 @@ export function Sidebar({ links, locale }: SidebarProps) {
         `}
       >
         <div className="p-4 pt-20 md:pt-6 h-full overflow-y-auto">
+          <div className="px-3 mb-6 hidden md:block">
+            <Logo href={`/${locale}`} locale={locale} size="sm" />
+          </div>
           <div className="px-3 mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
               Workspace

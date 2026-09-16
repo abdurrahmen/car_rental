@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import { Logo } from '@/components/ui/Logo'
 import type { Language, Dictionary } from '@/types'
 
 export interface FooterProps {
@@ -21,13 +22,8 @@ export function Footer({ locale, lang, dictionary, dict }: FooterProps) {
     <footer className="mt-auto border-t border-black/[0.06] dark:border-white/[0.08] bg-neutral-100/60 dark:bg-neutral-950/60 text-neutral-500 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <span className="w-6 h-6 rounded-lg bg-brand-500 text-white flex items-center justify-center font-bold text-xs">
-              DZ
-            </span>
-            <span className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">
-              {appName}
-            </span>
+          <div className="flex items-center gap-4">
+            <Logo href={`/${effectiveLocale}`} locale={effectiveLocale} size="sm" />
             <span className="text-xs text-neutral-400">
               &copy; {new Date().getFullYear()}
             </span>

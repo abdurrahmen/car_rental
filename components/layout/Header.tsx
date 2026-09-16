@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { Logo } from '@/components/ui/Logo'
 import type { Language, Dictionary } from '@/types'
 
 export interface HeaderProps {
@@ -35,15 +36,11 @@ export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo */}
         <div className="flex items-center gap-6">
-          <Link
+          <Logo
             href={`/${effectiveLocale}`}
-            className="flex items-center gap-2.5 text-neutral-900 dark:text-white font-semibold tracking-tight text-lg group min-h-[44px]"
-          >
-            <span className="w-8 h-8 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold text-sm shadow-sm group-hover:scale-105 transition-transform duration-200">
-              DZ
-            </span>
-            <span className="font-heading font-bold">{appName}</span>
-          </Link>
+            locale={effectiveLocale}
+            size="md"
+          />
 
           {/* Nav links */}
           <nav className="hidden md:flex items-center gap-1">
