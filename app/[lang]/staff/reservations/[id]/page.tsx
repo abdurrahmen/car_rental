@@ -1,0 +1,142 @@
+import { createClient } from '@/lib/supabase/server';
+import { getDictionaryByLocale } from '@/app/[lang]/dictionaries';
+import { notFound } from 'next/navigation';
+import { ReservationActions } from '@/components/dashboard/ReservationActions';
+import { ReservationStatusBadge } from '@/components/reservations/ReservationStatusBadge';
+import { ReservationTimeline } from '@/components/reservations/ReservationTimeline';
+import { formatDZD, formatDate } from '@/lib/utils/constants';
+import type { Language, Reservation } from '@/types';
+
+interface StaffReservationDetailPageProps {
+  params: Promise<{ lang: string; id: string }>;
+}
+
+export default async function StaffReservationDetailPage({
+  params,
+}: StaffReservationDetailPageProps) {
+  const { lang, id } = await params;
+  const locale = lang as Language;
+  const dict = await getDictionaryByLocale(lang);
+  const supabase = await createClient();
+
+  const { data: reservation } = await supabase
+    .from('reservations')
+    .select(
+      '*, vehicle:vehicles(*), customer:profiles!customer_id(*), pickup_branch:branches!pickup_branch_id(*)',
+    )
+    .eq('id', id)
+    .single();
+
+  if (!reservation) notFound();
+
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-200 pb-4">
+        <div>
+          <span className="text-xs font-mono text-neutral-500 block">
+            Reservation #{reservation.id}
+          </span>
+          <h1 className="text-2xl font-heading font-bold text-brand-900 mt-1">
+            {dict.reservations.reservation_details}
+          </h1>
+        </div>
+        <ReservationStatusBadge
+          status={reservation.status}
+          locale={locale}
+        />
+      </div>
+
+      <div className="bg-neutral-50 p-6 rounded-xl border border-neutral-200">
+        <ReservationTimeline
+          reservation={reservation as Reservation}
+          locale={locale}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Customer Information & Documents */}
+        <div className="bg-neutral-50 p-6 rounded-xl border border-neutral-200 space-y-3">
+          <h2 className="text-lg font-heading font-bold text-brand-900">
+            Customer Information
+          </h2>
+          <p className="text-sm">
+            <span className="text-neutral-500">{dict.profile.full_name}:</span>{' '}
+            <strong className="text-neutral-900">
+              {reservation.customer?.full_name || 'N/A'}
+            </strong>
+          </p>
+          <p className="text-sm">
+            <span className="text-neutral-500">{dict.profile.phone}:</span>{' '}
+            <a
+              href={`tel:${reservation.customer?.phone}`}
+              className="text-accent-600 font-semibold hover:underline"
+            >
+              {reservation.customer?.phone || 'N/A'}
+            </a>
+          </p>
+          <p className="text-sm">
+            <span className="text-neutral-500">
+              {dict.profile.license_number}:
+            </span>{' '}
+            <span className="font-mono font-medium text-neutral-800">
+              {reservation.customer?.license_number || 'Not provided'}
+            </span>
+          </p>
+          <div className="pt-2 border-t border-neutral-200 text-xs text-neutral-600">
+            {reservation.customer?.license_document_url ? (
+              <span className="text-success-700 font-semibold flex items-center gap-1">
+                ✓ Driver license document uploaded
+              </span>
+            ) : (
+              <span className="text-warning-800 font-medium">
+                ⚠ No driver license uploaded yet
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Vehicle & Reservation Details */}
+        <div className="bg-neutral-50 p-6 rounded-xl border border-neutral-200 space-y-3">
+          <h2 className="text-lg font-heading font-bold text-brand-900">
+            Vehicle & Rental Period
+          </h2>
+          <p className="text-sm">
+            <strong className="text-neutral-900">
+              {reservation.vehicle?.make} {reservation.vehicle?.model} (
+              {reservation.vehicle?.year})
+            </strong>{' '}
+            · Plate:{' '}
+            <span className="font-mono">{reservation.vehicle?.plate_number}</span>
+          </p>
+          <p className="text-sm text-neutral-700">
+            {formatDate(reservation.start_date, locale)} →{' '}
+            {formatDate(reservation.end_date, locale)}
+          </p>
+          <div className="pt-2 border-t border-neutral-200 space-y-1">
+            <div className="flex justify-between text-sm">
+              <span className="text-neutral-500">
+                {dict.reservations.deposit_required}:
+              </span>
+              <span className="font-semibold text-neutral-800">
+                {formatDZD(reservation.deposit_amount, locale)}
+              </span>
+            </div>
+            <div className="flex justify-between text-base font-bold text-brand-900 pt-1">
+              <span>{dict.reservations.total_price}:</span>
+              <span className="text-accent-600">
+                {formatDZD(reservation.total_price, locale)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Staff Actions: Confirm / Reject */}
+      <ReservationActions
+        reservation={reservation as unknown as Reservation & { customer?: { id: string; full_name: string | null; phone: string | null; license_document_url: string | null; license_verified: boolean; } }}
+        locale={locale}
+        dictionary={dict}
+      />
+    </div>
+  );
+}
