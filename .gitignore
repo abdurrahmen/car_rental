@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+!supabase/*.sql
 
 # debug
 npm-debug.log*
