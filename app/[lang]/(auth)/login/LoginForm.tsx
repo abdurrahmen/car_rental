@@ -18,7 +18,9 @@ export function LoginForm({ lang }: { lang: string }) {
 
   useEffect(() => {
     if (state?.success) {
-      router.push(`/${lang}/dashboard`)
+      const target = state.redirectPath || '/dashboard'
+      router.push(`/${lang}${target}`)
+      router.refresh()
     }
   }, [state, router, lang])
 

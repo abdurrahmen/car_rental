@@ -29,6 +29,12 @@ export default async function DashboardLayout({
     redirect(`/${lang}/login`)
   }
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
   return (
     <div className="min-h-screen bg-[#FBFBFD] dark:bg-black text-neutral-900 flex flex-col">
       <Header locale={locale} dictionary={dict} />
@@ -36,6 +42,23 @@ export default async function DashboardLayout({
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col md:flex-row gap-8 w-full items-start">
         {/* Apple Dashboard Sidebar */}
         <aside className="w-full md:w-64 shrink-0 space-y-2">
+          {profile?.role === 'admin' && (
+            <div className="p-4 rounded-3xl bg-purple-500/10 border border-purple-500/20 text-xs space-y-2">
+              <span className="font-bold text-purple-700 dark:text-purple-300 block">
+                🛡️ Platform Administrator
+              </span>
+              <p className="text-[11px] text-neutral-500 leading-snug">
+                You have superadmin rights to manage vehicles, branches, and bookings.
+              </p>
+              <Link
+                href={`/${lang}/admin`}
+                className="apple-press inline-flex items-center gap-1 font-bold text-purple-600 dark:text-purple-400 hover:underline pt-1"
+              >
+                Go to Admin Console &rarr;
+              </Link>
+            </div>
+          )}
+
           <div className="bg-white dark:bg-neutral-900 p-4 rounded-3xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)] space-y-1">
             <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
               {locale === 'ar' ? 'حسابي' : 'Customer Account'}

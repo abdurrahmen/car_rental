@@ -31,6 +31,32 @@ export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
   const loginText = effectiveDict?.auth?.login || 'Sign In'
   const dashboardText = effectiveDict?.nav?.dashboard || 'Dashboard'
 
+  let userRole = 'customer'
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    if (profile?.role) {
+      userRole = profile.role
+    }
+  }
+
+  const dashboardHref =
+    userRole === 'admin'
+      ? `/${effectiveLocale}/admin`
+      : userRole === 'staff' || userRole === 'branch_manager'
+      ? `/${effectiveLocale}/staff`
+      : `/${effectiveLocale}/dashboard`
+
+  const dashboardLabel =
+    userRole === 'admin'
+      ? effectiveDict?.admin?.admin_dashboard || 'Admin Console'
+      : userRole === 'staff' || userRole === 'branch_manager'
+      ? effectiveDict?.staff?.staff_dashboard || 'Staff Portal'
+      : dashboardText
+
   return (
     <header className="glass-nav sticky top-0 z-50 w-full transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -60,10 +86,19 @@ export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
           <div className="flex items-center">
             {user ? (
               <Link
-                href={`/${effectiveLocale}/dashboard`}
-                className="apple-press inline-flex items-center justify-center h-9 px-4 rounded-full text-xs font-semibold tracking-tight bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:opacity-90 transition-all shadow-sm min-h-[38px]"
+                href={dashboardHref}
+                className={`apple-press inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-full text-xs font-semibold tracking-tight transition-all shadow-sm min-h-[38px] ${
+                  userRole === 'admin'
+                    ? 'bg-purple-600 text-white hover:bg-purple-700'
+                    : userRole === 'staff' || userRole === 'branch_manager'
+                    ? 'bg-amber-600 text-white hover:bg-amber-700'
+                    : 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:opacity-90'
+                }`}
               >
-                {dashboardText}
+                {userRole === 'admin' && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                )}
+                <span>{dashboardLabel}</span>
               </Link>
             ) : (
               <Link

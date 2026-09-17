@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { signupSchema, loginSchema } from '@/lib/validations/auth';
 
-export type AuthState = { error?: string; success?: boolean } | null;
+export type AuthState = { error?: string; success?: boolean; redirectPath?: string } | null;
 
 export async function signUp(
   prevState: AuthState,
@@ -43,7 +43,7 @@ export async function signUp(
     });
   }
 
-  return { success: true };
+  return { success: true, redirectPath: '/dashboard' };
 }
 
 export async function signIn(
@@ -58,7 +58,7 @@ export async function signIn(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data: authData, error } = await supabase.auth.signInWithPassword({
     email: result.data.email,
     password: result.data.password,
   });
@@ -67,7 +67,23 @@ export async function signIn(
     return { error: error.message };
   }
 
-  return { success: true };
+  // Determine intelligent redirect based on user role
+  let redirectPath = '/dashboard';
+  if (authData.user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', authData.user.id)
+      .single();
+
+    if (profile?.role === 'admin') {
+      redirectPath = '/admin';
+    } else if (profile?.role === 'staff' || profile?.role === 'branch_manager') {
+      redirectPath = '/staff';
+    }
+  }
+
+  return { success: true, redirectPath };
 }
 
 export async function signOut(): Promise<{ success: boolean }> {
