@@ -3,6 +3,8 @@ import { getDictionaryByLocale } from '@/app/[lang]/dictionaries'
 import { ReservationTable } from '@/components/dashboard/ReservationTable'
 import type { Language, Reservation } from '@/types'
 
+import { getAuthUser } from '@/lib/auth'
+
 interface StaffOverviewPageProps {
   params: Promise<{ lang: string }>
 }
@@ -15,15 +17,8 @@ export default async function StaffOverviewPage({
   const dict = await getDictionaryByLocale(lang)
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, branch_id')
-    .eq('id', user?.id || '')
-    .single()
+  const user = await getAuthUser()
+  const branchId = user?.branch_id || '10000000-0000-0000-0000-000000000001'
 
   let query = supabase
     .from('reservations')
@@ -31,8 +26,8 @@ export default async function StaffOverviewPage({
     .eq('status', 'pending')
     .order('created_at', { ascending: false })
 
-  if (profile?.role !== 'admin' && profile?.branch_id) {
-    query = query.eq('pickup_branch_id', profile.branch_id)
+  if (user?.role !== 'admin' && branchId) {
+    query = query.eq('pickup_branch_id', branchId)
   }
 
   const { data: pending } = await query

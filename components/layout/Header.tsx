@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { Logo } from '@/components/ui/Logo'
 import type { Language, Dictionary } from '@/types'
@@ -16,14 +17,13 @@ export interface HeaderProps {
  * Apple-style frosted glass navigation bar with subpixel border
  * and refined pill action buttons.
  */
+import { getAuthUser } from '@/lib/auth'
+
 export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
   const effectiveLocale = (locale || lang || 'ar') as Language
   const effectiveDict = dictionary || dict
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const authUser = await getAuthUser()
 
   const appName = effectiveDict?.common?.app_name || 'DZ Rent'
   const browseVehicles =
@@ -31,17 +31,8 @@ export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
   const loginText = effectiveDict?.auth?.login || 'Sign In'
   const dashboardText = effectiveDict?.nav?.dashboard || 'Dashboard'
 
-  let userRole = 'customer'
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-    if (profile?.role) {
-      userRole = profile.role
-    }
-  }
+  const userRole = authUser?.role || 'customer'
+  const isAuthenticated = Boolean(authUser)
 
   const dashboardHref =
     userRole === 'admin'
@@ -84,7 +75,7 @@ export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
           <LanguageSwitcher locale={effectiveLocale} />
 
           <div className="flex items-center">
-            {user ? (
+            {isAuthenticated ? (
               <Link
                 href={dashboardHref}
                 className={`apple-press inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-full text-xs font-semibold tracking-tight transition-all shadow-sm min-h-[38px] ${

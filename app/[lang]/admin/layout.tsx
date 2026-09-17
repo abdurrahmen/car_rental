@@ -2,6 +2,7 @@ import React from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { getDictionaryByLocale } from '@/app/[lang]/dictionaries'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
@@ -12,6 +13,8 @@ interface AdminLayoutProps {
   params: Promise<{ lang: string }>
 }
 
+import { getAuthUser } from '@/lib/auth'
+
 export default async function AdminLayout({
   children,
   params,
@@ -19,21 +22,11 @@ export default async function AdminLayout({
   const { lang } = await params
   const locale = lang as Language
   const dict = await getDictionaryByLocale(lang)
-  const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect(`/${lang}/login`)
+  const user = await getAuthUser()
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  if (profile?.role !== 'admin') {
-    redirect(`/${lang}/dashboard`)
+  if (!user || user.role !== 'admin') {
+    redirect(`/${lang}/login`)
   }
 
   const isArabic = locale === 'ar'

@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/Badge';
 import { formatDZD } from '@/lib/utils/constants';
 import type { Language, Vehicle } from '@/types';
 
+import { getAuthUser } from '@/lib/auth';
+
 interface StaffVehiclesPageProps {
   params: Promise<{ lang: string }>;
 }
@@ -17,23 +19,16 @@ export default async function StaffVehiclesPage({
   const dict = await getDictionaryByLocale(lang);
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, branch_id')
-    .eq('id', user?.id || '')
-    .single();
+  const user = await getAuthUser();
+  const branchId = user?.branch_id || '10000000-0000-0000-0000-000000000001';
 
   let query = supabase
     .from('vehicles')
     .select('*, branch:branches(*), category:vehicle_categories(*)')
     .order('created_at', { ascending: false });
 
-  if (profile?.role !== 'admin' && profile?.branch_id) {
-    query = query.eq('branch_id', profile.branch_id);
+  if (user?.role !== 'admin' && branchId) {
+    query = query.eq('branch_id', branchId);
   }
 
   const { data: vehicles } = await query;

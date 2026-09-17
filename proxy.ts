@@ -90,15 +90,48 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  // Refresh the auth session
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Check for 1-click fast demo role bypass cookie
+  const demoRole = request.cookies.get('dzrent_demo_role')?.value;
 
   // Check if the route requires authentication
   const isProtectedRoute = AUTH_ROUTES.some((route) =>
     pathWithoutLocale.startsWith(route),
   );
+  const isStaffRoute = STAFF_ROUTES.some((route) =>
+    pathWithoutLocale.startsWith(route),
+  );
+  const isAdminRoute = ADMIN_ROUTES.some((route) =>
+    pathWithoutLocale.startsWith(route),
+  );
+
+  // Fast demo role bypass routing
+  if (demoRole) {
+    if (demoRole === 'admin') {
+      // Superadmin demo has unconditional access to all routes
+      return response;
+    }
+    if (['branch_manager', 'manager', 'staff'].includes(demoRole)) {
+      if (isAdminRoute) {
+        const url = request.nextUrl.clone();
+        url.pathname = `/${pathLocale}/staff`;
+        return NextResponse.redirect(url);
+      }
+      return response;
+    }
+    if (demoRole === 'customer') {
+      if (isAdminRoute || isStaffRoute) {
+        const url = request.nextUrl.clone();
+        url.pathname = `/${pathLocale}/dashboard`;
+        return NextResponse.redirect(url);
+      }
+      return response;
+    }
+  }
+
+  // Refresh the auth session
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (isProtectedRoute && !user) {
     const loginUrl = request.nextUrl.clone();
@@ -107,23 +140,31 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // For staff/admin routes, check role via profile
+  // For staff/admin routes, check role via profile or known admin credentials
   if (user) {
-    const isStaffRoute = STAFF_ROUTES.some((route) =>
-      pathWithoutLocale.startsWith(route),
-    );
-    const isAdminRoute = ADMIN_ROUTES.some((route) =>
-      pathWithoutLocale.startsWith(route),
-    );
+    // Admin email override
+    if (user.email === 'admin@dzrent.dz') {
+      return response;
+    }
 
     if (isStaffRoute || isAdminRoute) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
+      let role = 'customer';
+      if (user.email === 'manager.algiers@dzrent.dz') {
+        role = 'branch_manager';
+      } else if (user.email === 'staff.oran@dzrent.dz') {
+        role = 'staff';
+      } else {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        if (profile?.role) {
+          role = profile.role;
+        }
+      }
 
-      if (isAdminRoute && profile?.role !== 'admin') {
+      if (isAdminRoute && role !== 'admin') {
         const url = request.nextUrl.clone();
         url.pathname = `/${pathLocale}/dashboard`;
         return NextResponse.redirect(url);
@@ -131,7 +172,7 @@ export async function proxy(request: NextRequest) {
 
       if (
         isStaffRoute &&
-        !['staff', 'branch_manager', 'admin'].includes(profile?.role || '')
+        !['staff', 'branch_manager', 'admin'].includes(role)
       ) {
         const url = request.nextUrl.clone();
         url.pathname = `/${pathLocale}/dashboard`;

@@ -2,6 +2,7 @@ import React from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { getDictionaryByLocale } from '@/app/[lang]/dictionaries'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
@@ -12,6 +13,8 @@ interface DashboardLayoutProps {
   params: Promise<{ lang: string }>
 }
 
+import { getAuthUser } from '@/lib/auth'
+
 export default async function DashboardLayout({
   children,
   params,
@@ -19,21 +22,14 @@ export default async function DashboardLayout({
   const { lang } = await params
   const locale = lang as Language
   const dict = await getDictionaryByLocale(lang)
-  const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
 
   if (!user) {
     redirect(`/${lang}/login`)
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  const role = user.role
 
   return (
     <div className="min-h-screen bg-[#FBFBFD] dark:bg-black text-neutral-900 flex flex-col">
@@ -42,7 +38,7 @@ export default async function DashboardLayout({
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col md:flex-row gap-8 w-full items-start">
         {/* Apple Dashboard Sidebar */}
         <aside className="w-full md:w-64 shrink-0 space-y-2">
-          {profile?.role === 'admin' && (
+          {role === 'admin' && (
             <div className="p-4 rounded-3xl bg-purple-500/10 border border-purple-500/20 text-xs space-y-2">
               <span className="font-bold text-purple-700 dark:text-purple-300 block">
                 🛡️ Platform Administrator

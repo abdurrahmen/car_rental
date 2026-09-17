@@ -2,10 +2,13 @@ import React from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { getDictionaryByLocale } from '@/app/[lang]/dictionaries'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import type { Language, Branch } from '@/types'
+
+import { getAuthUser } from '@/lib/auth'
 
 interface StaffLayoutProps {
   children: React.ReactNode
@@ -21,27 +24,41 @@ export default async function StaffLayout({
   const dict = await getDictionaryByLocale(lang)
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect(`/${lang}/login`)
+  const user = await getAuthUser()
+  const isAuthorized = user && ['staff', 'branch_manager', 'admin'].includes(user.role)
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, branch_id, branch:branches(*)')
-    .eq('id', user.id)
-    .single()
-
-  if (
-    !profile ||
-    (profile.role !== 'staff' &&
-      profile.role !== 'branch_manager' &&
-      profile.role !== 'admin')
-  ) {
-    redirect(`/${lang}`)
+  if (!isAuthorized) {
+    redirect(`/${lang}/login`)
   }
 
-  const branch = profile.branch as unknown as Branch | null
+  let branch: Branch | null = null
+
+  if (user.branch_id) {
+    const { data: dbBranch } = await supabase
+      .from('branches')
+      .select('*')
+      .eq('id', user.branch_id)
+      .single()
+    branch = dbBranch
+  }
+
+  if (!branch) {
+    // Fallback branch
+    branch = {
+      id: '10000000-0000-0000-0000-000000000001',
+      name_ar: 'وكالة الجزائر وسط - ديدوش مراد',
+      name_fr: 'Agence Alger Centre - Didouche Mourad',
+      name_en: 'Algiers Central Agency - Didouche Mourad',
+      address: '142 Rue Didouche Mourad, Alger-Centre',
+      city: 'Alger',
+      phone: '+213 21 74 12 30',
+      lat: 36.7683,
+      lng: 3.0543,
+      is_active: true,
+      created_at: '',
+      updated_at: '',
+    }
+  }
   const branchName = branch
     ? locale === 'ar'
       ? branch.name_ar
@@ -69,7 +86,7 @@ export default async function StaffLayout({
             </span>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 mt-2 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-semibold capitalize">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-500" />
-              {profile.role.replace('_', ' ')}
+              {user.role.replace('_', ' ')}
             </span>
           </div>
 

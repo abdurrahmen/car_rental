@@ -5,6 +5,8 @@ import { StatsCard } from '@/components/dashboard/StatsCard'
 import Link from 'next/link'
 import type { Language } from '@/types'
 
+import { getAuthUser } from '@/lib/auth'
+
 interface DashboardOverviewProps {
   params: Promise<{ lang: string }>
 }
@@ -17,14 +19,12 @@ export default async function DashboardOverview({
   const dict = await getDictionaryByLocale(lang)
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getAuthUser()
 
   const { data: reservations } = await supabase
     .from('reservations')
     .select('*, vehicle:vehicles(*), branch:branches(*)')
-    .eq('customer_id', user?.id || '')
+    .eq('customer_id', user?.id || 'd0000000-0000-0000-0000-000000000001')
     .order('created_at', { ascending: false })
     .limit(5)
 

@@ -1,8 +1,8 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn, type AuthState } from '@/lib/actions/auth'
+import { signIn, loginAsDemo, type AuthState } from '@/lib/actions/auth'
 import Link from 'next/link'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -11,6 +11,7 @@ import type { Language } from '@/types'
 
 export function LoginForm({ lang }: { lang: string }) {
   const router = useRouter()
+  const [isDemoPending, startDemoTransition] = useTransition()
   const [state, formAction, pending] = useActionState<AuthState, FormData>(
     signIn,
     null
@@ -19,10 +20,20 @@ export function LoginForm({ lang }: { lang: string }) {
   useEffect(() => {
     if (state?.success) {
       const target = state.redirectPath || '/dashboard'
-      router.push(`/${lang}${target}`)
-      router.refresh()
+      window.location.href = target.startsWith(`/${lang}`) ? target : `/${lang}${target}`
     }
-  }, [state, router, lang])
+  }, [state, lang])
+
+  const handleDemoClick = (role: 'admin' | 'manager' | 'customer') => {
+    const roleVal = role === 'manager' ? 'branch_manager' : role
+    document.cookie = `dzrent_demo_role=${roleVal}; path=/; max-age=86400; SameSite=Lax`
+    startDemoTransition(async () => {
+      const res = await loginAsDemo(role, lang)
+      if (res.success && res.redirectPath) {
+        window.location.href = res.redirectPath
+      }
+    })
+  }
 
   const isArabic = lang === 'ar'
 
@@ -36,11 +47,77 @@ export function LoginForm({ lang }: { lang: string }) {
       <h1 className="text-2xl font-bold tracking-tight text-center text-neutral-900 dark:text-white mb-2">
         {isArabic ? 'مرحبًا بك مجددًا' : lang === 'fr' ? 'Connexion' : 'Sign In to DZ Rent'}
       </h1>
-      <p className="text-xs text-neutral-400 text-center mb-8">
+      <p className="text-xs text-neutral-400 text-center mb-6">
         {isArabic
           ? 'أدخل بياناتك لمتابعة حجوزاتك وإدارتها'
           : 'Enter your credentials to access and manage your reservations'}
       </p>
+
+      {/* 1-Click Fast Role Bypass Demo Buttons */}
+      <div className="mb-6 p-4 rounded-3xl bg-neutral-50/80 dark:bg-neutral-800/40 border border-black/[0.04] dark:border-white/[0.06] space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+            {isArabic ? 'الدخول السريع (تجاوز المصادقة)' : 'Instant Demo Access (Bypass Auth)'}
+          </span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-brand-500/10 text-brand-700 dark:text-brand-300">
+            {isDemoPending ? 'Loading...' : '1-Click'}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          {/* Admin Bypass */}
+          <button
+            type="button"
+            disabled={isDemoPending}
+            onClick={() => handleDemoClick('admin')}
+            className="apple-press flex flex-col items-start p-3 rounded-2xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-start transition-all disabled:opacity-60 min-h-[52px]"
+          >
+            <span className="text-xs font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+              <span>🛡️</span> {isArabic ? 'المسؤول' : 'Admin'}
+            </span>
+            <span className="text-[10px] text-purple-600/70 dark:text-purple-400/70 mt-0.5 font-medium">
+              {isArabic ? 'لوحة التحكم المركزية' : 'Admin Console'}
+            </span>
+          </button>
+
+          {/* Manager Bypass */}
+          <button
+            type="button"
+            disabled={isDemoPending}
+            onClick={() => handleDemoClick('manager')}
+            className="apple-press flex flex-col items-start p-3 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-start transition-all disabled:opacity-60 min-h-[52px]"
+          >
+            <span className="text-xs font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+              <span>🏢</span> {isArabic ? 'مدير فرع' : 'Manager'}
+            </span>
+            <span className="text-[10px] text-amber-600/70 dark:text-amber-400/70 mt-0.5 font-medium">
+              {isArabic ? 'بوابة وكالة الجزائر' : 'Staff Agency Portal'}
+            </span>
+          </button>
+
+          {/* Customer Bypass */}
+          <button
+            type="button"
+            disabled={isDemoPending}
+            onClick={() => handleDemoClick('customer')}
+            className="apple-press flex flex-col items-start p-3 rounded-2xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-start transition-all disabled:opacity-60 min-h-[52px]"
+          >
+            <span className="text-xs font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
+              <span>👤</span> {isArabic ? 'زبون' : 'Customer'}
+            </span>
+            <span className="text-[10px] text-blue-600/70 dark:text-blue-400/70 mt-0.5 font-medium">
+              {isArabic ? 'الحجوزات والملف' : 'Client Bookings'}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div className="relative flex items-center justify-center my-6">
+        <div className="border-t border-neutral-200 dark:border-neutral-800 w-full" />
+        <span className="bg-white dark:bg-neutral-900 px-3 text-[11px] font-medium text-neutral-400 absolute">
+          {isArabic ? 'أو تسجيل الدخول اليدوي' : 'Or manual credentials'}
+        </span>
+      </div>
 
       <form action={formAction} className="space-y-4">
         {state?.error && (

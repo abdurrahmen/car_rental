@@ -3,6 +3,8 @@ import { getDictionaryByLocale } from '@/app/[lang]/dictionaries';
 import { ReservationTable } from '@/components/dashboard/ReservationTable';
 import type { Language, Reservation } from '@/types';
 
+import { getAuthUser } from '@/lib/auth';
+
 interface ReservationsPageProps {
   params: Promise<{ lang: string }>;
 }
@@ -15,14 +17,12 @@ export default async function ReservationsPage({
   const dict = await getDictionaryByLocale(lang);
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
 
   const { data: reservations } = await supabase
     .from('reservations')
     .select('*, vehicle:vehicles(*), branch:branches(*)')
-    .eq('customer_id', user?.id || '')
+    .eq('customer_id', user?.id || 'd0000000-0000-0000-0000-000000000001')
     .order('created_at', { ascending: false });
 
   return (
