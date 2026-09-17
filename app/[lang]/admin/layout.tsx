@@ -70,6 +70,16 @@ export default async function AdminLayout({
             </Link>
 
             <Link
+              href={`/${lang}/admin/vehicles`}
+              className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold hover:bg-neutral-100/80 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 transition-colors min-h-[42px]"
+            >
+              <svg className="w-4 h-4 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+              <span>{dict.admin?.manage_fleet || 'National Fleet'}</span>
+            </Link>
+
+            <Link
               href={`/${lang}/admin/branches`}
               className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold hover:bg-neutral-100/80 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 transition-colors min-h-[42px]"
             >
