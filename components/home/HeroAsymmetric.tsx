@@ -1,11 +1,10 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { gsap } from 'gsap'
 import type { Branch, Language, Dictionary } from '@/types'
+import { Hero3DCanvas } from './Hero3DCanvas'
 
 export interface HeroAsymmetricProps {
   locale: Language
@@ -21,12 +20,10 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
   const [selectedBranchId, setSelectedBranchId] = useState<string>(
     branches[0]?.id || ''
   )
-  const [activeHubIndex, setActiveHubIndex] = useState<number>(0)
 
   const heroRef = useRef<HTMLDivElement>(null)
   const leadColRef = useRef<HTMLDivElement>(null)
   const visualColRef = useRef<HTMLDivElement>(null)
-  const terminalCardRef = useRef<HTMLDivElement>(null)
 
   // GSAP Entrance & Parallax (respects prefers-reduced-motion)
   useEffect(() => {
@@ -46,15 +43,17 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
         ease: 'power3.out',
       })
 
-      // Smooth subtle entrance for terminal card
-      gsap.from(terminalCardRef.current, {
-        scale: 0.96,
-        opacity: 0,
-        y: 20,
-        duration: 1,
-        ease: 'power3.out',
-        delay: 0.2,
-      })
+      // Smooth subtle entrance for 3D visual column
+      if (visualColRef.current) {
+        gsap.from(visualColRef.current, {
+          scale: 0.96,
+          opacity: 0,
+          y: 20,
+          duration: 1,
+          ease: 'power3.out',
+          delay: 0.15,
+        })
+      }
     }, heroRef)
 
     return () => ctx.revert()
@@ -68,16 +67,6 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
       : `/${locale}/vehicles`
     router.push(targetUrl)
   }
-
-  // Active hub data
-  const currentBranch = branches[activeHubIndex] || branches[0]
-  const currentBranchName = currentBranch
-    ? isArabic
-      ? currentBranch.name_ar
-      : isFrench
-      ? currentBranch.name_fr
-      : currentBranch.name_en
-    : ''
 
   return (
     <section
@@ -235,122 +224,11 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
           </div>
 
           {/* =========================================================
-              VISUAL COLUMN: Live Departure & Wilaya Route Terminal Card
+              VISUAL COLUMN: 3D Car Showpiece (Fiat Abarth 500)
               (Span 5 on lg)
               ========================================================= */}
-          <div ref={visualColRef} className="lg:col-span-5 flex flex-col items-center">
-            <div
-              ref={terminalCardRef}
-              className="w-full bg-white rounded-3xl p-6 sm:p-7 border border-black/[0.08] shadow-[0_12px_40px_-8px_rgba(0,0,0,0.06)] relative overflow-hidden"
-            >
-              {/* Terminal Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-black/[0.06] mb-5">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-brand-500/10 flex items-center justify-center text-brand-600 font-mono font-bold text-sm">
-                    DZ
-                  </div>
-                  <div>
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-900 text-start">
-                      {isArabic ? 'محطة الانطلاق الوطنية' : isFrench ? 'Terminal de Départ National' : 'National Mobility Terminal'}
-                    </h2>
-                    <p className="text-[11px] text-neutral-400 text-start font-mono">
-                      LIVE DISPATCH • 2024-2025 FLEET
-                    </p>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200/60">
-                  READY
-                </span>
-              </div>
-
-              {/* Hub Quick-Pill Switcher */}
-              <div className="mb-5">
-                <span className="text-[11px] font-semibold text-neutral-400 block mb-2 text-start">
-                  {isArabic ? 'اختر نقطة الانطلاق السريعة:' : isFrench ? 'Sélectionnez votre pôle :' : 'Select active corridor:'}
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {branches.slice(0, 5).map((b, idx) => {
-                    const isSelected = idx === activeHubIndex
-                    return (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => {
-                          setActiveHubIndex(idx)
-                          setSelectedBranchId(b.id)
-                        }}
-                        className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${
-                          isSelected
-                            ? 'bg-neutral-900 text-white shadow-sm'
-                            : 'bg-black/[0.03] text-neutral-600 hover:bg-black/[0.06]'
-                        }`}
-                      >
-                        {b.city}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Active Hub Detail Card */}
-              <div className="bg-neutral-50/90 rounded-2xl p-4 border border-black/[0.05] mb-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-neutral-900">
-                    {currentBranchName}
-                  </span>
-                  <span className="text-[11px] font-semibold text-brand-600">
-                    {currentBranch?.city}
-                  </span>
-                </div>
-                <p className="text-xs text-neutral-500 leading-relaxed text-start">
-                  📍 {currentBranch?.address}
-                </p>
-                <div className="flex items-center justify-between pt-2 border-t border-black/[0.04] text-[11px]">
-                  <span className="text-neutral-500 font-mono">📞 {currentBranch?.phone}</span>
-                  <span className="text-emerald-700 font-medium flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    {isArabic ? 'وكالة مفتوحة' : 'Open 08:00 - 19:00'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Active Verified Vehicle Showcase Snapshot */}
-              <div className="bg-white rounded-2xl p-3.5 border border-brand-500/20 shadow-sm flex items-center gap-3.5">
-                <div className="w-14 h-14 rounded-xl bg-neutral-100 overflow-hidden flex-shrink-0 relative">
-                  <Image
-                    src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=200&q=80"
-                    alt="Verified Vehicle"
-                    fill
-                    sizes="56px"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="flex-1 min-w-0 text-start">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-neutral-900 truncate">
-                      Dacia Sandero / Renault Clio V
-                    </span>
-                    <span className="text-[10px] px-1.5 py-0.2 bg-emerald-50 text-emerald-700 font-semibold rounded">
-                      PV ✓
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-neutral-500 truncate mt-0.5">
-                    {isArabic ? 'محضر فحص رقمي جاهز • تأمين شامل' : 'Digital Handover Check Ready'}
-                  </p>
-                  <div className="flex items-center justify-between mt-1 text-xs">
-                    <span className="font-bold text-neutral-900">
-                      6,000 <span className="text-[10px] text-neutral-400 font-normal">DZD/jour</span>
-                    </span>
-                    <Link
-                      href={`/${locale}/vehicles`}
-                      className="text-[11px] font-semibold text-brand-600 hover:text-brand-700"
-                    >
-                      {isArabic ? 'احجز الآن ←' : 'Reserve →'}
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div ref={visualColRef} className="lg:col-span-5 w-full flex flex-col items-center">
+            <Hero3DCanvas locale={locale} />
           </div>
         </div>
       </div>

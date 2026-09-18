@@ -43,4 +43,5 @@ next-env.d.ts
 
 # local assets
 3d_models/
-/public/models/
+/public/models/*
+!public/models/fiat_abarth_500.glb
