@@ -98,7 +98,7 @@ export function FleetShowcase({ locale, vehicles }: FleetShowcaseProps) {
   })
 
   return (
-    <section className="py-20 sm:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-20 sm:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       {/* Header with Asymmetric Accent */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
         <div className="text-start max-w-2xl">

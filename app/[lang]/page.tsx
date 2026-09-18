@@ -66,7 +66,7 @@ export default async function HomePage({ params }: HomePageProps) {
       <Header locale={locale} dictionary={dict} />
 
       {/* Main Creative Journey Layout */}
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 w-full block">
         {/* 1. Asymmetric Hero with Terminal Card & Quick-Finder */}
         <HeroAsymmetric locale={locale} branches={branches} dict={dict} />
 

@@ -35,9 +35,10 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top 10%',
+          start: 'top 64px',
           end: '+=750',
           pin: true,
+          pinSpacing: true,
           scrub: 0.5,
           anticipatePin: 1,
         },
@@ -141,7 +142,14 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
       })
     })
 
-    return () => mm.revert()
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh()
+    }, 200)
+
+    return () => {
+      clearTimeout(timer)
+      mm.revert()
+    }
   }, [isArabic])
 
   const steps = [
@@ -229,9 +237,9 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
   return (
     <section
       ref={sectionRef}
-      className="py-12 sm:py-16 bg-[#F6F6F9] border-y border-black/[0.06] relative overflow-hidden"
+      className="py-16 sm:py-20 lg:py-0 lg:min-h-[calc(100vh-4rem)] lg:flex lg:flex-col lg:justify-center bg-[#F6F6F9] border-y border-black/[0.06] relative z-20"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         {/* Section Header with Typographic Hierarchy */}
         <div className="max-w-3xl mb-8 sm:mb-10 text-start">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 text-xs font-bold uppercase tracking-wider mb-3">
