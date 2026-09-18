@@ -38,13 +38,13 @@ export function LoginForm({ lang }: { lang: string }) {
   const isArabic = lang === 'ar'
 
   return (
-    <div className="w-full bg-white dark:bg-neutral-900 p-8 sm:p-10 rounded-3xl shadow-[0_16px_40px_-12px_rgba(0,0,0,0.08)] border border-black/[0.06] dark:border-white/[0.08] animate-apple-fade-up">
+    <div className="w-full bg-white p-8 sm:p-10 rounded-3xl shadow-[0_16px_40px_-12px_rgba(0,0,0,0.08)] border border-black/[0.06] animate-apple-fade-up">
       {/* Brand logo */}
       <div className="flex justify-center mb-6">
         <Logo variant="vertical" size="lg" locale={lang as Language} href={`/${lang}`} />
       </div>
 
-      <h1 className="text-2xl font-bold tracking-tight text-center text-neutral-900 dark:text-white mb-2">
+      <h1 className="text-2xl font-bold tracking-tight text-center text-neutral-900 mb-2">
         {isArabic ? 'مرحبًا بك مجددًا' : lang === 'fr' ? 'Connexion' : 'Sign In to DZ Rent'}
       </h1>
       <p className="text-xs text-neutral-400 text-center mb-6">
@@ -54,12 +54,12 @@ export function LoginForm({ lang }: { lang: string }) {
       </p>
 
       {/* 1-Click Fast Role Bypass Demo Buttons */}
-      <div className="mb-6 p-4 rounded-3xl bg-neutral-50/80 dark:bg-neutral-800/40 border border-black/[0.04] dark:border-white/[0.06] space-y-3">
+      <div className="mb-6 p-4 rounded-3xl bg-neutral-50/80 border border-black/[0.04] space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">
             {isArabic ? 'الدخول السريع (تجاوز المصادقة)' : 'Instant Demo Access (Bypass Auth)'}
           </span>
-          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-brand-500/10 text-brand-700 dark:text-brand-300">
+          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-brand-500/10 text-brand-700">
             {isDemoPending ? 'Loading...' : '1-Click'}
           </span>
         </div>
@@ -72,10 +72,10 @@ export function LoginForm({ lang }: { lang: string }) {
             onClick={() => handleDemoClick('admin')}
             className="apple-press flex flex-col items-start p-3 rounded-2xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-start transition-all disabled:opacity-60 min-h-[52px]"
           >
-            <span className="text-xs font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+            <span className="text-xs font-bold text-purple-700 flex items-center gap-1.5">
               <span>🛡️</span> {isArabic ? 'المسؤول' : 'Admin'}
             </span>
-            <span className="text-[10px] text-purple-600/70 dark:text-purple-400/70 mt-0.5 font-medium">
+            <span className="text-[10px] text-purple-600/70 mt-0.5 font-medium">
               {isArabic ? 'لوحة التحكم المركزية' : 'Admin Console'}
             </span>
           </button>
@@ -87,10 +87,10 @@ export function LoginForm({ lang }: { lang: string }) {
             onClick={() => handleDemoClick('manager')}
             className="apple-press flex flex-col items-start p-3 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-start transition-all disabled:opacity-60 min-h-[52px]"
           >
-            <span className="text-xs font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+            <span className="text-xs font-bold text-amber-700 flex items-center gap-1.5">
               <span>🏢</span> {isArabic ? 'مدير فرع' : 'Manager'}
             </span>
-            <span className="text-[10px] text-amber-600/70 dark:text-amber-400/70 mt-0.5 font-medium">
+            <span className="text-[10px] text-amber-600/70 mt-0.5 font-medium">
               {isArabic ? 'بوابة وكالة الجزائر' : 'Staff Agency Portal'}
             </span>
           </button>
@@ -102,10 +102,10 @@ export function LoginForm({ lang }: { lang: string }) {
             onClick={() => handleDemoClick('customer')}
             className="apple-press flex flex-col items-start p-3 rounded-2xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-start transition-all disabled:opacity-60 min-h-[52px]"
           >
-            <span className="text-xs font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
+            <span className="text-xs font-bold text-blue-700 flex items-center gap-1.5">
               <span>👤</span> {isArabic ? 'زبون' : 'Customer'}
             </span>
-            <span className="text-[10px] text-blue-600/70 dark:text-blue-400/70 mt-0.5 font-medium">
+            <span className="text-[10px] text-blue-600/70 mt-0.5 font-medium">
               {isArabic ? 'الحجوزات والملف' : 'Client Bookings'}
             </span>
           </button>
@@ -113,21 +113,21 @@ export function LoginForm({ lang }: { lang: string }) {
       </div>
 
       <div className="relative flex items-center justify-center my-6">
-        <div className="border-t border-neutral-200 dark:border-neutral-800 w-full" />
-        <span className="bg-white dark:bg-neutral-900 px-3 text-[11px] font-medium text-neutral-400 absolute">
+        <div className="border-t border-neutral-200 w-full" />
+        <span className="bg-white px-3 text-[11px] font-medium text-neutral-400 absolute">
           {isArabic ? 'أو تسجيل الدخول اليدوي' : 'Or manual credentials'}
         </span>
       </div>
 
       <form action={formAction} className="space-y-4">
         {state?.error && (
-          <div className="p-3.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
+          <div className="p-3.5 bg-rose-500/10 text-rose-700 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
             {state.error}
           </div>
         )}
 
         {state?.success && (
-          <div className="p-3.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
+          <div className="p-3.5 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
             {isArabic
               ? 'تم تسجيل الدخول بنجاح! جاري التحويل...'
               : lang === 'fr'
@@ -169,7 +169,7 @@ export function LoginForm({ lang }: { lang: string }) {
         </Button>
       </form>
 
-      <div className="mt-8 pt-6 border-t border-black/[0.05] dark:border-white/[0.06] text-center">
+      <div className="mt-8 pt-6 border-t border-black/[0.05] text-center">
         <p className="text-xs text-neutral-500">
           {isArabic
             ? 'ليس لديك حساب بعد؟ '

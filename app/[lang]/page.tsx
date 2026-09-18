@@ -73,7 +73,7 @@ export default async function HomePage({ params }: HomePageProps) {
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           {/* Tag Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.06] text-xs font-semibold text-neutral-700 dark:text-neutral-300 tracking-tight mb-6 animate-apple-fade-in shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/[0.04] border border-black/[0.06] text-xs font-semibold text-neutral-700 tracking-tight mb-6 animate-apple-fade-in shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>
               {isArabic
@@ -216,7 +216,7 @@ export default async function HomePage({ params }: HomePageProps) {
       {/* =============================================================
           HOW IT WORKS — 4 Clear Apple-Style Steps
           ============================================================= */}
-      <section className="py-20 bg-white/70 dark:bg-neutral-900/60 border-y border-black/[0.05]">
+      <section className="py-20 bg-white/70 border-y border-black/[0.05]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal>
             <div className="text-center max-w-2xl mx-auto mb-16">
@@ -266,12 +266,12 @@ export default async function HomePage({ params }: HomePageProps) {
               },
             ].map((item, index) => (
               <ScrollReveal key={item.step} delay={index * 120}>
-                <div className="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_16px_rgba(0,0,0,0.03)] apple-card-hover h-full flex flex-col justify-between">
+                <div className="bg-white rounded-3xl p-6 border border-black/[0.06] shadow-[0_2px_16px_rgba(0,0,0,0.03)] apple-card-hover h-full flex flex-col justify-between">
                   <div>
                     <span className="text-2xl font-bold font-mono text-brand-500/80 block mb-3">
                       {item.step}
                     </span>
-                    <h3 className="text-base font-semibold text-neutral-900 dark:text-white tracking-tight mb-2">
+                    <h3 className="text-base font-semibold text-neutral-900 tracking-tight mb-2">
                       {item.title}
                     </h3>
                     <p className="text-xs text-neutral-500 leading-relaxed">
@@ -313,7 +313,7 @@ export default async function HomePage({ params }: HomePageProps) {
 
               return (
                 <ScrollReveal key={branch.id} delay={index * 80}>
-                  <div className="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] apple-card-hover flex flex-col justify-between h-full">
+                  <div className="bg-white rounded-3xl p-6 border border-black/[0.06] shadow-[0_2px_12px_rgba(0,0,0,0.03)] apple-card-hover flex flex-col justify-between h-full">
                     <div>
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-brand-600 bg-brand-500/10 px-2.5 py-0.5 rounded-full">
@@ -321,7 +321,7 @@ export default async function HomePage({ params }: HomePageProps) {
                         </span>
                         <span className="w-2 h-2 rounded-full bg-emerald-500" />
                       </div>
-                      <h3 className="text-base font-semibold text-neutral-900 dark:text-white tracking-tight mb-1.5">
+                      <h3 className="text-base font-semibold text-neutral-900 tracking-tight mb-1.5">
                         {name}
                       </h3>
                       <p className="text-xs text-neutral-500 leading-relaxed mb-4">

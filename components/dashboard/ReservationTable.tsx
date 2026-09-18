@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { ReservationStatusBadge } from '@/components/reservations/ReservationStatusBadge'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { Reservation, Language, Profile, Vehicle, Dictionary } from '@/types'
 import { formatDZD } from '@/lib/utils/constants'
 
@@ -33,9 +34,15 @@ export function ReservationTable({
 }: ReservationTableProps) {
   if (!reservations || reservations.length === 0) {
     return (
-      <div className="bg-white dark:bg-neutral-900 rounded-3xl border border-black/[0.06] dark:border-white/[0.08] p-12 text-center text-neutral-400 text-sm">
-        {dictionary?.reservations?.no_reservations || 'No reservations recorded.'}
-      </div>
+      <EmptyState
+        icon="calendar"
+        title={dictionary?.reservations?.no_reservations || 'No reservations recorded'}
+        description={
+          locale === 'ar'
+            ? 'عند قيام الزبائن أو الحساب بالحجز، ستظهر هنا مع تفاصيل المتابعة.'
+            : 'When bookings are made, they will appear here with full status tracking.'
+        }
+      />
     )
   }
 
@@ -45,9 +52,9 @@ export function ReservationTable({
   }
 
   return (
-    <div className="bg-white dark:bg-neutral-900 rounded-3xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)] overflow-hidden">
+    <div className="bg-white rounded-3xl border border-black/[0.06] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)] overflow-hidden">
       {/* Mobile Card View */}
-      <div className="md:hidden divide-y divide-black/[0.05] dark:divide-white/[0.06]">
+      <div className="md:hidden divide-y divide-black/[0.05]">
         {reservations.map((res) => {
           const customerName =
             res.customer?.full_name || res.profiles?.full_name || 'Customer'
@@ -55,7 +62,7 @@ export function ReservationTable({
             <div key={res.id} className="p-5 space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <div className="font-semibold text-neutral-900 dark:text-white tracking-tight">
+                  <div className="font-semibold text-neutral-900 tracking-tight">
                     {res.vehicle?.make} {res.vehicle?.model}
                   </div>
                   <div className="text-[11px] text-neutral-400 font-mono mt-0.5">
@@ -74,20 +81,20 @@ export function ReservationTable({
               {showCustomer && (
                 <div className="text-xs">
                   <span className="text-neutral-400">Customer: </span>
-                  <span className="font-medium text-neutral-800 dark:text-neutral-200">
+                  <span className="font-medium text-neutral-800">
                     {customerName}
                   </span>
                 </div>
               )}
 
-              <div className="flex justify-between items-center pt-3 border-t border-black/[0.04] dark:border-white/[0.06]">
-                <div className="font-bold text-neutral-900 dark:text-white tracking-tight">
+              <div className="flex justify-between items-center pt-3 border-t border-black/[0.04]">
+                <div className="font-bold text-neutral-900 tracking-tight">
                   {formatDZD(res.total_price, locale)}
                 </div>
                 {showActions && (
                   <Link
                     href={getActionHref(res.id)}
-                    className="apple-press inline-flex items-center text-xs font-semibold px-3.5 py-1.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200/70 rounded-full transition-colors min-h-[36px]"
+                    className="apple-press inline-flex items-center text-xs font-semibold px-3.5 py-1.5 bg-neutral-100 text-neutral-800 hover:bg-neutral-200/70 rounded-full transition-colors min-h-[36px]"
                   >
                     Details
                   </Link>
@@ -100,8 +107,8 @@ export function ReservationTable({
 
       {/* Desktop Table View */}
       <div className="hidden md:block overflow-x-auto">
-        <table className="w-full text-start text-sm text-neutral-600 dark:text-neutral-300 rtl:text-right">
-          <thead className="bg-neutral-50/70 dark:bg-neutral-800/40 text-neutral-400 font-medium border-b border-black/[0.05] dark:border-white/[0.06] text-[11px] uppercase tracking-wider">
+        <table className="w-full text-start text-sm text-neutral-600 rtl:text-right">
+          <thead className="bg-neutral-50/70 text-neutral-400 font-medium border-b border-black/[0.05] text-[11px] uppercase tracking-wider">
             <tr>
               <th className="px-5 py-3.5">ID</th>
               {showCustomer && <th className="px-5 py-3.5">Customer</th>}
@@ -112,29 +119,29 @@ export function ReservationTable({
               {showActions && <th className="px-5 py-3.5 text-end">Actions</th>}
             </tr>
           </thead>
-          <tbody className="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
+          <tbody className="divide-y divide-black/[0.04]">
             {reservations.map((res) => {
               const customerName =
                 res.customer?.full_name || res.profiles?.full_name || 'Customer'
               return (
                 <tr
                   key={res.id}
-                  className="hover:bg-neutral-50/70 dark:hover:bg-neutral-800/50 transition-colors duration-150"
+                  className="hover:bg-neutral-50/70 transition-colors duration-150"
                 >
                   <td className="px-5 py-4 font-mono text-xs text-neutral-400">
                     #{res.id.substring(0, 8)}
                   </td>
                   {showCustomer && (
-                    <td className="px-5 py-4 font-medium text-neutral-900 dark:text-neutral-100">
+                    <td className="px-5 py-4 font-medium text-neutral-900">
                       {customerName}
                     </td>
                   )}
-                  <td className="px-5 py-4 font-medium text-neutral-900 dark:text-neutral-100">
+                  <td className="px-5 py-4 font-medium text-neutral-900">
                     {res.vehicle?.make} {res.vehicle?.model}
                   </td>
                   <td className="px-5 py-4 whitespace-nowrap text-xs text-neutral-500">
                     {res.start_date} <br />
-                    <span className="text-neutral-300 dark:text-neutral-600">→</span>{' '}
+                    <span className="text-neutral-300">→</span>{' '}
                     {res.end_date}
                   </td>
                   <td className="px-5 py-4">
@@ -143,14 +150,14 @@ export function ReservationTable({
                       locale={locale}
                     />
                   </td>
-                  <td className="px-5 py-4 font-bold text-neutral-900 dark:text-white whitespace-nowrap tracking-tight">
+                  <td className="px-5 py-4 font-bold text-neutral-900 whitespace-nowrap tracking-tight">
                     {formatDZD(res.total_price, locale)}
                   </td>
                   {showActions && (
                     <td className="px-5 py-4 text-end">
                       <Link
                         href={getActionHref(res.id)}
-                        className="apple-press inline-flex items-center text-xs font-semibold px-3 py-1.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200/80 rounded-full transition-colors min-h-[32px]"
+                        className="apple-press inline-flex items-center text-xs font-semibold px-3 py-1.5 bg-neutral-100 text-neutral-800 hover:bg-neutral-200/80 rounded-full transition-colors min-h-[32px]"
                       >
                         Details
                       </Link>

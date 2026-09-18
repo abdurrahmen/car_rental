@@ -12,7 +12,7 @@ export default async function AuthLayout({
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center bg-[#FBFBFD] dark:bg-black p-4 sm:p-6 relative overflow-hidden"
+      className="min-h-screen flex flex-col items-center justify-center bg-[#FBFBFD] p-4 sm:p-6 relative overflow-hidden"
       dir={isArabic ? 'rtl' : 'ltr'}
     >
       {/* Ambient background glow */}
@@ -24,7 +24,7 @@ export default async function AuthLayout({
       {/* Floating Home Back Button */}
       <Link
         href={`/${lang}`}
-        className="absolute top-6 start-6 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border border-black/[0.06] dark:border-white/[0.08] text-xs font-semibold text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 hover:bg-white transition-all shadow-xs apple-press min-h-[36px]"
+        className="absolute top-6 start-6 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-black/[0.06] text-xs font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-white transition-all shadow-xs apple-press min-h-[36px]"
       >
         <span className={isArabic ? 'rotate-180' : ''}>&larr;</span>
         <span>{isArabic ? 'الرئيسية' : 'Home'}</span>

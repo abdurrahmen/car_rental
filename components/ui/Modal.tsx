@@ -59,21 +59,21 @@ export function Modal({
       ref={dialogRef}
       className={`
         backdrop:bg-black/35 backdrop:backdrop-blur-md
-        bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100
+        bg-white text-neutral-900
         rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.18)]
-        border border-black/[0.06] dark:border-white/[0.1]
+        border border-black/[0.06]
         w-[calc(100%-2rem)] ${sizes[size]} p-0 m-auto
         overflow-hidden animate-apple-scale-in
       `}
     >
       <div className="flex flex-col max-h-[85vh]">
-        <div className="flex justify-between items-center px-6 py-4.5 border-b border-black/[0.05] dark:border-white/[0.06]">
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
+        <div className="flex justify-between items-center px-6 py-4.5 border-b border-black/[0.05]">
+          <h2 className="text-base font-semibold text-neutral-900 tracking-tight">
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors cursor-pointer"
+            className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
             aria-label="Close"
           >
             <svg

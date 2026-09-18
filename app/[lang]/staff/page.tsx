@@ -37,7 +37,7 @@ export default async function StaffOverviewPage({
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
             {dict.staff?.pending_requests || 'Pending Customer Requests'}
           </h1>
           <p className="text-xs text-neutral-400 mt-1">
@@ -47,7 +47,7 @@ export default async function StaffOverviewPage({
           </p>
         </div>
 
-        <span className="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/20 text-xs font-semibold px-3 py-1.5 rounded-full self-start sm:self-auto">
+        <span className="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-800 border border-amber-500/20 text-xs font-semibold px-3 py-1.5 rounded-full self-start sm:self-auto">
           <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
           <span>{pending?.length || 0} {isArabic ? 'طلبات قيد الانتظار' : 'Pending Requests'}</span>
         </span>

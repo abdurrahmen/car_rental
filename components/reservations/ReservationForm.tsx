@@ -77,13 +77,13 @@ export function ReservationForm({
       <input type="hidden" name="vehicle_id" value={effectiveVehicleId} />
 
       {state?.error && (
-        <div className="p-3.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
+        <div className="p-3.5 bg-rose-500/10 text-rose-700 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
           {state.error}
         </div>
       )}
 
       {state?.success && (
-        <div className="p-3.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
+        <div className="p-3.5 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
           {dictionary?.reservations?.reservation_submitted ||
             'Reservation request submitted successfully! Redirecting...'}
         </div>
@@ -131,7 +131,7 @@ export function ReservationForm({
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="notes"
-          className="text-xs font-medium text-neutral-600 dark:text-neutral-300 ps-0.5"
+          className="text-xs font-medium text-neutral-600 ps-0.5"
         >
           {dictionary?.reservations?.notes || 'Additional Requests (Optional)'}
         </label>
@@ -139,7 +139,7 @@ export function ReservationForm({
           id="notes"
           name="notes"
           rows={3}
-          className="w-full rounded-xl border border-neutral-300/80 bg-white dark:bg-neutral-900 px-3.5 py-2.5 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 transition-all duration-200"
+          className="w-full rounded-xl border border-neutral-300/80 bg-white px-3.5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 transition-all duration-200"
           placeholder={
             lang === 'ar'
               ? 'أي متطلبات خاصة بالرحلة أو مقعد أطفال...'
@@ -149,7 +149,7 @@ export function ReservationForm({
       </div>
 
       {/* Live Apple Price Summary Card */}
-      <div className="bg-neutral-100/70 dark:bg-neutral-800/60 p-5 rounded-2xl border border-black/[0.04] dark:border-white/[0.06] flex justify-between items-center mt-6">
+      <div className="bg-neutral-100/70 p-5 rounded-2xl border border-black/[0.04] flex justify-between items-center mt-6">
         <div>
           <span className="block text-xs text-neutral-500">
             {days > 0
@@ -160,11 +160,11 @@ export function ReservationForm({
               ? 'اختر تواريخ الكراء'
               : 'Select dates'}
           </span>
-          <span className="text-base font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">
+          <span className="text-base font-semibold text-neutral-900 tracking-tight">
             {dictionary?.reservations?.total_price || 'Estimated Total'}
           </span>
         </div>
-        <div className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
+        <div className="text-2xl font-bold text-neutral-900 tracking-tight">
           {formatDZD(totalPrice, lang)}
         </div>
       </div>

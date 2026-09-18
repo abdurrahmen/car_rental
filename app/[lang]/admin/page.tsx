@@ -90,10 +90,10 @@ export default async function AdminOverviewPage({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
+            <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
               {dict.admin?.admin_dashboard || 'Platform Performance & Business Intelligence'}
             </h1>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600">
               Live
             </span>
           </div>
@@ -107,14 +107,14 @@ export default async function AdminOverviewPage({
         <div className="flex items-center gap-2">
           <Link
             href={`/${lang}/admin/vehicles/new`}
-            className="apple-press inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold bg-brand-500 text-brand-900 hover:bg-brand-400 shadow-sm transition-all"
+            className="apple-press inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-sm transition-all"
           >
             <span>+</span>
             <span>{dict.staff?.add_vehicle || 'Add Vehicle'}</span>
           </Link>
           <Link
             href={`/${lang}/admin/vehicles`}
-            className="apple-press inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-white dark:bg-neutral-900 border border-black/[0.06] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-50 shadow-2xs transition-all"
+            className="apple-press inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-white border border-black/[0.06] text-neutral-800 hover:bg-neutral-50 shadow-2xs transition-all"
           >
             <span>{dict.admin?.manage_fleet || 'Manage Fleet'}</span>
             <span>&rarr;</span>
@@ -187,13 +187,13 @@ export default async function AdminOverviewPage({
       </div>
 
       {/* Fleet Status Snapshot Bar */}
-      <div className="bg-neutral-50/80 dark:bg-neutral-800/40 p-5 rounded-3xl border border-black/[0.04] dark:border-white/[0.06]">
+      <div className="bg-neutral-50/80 p-6 rounded-3xl border border-black/[0.04]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
           <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
             {isArabic ? 'الحالة التشغيلية للأسطول' : 'Operational Status Breakdown'}
           </span>
           {pendingRequests > 0 && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-300">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-700">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
               {pendingRequests} {dict.dashboard?.pending_requests || 'pending requests require action'}
             </span>
@@ -201,7 +201,7 @@ export default async function AdminOverviewPage({
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-black/[0.04] dark:border-white/[0.06]">
+          <div className="bg-white p-4 rounded-2xl border border-black/[0.04]">
             <span className="text-[11px] text-neutral-400 block font-medium">
               {dict.admin?.available_fleet || 'Available for Rent'}
             </span>
@@ -213,7 +213,7 @@ export default async function AdminOverviewPage({
             </span>
           </div>
 
-          <div className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-black/[0.04] dark:border-white/[0.06]">
+          <div className="bg-white p-4 rounded-2xl border border-black/[0.04]">
             <span className="text-[11px] text-neutral-400 block font-medium">
               {dict.admin?.on_road || 'On Road / Rented'}
             </span>
@@ -225,7 +225,7 @@ export default async function AdminOverviewPage({
             </span>
           </div>
 
-          <div className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-black/[0.04] dark:border-white/[0.06]">
+          <div className="bg-white p-4 rounded-2xl border border-black/[0.04]">
             <span className="text-[11px] text-neutral-400 block font-medium">
               {dict.admin?.in_maintenance || 'In Maintenance'}
             </span>
@@ -237,7 +237,7 @@ export default async function AdminOverviewPage({
             </span>
           </div>
 
-          <div className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-black/[0.04] dark:border-white/[0.06]">
+          <div className="bg-white p-4 rounded-2xl border border-black/[0.04]">
             <span className="text-[11px] text-neutral-400 block font-medium">
               {dict.admin?.retired_fleet || 'Retired'}
             </span>
@@ -257,7 +257,7 @@ export default async function AdminOverviewPage({
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-base font-bold text-neutral-900 dark:text-white tracking-tight">
+              <h2 className="text-base font-bold text-neutral-900 tracking-tight">
                 {dict.admin?.manage_branches || 'Branch Hub Operations'}
               </h2>
               <p className="text-xs text-neutral-400 mt-0.5">
@@ -278,14 +278,14 @@ export default async function AdminOverviewPage({
             {branchVehicleCounts.map(({ branch, total, available, onRoad }) => (
               <div
                 key={branch.id}
-                className="bg-neutral-50/60 dark:bg-neutral-800/40 p-5 rounded-2xl border border-black/[0.04] dark:border-white/[0.06] hover:border-black/[0.1] transition-all flex flex-col justify-between"
+                className="bg-neutral-50/60 p-5 rounded-2xl border border-black/[0.04] hover:border-black/[0.1] transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-bold text-neutral-900 dark:text-white truncate">
+                    <span className="text-xs font-bold text-neutral-900 truncate">
                       {locale === 'ar' ? branch.name_ar : locale === 'fr' ? branch.name_fr : branch.name_en}
                     </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-brand-500/10 text-brand-700 dark:text-brand-300 shrink-0">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-brand-500/10 text-brand-700 shrink-0">
                       {branch.city}
                     </span>
                   </div>
@@ -297,10 +297,10 @@ export default async function AdminOverviewPage({
                   </p>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between text-xs">
+                <div className="mt-4 pt-3 border-t border-black/[0.04] flex items-center justify-between text-xs">
                   <div className="flex items-center gap-3">
                     <span className="text-neutral-500">
-                      Fleet: <strong className="text-neutral-900 dark:text-white">{total}</strong>
+                      Fleet: <strong className="text-neutral-900">{total}</strong>
                     </span>
                     <span className="text-emerald-600 font-medium">
                       {available} ready
@@ -318,19 +318,19 @@ export default async function AdminOverviewPage({
         {/* Live Activity / Audit Timeline (1 col) */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-neutral-900 dark:text-white tracking-tight">
+            <h2 className="text-base font-bold text-neutral-900 tracking-tight">
               {isArabic ? 'سجل العمليات الأخير' : 'Recent System Activity'}
             </h2>
             <span className="text-[10px] font-mono text-neutral-400">Audit Log</span>
           </div>
 
-          <div className="bg-neutral-50/60 dark:bg-neutral-800/40 p-5 rounded-2xl border border-black/[0.04] dark:border-white/[0.06] space-y-4">
+          <div className="bg-neutral-50/60 p-5 rounded-2xl border border-black/[0.04] space-y-4">
             {auditEntries && auditEntries.length > 0 ? (
               auditEntries.map((entry) => (
                 <div key={entry.id} className="flex items-start gap-3 text-xs">
                   <div className="w-2 h-2 rounded-full bg-brand-500 mt-1.5 shrink-0" />
                   <div className="space-y-0.5 flex-1 min-w-0">
-                    <p className="font-semibold text-neutral-800 dark:text-neutral-200 truncate">
+                    <p className="font-semibold text-neutral-800 truncate">
                       {entry.action}
                     </p>
                     <p className="text-[10px] text-neutral-400">
@@ -353,7 +353,7 @@ export default async function AdminOverviewPage({
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
                   <div>
-                    <p className="font-semibold text-neutral-800 dark:text-neutral-200">
+                    <p className="font-semibold text-neutral-800">
                       Vehicle Seed Verified
                     </p>
                     <p className="text-[10px] text-neutral-400">
@@ -364,7 +364,7 @@ export default async function AdminOverviewPage({
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />
                   <div>
-                    <p className="font-semibold text-neutral-800 dark:text-neutral-200">
+                    <p className="font-semibold text-neutral-800">
                       Edahabia & CIB Deposit Gateway Active
                     </p>
                     <p className="text-[10px] text-neutral-400">
@@ -375,7 +375,7 @@ export default async function AdminOverviewPage({
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-purple-500 mt-1.5 shrink-0" />
                   <div>
-                    <p className="font-semibold text-neutral-800 dark:text-neutral-200">
+                    <p className="font-semibold text-neutral-800">
                       Double-booking Exclusion Constraint Enabled
                     </p>
                     <p className="text-[10px] text-neutral-400">

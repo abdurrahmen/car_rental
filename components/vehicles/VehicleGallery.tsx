@@ -18,7 +18,7 @@ export function VehicleGallery({ photos, vehicleName }: VehicleGalleryProps) {
 
   if (!photos || photos.length === 0) {
     return (
-      <div className="w-full aspect-[16/10] bg-neutral-100 dark:bg-neutral-800 rounded-3xl flex items-center justify-center text-neutral-400 border border-black/[0.06]">
+      <div className="w-full aspect-[16/10] bg-neutral-100 rounded-3xl flex items-center justify-center text-neutral-400 border border-black/[0.06]">
         No photos available
       </div>
     )

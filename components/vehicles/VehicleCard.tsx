@@ -27,9 +27,9 @@ export function VehicleCard({ vehicle, locale, dictionary }: VehicleCardProps) {
     : null
 
   return (
-    <div className="group relative bg-white dark:bg-neutral-900 rounded-3xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.08)] overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 flex flex-col h-full">
+    <div className="group relative bg-white rounded-3xl border border-black/[0.06] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.08)] overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 flex flex-col h-full">
       {/* Photo container with zoom */}
-      <div className="relative aspect-[16/10] bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
+      <div className="relative aspect-[16/10] bg-neutral-100 overflow-hidden">
         {photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -58,7 +58,7 @@ export function VehicleCard({ vehicle, locale, dictionary }: VehicleCardProps) {
         {/* Floating Category & Year Chips */}
         <div className="absolute top-3.5 inset-x-3.5 flex items-center justify-between pointer-events-none">
           {categoryName && (
-            <span className="bg-white/90 dark:bg-black/80 backdrop-blur-md text-neutral-900 dark:text-white px-2.5 py-1 rounded-full text-xs font-semibold tracking-tight shadow-sm border border-black/[0.04]">
+            <span className="bg-white/90 backdrop-blur-md text-neutral-900 px-2.5 py-1 rounded-full text-xs font-semibold tracking-tight shadow-sm border border-black/[0.04]">
               {categoryName}
             </span>
           )}
@@ -69,15 +69,15 @@ export function VehicleCard({ vehicle, locale, dictionary }: VehicleCardProps) {
       </div>
 
       {/* Card Content */}
-      <div className="p-5 flex flex-col flex-grow justify-between">
+      <div className="p-5 sm:p-6 flex flex-col flex-grow justify-between">
         <div>
-          <h3 className="font-semibold text-lg text-neutral-900 dark:text-neutral-50 tracking-tight mb-3 group-hover:text-brand-500 transition-colors duration-200">
+          <h3 className="font-semibold text-lg text-neutral-900 tracking-tight mb-3 group-hover:text-brand-500 transition-colors duration-200">
             {vehicle.make} {vehicle.model}
           </h3>
 
           {/* Quick Specs Pills */}
-          <div className="flex flex-wrap items-center gap-2 mb-4 text-xs font-medium text-neutral-600 dark:text-neutral-400">
-            <span className="inline-flex items-center gap-1 bg-neutral-100/80 dark:bg-neutral-800 px-2.5 py-1 rounded-full border border-black/[0.03]">
+          <div className="flex flex-wrap items-center gap-2 mb-4 text-xs font-medium text-neutral-600">
+            <span className="inline-flex items-center gap-1 bg-neutral-100/80 px-2.5 py-1 rounded-full border border-black/[0.03]">
               <svg className="w-3.5 h-3.5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
               </svg>
@@ -86,14 +86,14 @@ export function VehicleCard({ vehicle, locale, dictionary }: VehicleCardProps) {
                 : locale === 'ar' ? 'يدوي' : 'Manual'}
             </span>
 
-            <span className="inline-flex items-center gap-1 bg-neutral-100/80 dark:bg-neutral-800 px-2.5 py-1 rounded-full border border-black/[0.03]">
+            <span className="inline-flex items-center gap-1 bg-neutral-100/80 px-2.5 py-1 rounded-full border border-black/[0.03]">
               <svg className="w-3.5 h-3.5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               {vehicle.seats} {locale === 'ar' ? 'مقاعد' : 'Seats'}
             </span>
 
-            <span className="inline-flex items-center gap-1 bg-neutral-100/80 dark:bg-neutral-800 px-2.5 py-1 rounded-full border border-black/[0.03] capitalize">
+            <span className="inline-flex items-center gap-1 bg-neutral-100/80 px-2.5 py-1 rounded-full border border-black/[0.03] capitalize">
               <svg className="w-3.5 h-3.5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
@@ -103,13 +103,13 @@ export function VehicleCard({ vehicle, locale, dictionary }: VehicleCardProps) {
         </div>
 
         {/* Price & Action Row */}
-        <div className="flex items-center justify-between pt-4 border-t border-black/[0.05] dark:border-white/[0.06] mt-2">
+        <div className="flex items-center justify-between pt-4 border-t border-black/[0.05] mt-2">
           <div>
             <span className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
               {dictionary?.vehicles?.daily_rate || 'Per Day'}
             </span>
             <div className="flex items-baseline gap-1">
-              <span className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
+              <span className="text-xl font-bold text-neutral-900 tracking-tight">
                 {formatDZD(vehicle.daily_rate, locale)}
               </span>
             </div>

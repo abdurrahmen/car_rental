@@ -44,7 +44,7 @@ export function VehicleDeleteButton({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="apple-press inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors min-h-[36px]"
+        className="apple-press inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors min-h-[36px]"
         title={deleteLabel}
       >
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -65,7 +65,7 @@ export function VehicleDeleteButton({
           aria-modal="true"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-apple-fade-in"
         >
-          <div className="bg-white dark:bg-neutral-900 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-black/[0.06] dark:border-white/[0.08] space-y-4">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-black/[0.06] space-y-4">
             <div className="w-10 h-10 rounded-2xl bg-rose-500/10 text-rose-600 flex items-center justify-center">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -78,7 +78,7 @@ export function VehicleDeleteButton({
             </div>
 
             <div>
-              <h3 className="text-base font-bold text-neutral-900 dark:text-white">
+              <h3 className="text-base font-bold text-neutral-900">
                 {confirmTitle}
               </h3>
               <p className="text-xs text-neutral-500 mt-1 font-medium">
@@ -90,7 +90,7 @@ export function VehicleDeleteButton({
             </div>
 
             {error && (
-              <div className="p-3 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/40 rounded-xl text-xs">
+              <div className="p-3 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-xs">
                 {error}
               </div>
             )}
@@ -103,7 +103,7 @@ export function VehicleDeleteButton({
                   setError(null)
                   setIsOpen(false)
                 }}
-                className="px-4 py-2 rounded-full text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                className="px-4 py-2 rounded-full text-xs font-semibold text-neutral-700 hover:bg-neutral-100 transition-colors"
               >
                 {cancelLabel}
               </button>
@@ -111,9 +111,15 @@ export function VehicleDeleteButton({
                 type="button"
                 disabled={isPending}
                 onClick={handleDelete}
-                className="apple-press px-4 py-2 rounded-full text-xs font-semibold bg-rose-600 text-white hover:bg-rose-700 transition-colors disabled:opacity-50"
+                className="apple-press inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-rose-600 text-white hover:bg-rose-700 transition-colors disabled:opacity-50"
               >
-                {isPending ? 'Processing...' : deleteLabel}
+                {isPending && (
+                  <svg className="animate-spin w-3 h-3 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                )}
+                <span>{isPending ? 'Processing...' : deleteLabel}</span>
               </button>
             </div>
           </div>

@@ -7,6 +7,7 @@ import { formatDZD } from '@/lib/utils/constants'
 import { FALLBACK_BRANCHES, FALLBACK_CATEGORIES, FALLBACK_VEHICLES } from '@/lib/data/fallback'
 import Link from 'next/link'
 import Image from 'next/image'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { Language, Vehicle, Branch, VehicleCategory, VehicleStatus } from '@/types'
 
 interface AdminVehiclesPageProps {
@@ -82,10 +83,10 @@ export default async function AdminVehiclesPage({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
+            <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
               {dict.admin?.fleet_management || 'National Fleet Management'}
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-neutral-100 text-neutral-700">
               {totalCount} {dict.nav?.vehicles || 'vehicles'}
             </span>
           </div>
@@ -98,7 +99,7 @@ export default async function AdminVehiclesPage({
 
         <Link
           href={`/${lang}/admin/vehicles/new`}
-          className="apple-press inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold bg-brand-500 text-brand-900 hover:bg-brand-400 shadow-sm transition-all min-h-[42px]"
+          className="apple-press inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-sm transition-all min-h-[42px]"
         >
           <span className="text-base leading-none">+</span>
           <span>{dict.staff?.add_vehicle || 'Add Vehicle'}</span>
@@ -106,7 +107,7 @@ export default async function AdminVehiclesPage({
       </div>
 
       {/* Filter Toolbar */}
-      <div className="bg-neutral-50/80 dark:bg-neutral-800/40 p-4 rounded-3xl border border-black/[0.04] dark:border-white/[0.06] space-y-4">
+      <div className="bg-neutral-50/80 p-4 rounded-3xl border border-black/[0.04] space-y-4">
         {/* Search & Selectors */}
         <form method="GET" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Search Input */}
@@ -116,7 +117,7 @@ export default async function AdminVehiclesPage({
               name="q"
               defaultValue={searchQuery}
               placeholder={isArabic ? 'ابحث بالاسم، الموديل، أو رقم اللوحة...' : 'Search make, model, plate...'}
-              className="w-full text-xs px-3.5 py-2.5 rounded-2xl bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] text-neutral-800 dark:text-neutral-200 outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full text-xs px-3.5 py-2.5 rounded-2xl bg-white border border-black/[0.08] text-neutral-800 outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
 
@@ -124,7 +125,7 @@ export default async function AdminVehiclesPage({
           <select
             name="branch"
             defaultValue={selectedBranch || 'all'}
-            className="text-xs px-3.5 py-2.5 rounded-2xl bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] text-neutral-800 dark:text-neutral-200 outline-none focus:ring-2 focus:ring-brand-500"
+            className="text-xs px-3.5 py-2.5 rounded-2xl bg-white border border-black/[0.08] text-neutral-800 outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="all">{isArabic ? 'جميع الفروع والوكالات' : 'All Branches / Hubs'}</option>
             {branches.map((b) => (
@@ -138,7 +139,7 @@ export default async function AdminVehiclesPage({
           <select
             name="category"
             defaultValue={selectedCategory || 'all'}
-            className="text-xs px-3.5 py-2.5 rounded-2xl bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] text-neutral-800 dark:text-neutral-200 outline-none focus:ring-2 focus:ring-brand-500"
+            className="text-xs px-3.5 py-2.5 rounded-2xl bg-white border border-black/[0.08] text-neutral-800 outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="all">{isArabic ? 'جميع الفئات' : 'All Categories'}</option>
             {categories.map((c) => (
@@ -152,14 +153,14 @@ export default async function AdminVehiclesPage({
           <div className="flex gap-2">
             <button
               type="submit"
-              className="apple-press flex-1 inline-flex items-center justify-center text-xs font-semibold px-4 py-2.5 rounded-2xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-800 transition-colors"
+              className="apple-press flex-1 inline-flex items-center justify-center text-xs font-semibold px-4 py-2.5 rounded-2xl bg-neutral-900 text-white hover:bg-neutral-800 transition-colors"
             >
               {dict.common?.search || 'Filter'}
             </button>
             {(searchQuery || selectedBranch || selectedCategory || selectedStatus) && (
               <Link
                 href={`/${lang}/admin/vehicles`}
-                className="apple-press inline-flex items-center justify-center text-xs font-semibold px-3 py-2.5 rounded-2xl bg-neutral-200/80 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 transition-colors"
+                className="apple-press inline-flex items-center justify-center text-xs font-semibold px-3 py-2.5 rounded-2xl bg-neutral-200/80 text-neutral-700 hover:bg-neutral-300 transition-colors"
                 title={dict.vehicles?.clear_filters || 'Clear'}
               >
                 ✕
@@ -169,7 +170,7 @@ export default async function AdminVehiclesPage({
         </form>
 
         {/* Status Pill Tabs */}
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
+        <div className="flex flex-wrap gap-2 pt-2 border-t border-black/[0.04]">
           {[
             { id: 'all', label: isArabic ? 'الكل' : 'All Fleet' },
             { id: 'available', label: statusLabels.available },
@@ -188,8 +189,8 @@ export default async function AdminVehiclesPage({
                 }`}
                 className={`apple-press text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all ${
                   isActive
-                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-2xs'
-                    : 'bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100/80'
+                    ? 'bg-neutral-900 text-white shadow-2xs'
+                    : 'bg-white text-neutral-600 hover:bg-neutral-100/80'
                 }`}
               >
                 {tab.label}
@@ -223,12 +224,12 @@ export default async function AdminVehiclesPage({
             return (
               <div
                 key={v.id}
-                className="bg-white dark:bg-neutral-900 p-5 rounded-3xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)] hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                className="bg-white p-5 rounded-3xl border border-black/[0.06] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)] hover:shadow-md transition-all flex flex-col justify-between space-y-4"
               >
                 {/* Top: Photo & Info */}
                 <div className="flex gap-4 items-start">
                   {/* Vehicle Thumbnail */}
-                  <div className="w-24 h-20 rounded-2xl bg-neutral-100 dark:bg-neutral-800 overflow-hidden relative shrink-0 border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-center">
+                  <div className="w-24 h-20 rounded-2xl bg-neutral-100 overflow-hidden relative shrink-0 border border-black/[0.04] flex items-center justify-center">
                     {primaryPhoto?.storage_path ? (
                       <Image
                         src={primaryPhoto.storage_path}
@@ -256,7 +257,7 @@ export default async function AdminVehiclesPage({
                   {/* Identity & Badges */}
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center justify-between gap-2">
-                      <h3 className="text-sm font-bold text-neutral-900 dark:text-white truncate">
+                      <h3 className="text-sm font-bold text-neutral-900 truncate">
                         {v.make} {v.model}{' '}
                         <span className="text-neutral-400 font-normal">({v.year})</span>
                       </h3>
@@ -270,7 +271,7 @@ export default async function AdminVehiclesPage({
 
                     {/* Algerian Plate Badge */}
                     <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-md font-mono text-[11px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-300/80 dark:border-neutral-700">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md font-mono text-[11px] font-bold bg-neutral-100 text-neutral-800 border border-neutral-300/80">
                         {v.plate_number}
                       </span>
                       <span className="text-[11px] text-neutral-500 font-medium truncate">
@@ -285,33 +286,33 @@ export default async function AdminVehiclesPage({
                 </div>
 
                 {/* Middle: Specs */}
-                <div className="grid grid-cols-3 gap-2 py-2.5 px-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl text-[11px] text-neutral-600 dark:text-neutral-400 font-medium">
+                <div className="grid grid-cols-3 gap-2 py-2.5 px-3 bg-neutral-50 rounded-2xl text-[11px] text-neutral-600 font-medium">
                   <div className="text-center">
                     <span className="text-neutral-400 block text-[10px]">Transmission</span>
-                    <span className="font-semibold text-neutral-800 dark:text-neutral-200">
+                    <span className="font-semibold text-neutral-800">
                       {v.transmission === 'automatic'
                         ? dict.vehicles?.automatic || 'Auto'
                         : dict.vehicles?.manual || 'Manual'}
                     </span>
                   </div>
-                  <div className="text-center border-x border-black/[0.04] dark:border-white/[0.06]">
+                  <div className="text-center border-x border-black/[0.04]">
                     <span className="text-neutral-400 block text-[10px]">Capacity</span>
-                    <span className="font-semibold text-neutral-800 dark:text-neutral-200">
+                    <span className="font-semibold text-neutral-800">
                       {v.seats} {dict.vehicles?.seats || 'Seats'}
                     </span>
                   </div>
                   <div className="text-center">
                     <span className="text-neutral-400 block text-[10px]">Fuel</span>
-                    <span className="font-semibold text-neutral-800 dark:text-neutral-200 capitalize">
+                    <span className="font-semibold text-neutral-800 capitalize">
                       {v.fuel_type}
                     </span>
                   </div>
                 </div>
 
                 {/* Bottom: Pricing & Actions */}
-                <div className="pt-2 border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between gap-3">
+                <div className="pt-2 border-t border-black/[0.04] flex items-center justify-between gap-3">
                   <div>
-                    <span className="text-base font-extrabold text-brand-600 dark:text-brand-400">
+                    <span className="text-base font-extrabold text-brand-600">
                       {formatDZD(v.daily_rate, locale)}
                     </span>
                     <span className="text-[10px] text-neutral-400 ms-1">
@@ -323,7 +324,7 @@ export default async function AdminVehiclesPage({
                     <Link
                       href={`/${lang}/vehicles/${v.id}`}
                       target="_blank"
-                      className="apple-press px-2.5 py-1.5 rounded-xl text-xs font-semibold text-neutral-500 hover:text-neutral-800 dark:hover:text-white transition-colors"
+                      className="apple-press px-2.5 py-1.5 rounded-xl text-xs font-semibold text-neutral-500 hover:text-neutral-800 transition-colors"
                       title="Preview public catalog page"
                     >
                       ↗
@@ -331,7 +332,7 @@ export default async function AdminVehiclesPage({
 
                     <Link
                       href={`/${lang}/admin/vehicles/${v.id}`}
-                      className="apple-press px-3 py-1.5 rounded-xl text-xs font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+                      className="apple-press px-3 py-1.5 rounded-xl text-xs font-semibold bg-neutral-100 text-neutral-800 hover:bg-neutral-200 transition-colors"
                     >
                       {dict.common?.edit || 'Edit'}
                     </Link>
@@ -353,22 +354,20 @@ export default async function AdminVehiclesPage({
             )
           })
         ) : (
-          <div className="col-span-full text-center py-16 bg-neutral-50 dark:bg-neutral-800/40 rounded-3xl border border-black/[0.04] dark:border-white/[0.06]">
-            <span className="text-3xl mb-2 block">🚗</span>
-            <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-              {dict.vehicles?.no_vehicles_found || 'No vehicles found'}
-            </p>
-            <p className="text-xs text-neutral-400 mt-1 max-w-sm mx-auto">
-              {isArabic
-                ? 'لم يتم العثور على أي سيارات تطابق معايير البحث الحالية.'
-                : 'No vehicles match your current search filters. Try clearing filters or add a new vehicle.'}
-            </p>
-            <Link
-              href={`/${lang}/admin/vehicles/new`}
-              className="apple-press inline-flex items-center gap-2 mt-4 px-5 py-2 rounded-full text-xs font-semibold bg-brand-500 text-brand-900 hover:bg-brand-400 transition-colors"
-            >
-              + {dict.staff?.add_vehicle || 'Add New Vehicle'}
-            </Link>
+          <div className="col-span-full">
+            <EmptyState
+              icon="car"
+              title={dict.vehicles?.no_vehicles_found || 'No vehicles found'}
+              description={
+                isArabic
+                  ? 'لم يتم العثور على أي سيارات تطابق معايير البحث الحالية.'
+                  : 'No vehicles match your current search filters. Try clearing filters or add a new vehicle.'
+              }
+              action={{
+                label: dict.vehicles?.clear_filters || 'Clear Filters',
+                href: `/${lang}/admin/vehicles`,
+              }}
+            />
           </div>
         )}
       </div>

@@ -93,9 +93,9 @@ export function VehicleFilters({
     Boolean(searchParams.get('transmission'))
 
   return (
-    <div className="bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)] sticky top-24">
+    <div className="bg-white p-6 rounded-3xl border border-black/[0.06] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)] sticky top-24">
       <div className="flex items-center justify-between mb-5">
-        <h2 className="font-heading font-semibold text-base text-neutral-900 dark:text-neutral-100 tracking-tight">
+        <h2 className="font-heading font-semibold text-base text-neutral-900 tracking-tight">
           {effectiveDict?.vehicles?.filters || 'Refine Search'}
         </h2>
         {hasActiveFilters && (

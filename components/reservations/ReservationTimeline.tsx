@@ -54,7 +54,7 @@ export function ReservationTimeline({
   return (
     <div className="relative py-2">
       {/* Background track */}
-      <div className="absolute top-7 inset-x-8 h-0.5 bg-neutral-200 dark:bg-neutral-800 -z-0" />
+      <div className="absolute top-7 inset-x-8 h-0.5 bg-neutral-200 -z-0" />
 
       <div className="relative z-10 flex justify-between">
         {steps.map((step, index) => {
@@ -71,7 +71,7 @@ export function ReservationTimeline({
                   ${
                     isCompleted
                       ? 'bg-brand-500 text-white shadow-sm'
-                      : 'bg-white dark:bg-neutral-800 border-2 border-neutral-300 dark:border-neutral-700 text-neutral-400'
+                      : 'bg-white border-2 border-neutral-300 text-neutral-400'
                   }
                   ${isCurrent ? 'ring-4 ring-brand-500/20 scale-110' : ''}
                 `}
@@ -97,9 +97,9 @@ export function ReservationTimeline({
               <span
                 className={`mt-2.5 text-[11px] text-center font-medium leading-tight ${
                   isCurrent
-                    ? 'text-brand-600 dark:text-brand-400 font-semibold'
+                    ? 'text-brand-600 font-semibold'
                     : isCompleted
-                    ? 'text-neutral-800 dark:text-neutral-200'
+                    ? 'text-neutral-800'
                     : 'text-neutral-400'
                 }`}
               >

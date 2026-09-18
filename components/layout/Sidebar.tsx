@@ -58,8 +58,8 @@ export function Sidebar({ links, locale }: SidebarProps) {
       <aside
         className={`
           fixed md:static inset-y-0 start-0 z-30 w-64
-          bg-white/85 dark:bg-neutral-900/85 backdrop-blur-xl
-          border-e border-black/[0.06] dark:border-white/[0.08]
+          bg-white/85 backdrop-blur-xl
+          border-e border-black/[0.06]
           transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
           ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
@@ -88,8 +88,8 @@ export function Sidebar({ links, locale }: SidebarProps) {
                     flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 text-sm min-h-[44px]
                     ${
                       isActive
-                        ? 'bg-brand-500/10 text-brand-600 dark:text-brand-400 font-semibold shadow-xs'
-                        : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100/70 dark:hover:bg-neutral-800/60 font-medium'
+                        ? 'bg-brand-500/10 text-brand-600 font-semibold shadow-xs'
+                        : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100/70 font-medium'
                     }
                   `}
                   onClick={() => setIsOpen(false)}

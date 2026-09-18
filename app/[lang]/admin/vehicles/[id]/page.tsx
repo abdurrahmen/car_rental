@@ -41,16 +41,16 @@ export default async function AdminEditVehiclePage({
       <div className="flex items-center gap-3">
         <Link
           href={`/${lang}/admin/vehicles`}
-          className="apple-press w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
+          className="apple-press w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-xs text-neutral-600 hover:text-neutral-900 transition-colors"
         >
           &larr;
         </Link>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
+            <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
               {dict.common?.edit || 'Edit'} {vehicle.make} {vehicle.model}
             </h1>
-            <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 font-bold border border-neutral-200 dark:border-neutral-700">
+            <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-600 font-bold border border-neutral-200">
               {vehicle.plate_number}
             </span>
           </div>
@@ -62,7 +62,7 @@ export default async function AdminEditVehiclePage({
         </div>
       </div>
 
-      <div className="bg-neutral-50/50 dark:bg-neutral-800/30 p-6 sm:p-8 rounded-3xl border border-black/[0.04] dark:border-white/[0.06]">
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-sm">
         <VehicleForm
           vehicle={vehicle as Vehicle}
           categories={categories}

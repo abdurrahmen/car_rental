@@ -28,7 +28,7 @@ export function LanguageSwitcher({ locale, className = '' }: LanguageSwitcherPro
       <select
         value={locale}
         onChange={(e) => switchLocale(e.target.value)}
-        className="appearance-none bg-neutral-100/90 dark:bg-neutral-800/90 hover:bg-neutral-200/70 text-neutral-800 dark:text-neutral-200 rounded-full px-3.5 pe-8 py-1.5 text-xs font-semibold tracking-tight border border-black/[0.06] dark:border-white/[0.08] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 cursor-pointer min-h-[38px]"
+        className="appearance-none bg-neutral-100/90 hover:bg-neutral-200/70 text-neutral-800 rounded-full px-3.5 pe-8 py-1.5 text-xs font-semibold tracking-tight border border-black/[0.06] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 cursor-pointer min-h-[38px]"
         aria-label="Select language"
       >
         <option value="ar">العربية (AR)</option>

@@ -5,6 +5,7 @@ import { Footer } from '@/components/layout/Footer'
 import { VehicleCard } from '@/components/vehicles/VehicleCard'
 import { VehicleFilters } from '@/components/vehicles/VehicleFilters'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { Language, Vehicle, Branch, VehicleCategory } from '@/types'
 import {
   FALLBACK_VEHICLES,
@@ -118,7 +119,7 @@ export default async function VehiclesPage({
           {/* Vehicles Grid */}
           <div className="flex-1 w-full">
             {vehicles && vehicles.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {vehicles.map((vehicle, index) => (
                   <ScrollReveal key={vehicle.id} delay={index * 60}>
                     <VehicleCard
@@ -130,21 +131,19 @@ export default async function VehiclesPage({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-20 bg-white dark:bg-neutral-900 rounded-3xl border border-black/[0.06] shadow-sm text-neutral-500">
-                <div className="w-12 h-12 rounded-2xl bg-neutral-100 flex items-center justify-center mx-auto mb-4 text-neutral-400">
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-                <p className="text-base font-semibold text-neutral-800 dark:text-neutral-200 mb-1">
-                  {dict.vehicles.no_vehicles_found}
-                </p>
-                <p className="text-xs text-neutral-400 max-w-xs mx-auto">
-                  {locale === 'ar'
-                    ? 'جرب ضبط الفلاتر أو تغيير وكالة الاستلام لعرض خيارات أكثر.'
-                    : 'Try changing your filter criteria or selecting another branch.'}
-                </p>
-              </div>
+              <EmptyState
+                icon="car"
+                title={dict.vehicles.no_vehicles_found || 'No vehicles found'}
+                description={
+                  locale === 'ar'
+                    ? 'جرب ضبط معايير الفلترة أو مسح التحديد لإظهار المزيد من السيارات.'
+                    : 'Try adjusting your filters or resetting the search to see more available cars.'
+                }
+                action={{
+                  label: dict.vehicles?.clear_filters || 'Reset Filters',
+                  href: `/${locale}/vehicles`,
+                }}
+              />
             )}
           </div>
         </div>

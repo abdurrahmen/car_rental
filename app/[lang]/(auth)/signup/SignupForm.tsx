@@ -25,13 +25,13 @@ export function SignupForm({ lang }: { lang: string }) {
   const isArabic = lang === 'ar'
 
   return (
-    <div className="w-full bg-white dark:bg-neutral-900 p-8 sm:p-10 rounded-3xl shadow-[0_16px_40px_-12px_rgba(0,0,0,0.08)] border border-black/[0.06] dark:border-white/[0.08] animate-apple-fade-up">
+    <div className="w-full bg-white p-8 sm:p-10 rounded-3xl shadow-[0_16px_40px_-12px_rgba(0,0,0,0.08)] border border-black/[0.06] animate-apple-fade-up">
       {/* Brand logo */}
       <div className="flex justify-center mb-6">
         <Logo variant="vertical" size="lg" locale={lang as Language} href={`/${lang}`} />
       </div>
 
-      <h1 className="text-2xl font-bold tracking-tight text-center text-neutral-900 dark:text-white mb-2">
+      <h1 className="text-2xl font-bold tracking-tight text-center text-neutral-900 mb-2">
         {isArabic ? 'إنشاء حساب جديد' : lang === 'fr' ? 'Créer un compte' : 'Join DZ Rent'}
       </h1>
       <p className="text-xs text-neutral-400 text-center mb-8">
@@ -42,13 +42,13 @@ export function SignupForm({ lang }: { lang: string }) {
 
       <form action={formAction} className="space-y-4">
         {state?.error && (
-          <div className="p-3.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
+          <div className="p-3.5 bg-rose-500/10 text-rose-700 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
             {state.error}
           </div>
         )}
 
         {state?.success && (
-          <div className="p-3.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
+          <div className="p-3.5 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
             {isArabic
               ? 'تم إنشاء الحساب بنجاح! جاري التحويل...'
               : lang === 'fr'
@@ -128,7 +128,7 @@ export function SignupForm({ lang }: { lang: string }) {
         </Button>
       </form>
 
-      <div className="mt-8 pt-6 border-t border-black/[0.05] dark:border-white/[0.06] text-center">
+      <div className="mt-8 pt-6 border-t border-black/[0.05] text-center">
         <p className="text-xs text-neutral-500">
           {isArabic
             ? 'لديك حساب بالفعل؟ '

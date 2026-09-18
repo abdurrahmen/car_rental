@@ -63,7 +63,7 @@ export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
           <nav className="hidden md:flex items-center gap-1">
             <Link
               href={`/${effectiveLocale}/vehicles`}
-              className="px-3 py-1.5 rounded-full text-sm font-medium text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 hover:bg-neutral-100/80 dark:hover:bg-neutral-800 transition-colors"
+              className="px-3 py-1.5 rounded-full text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors"
             >
               {browseVehicles}
             </Link>
@@ -83,7 +83,7 @@ export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
                     ? 'bg-purple-600 text-white hover:bg-purple-700'
                     : userRole === 'staff' || userRole === 'branch_manager'
                     ? 'bg-amber-600 text-white hover:bg-amber-700'
-                    : 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:opacity-90'
+                    : 'bg-neutral-900 text-white hover:opacity-90'
                 }`}
               >
                 {userRole === 'admin' && (

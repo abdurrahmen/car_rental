@@ -37,7 +37,7 @@ export default async function DashboardOverview({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
+        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
           {dict.dashboard?.overview || 'Account Overview'}
         </h1>
         <p className="text-xs text-neutral-400 mt-1">
@@ -86,12 +86,12 @@ export default async function DashboardOverview({
       {/* Recent Reservations Table */}
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-base font-semibold tracking-tight text-neutral-900 dark:text-white">
+          <h2 className="text-base font-semibold tracking-tight text-neutral-900">
             {dict.reservations?.my_reservations || 'Recent Bookings'}
           </h2>
           <Link
             href={`/${lang}/dashboard/reservations`}
-            className="apple-press inline-flex items-center text-xs font-semibold text-brand-500 hover:text-brand-600 px-3 py-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            className="apple-press inline-flex items-center text-xs font-semibold text-brand-500 hover:text-brand-600 px-3 py-1 rounded-full hover:bg-neutral-100 transition-colors"
           >
             {locale === 'ar' ? 'عرض السجل الكامل' : 'View all'} &rarr;
           </Link>

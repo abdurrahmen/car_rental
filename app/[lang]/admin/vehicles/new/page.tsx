@@ -30,12 +30,12 @@ export default async function AdminNewVehiclePage({
       <div className="flex items-center gap-3">
         <Link
           href={`/${lang}/admin/vehicles`}
-          className="apple-press w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
+          className="apple-press w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-xs text-neutral-600 hover:text-neutral-900 transition-colors"
         >
           &larr;
         </Link>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
             {dict.staff?.add_vehicle || 'Add Vehicle to National Fleet'}
           </h1>
           <p className="text-xs text-neutral-400 mt-0.5">
@@ -46,7 +46,7 @@ export default async function AdminNewVehiclePage({
         </div>
       </div>
 
-      <div className="bg-neutral-50/50 dark:bg-neutral-800/30 p-6 sm:p-8 rounded-3xl border border-black/[0.04] dark:border-white/[0.06]">
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-sm">
         <VehicleForm
           categories={categories}
           branches={branches}

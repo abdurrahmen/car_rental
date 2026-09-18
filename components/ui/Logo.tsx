@@ -138,12 +138,12 @@ export function Logo({
 
       <div className="flex flex-col leading-none">
         <div className="flex items-center gap-1">
-          <span className={`font-bold tracking-tight text-neutral-900 dark:text-white ${sizeMap.title}`}>
+          <span className={`font-bold tracking-tight text-neutral-900 ${sizeMap.title}`}>
             DZ<span className="text-brand-500">Rent</span>
           </span>
         </div>
         <span
-          className={`font-medium tracking-normal text-neutral-400 dark:text-neutral-500 mt-1 ${sizeMap.subtitle}`}
+          className={`font-medium tracking-normal text-neutral-400 mt-1 ${sizeMap.subtitle}`}
         >
           {isArabic ? 'كراء السيارات بالجزائر' : 'Car Rental Algeria'}
         </span>

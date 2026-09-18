@@ -44,12 +44,12 @@ export function ProfileForm({
   return (
     <div className="space-y-8 max-w-2xl">
       {/* Verification Status Pill Banner */}
-      <div className="flex items-center justify-between p-5 bg-neutral-50/80 dark:bg-neutral-800/50 rounded-2xl border border-black/[0.04] dark:border-white/[0.06]">
+      <div className="flex items-center justify-between p-5 bg-neutral-50/80 rounded-2xl border border-black/[0.04]">
         <div>
           <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400 block mb-1">
             {effectiveDict?.profile?.license_verified || 'License Status'}
           </span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-300">
+          <span className="text-xs text-neutral-600">
             {profile?.license_verified
               ? isArabic
                 ? 'رخصة السياقة معتمدة ومحققة من قبل طاقم الوكالة.'
@@ -72,18 +72,18 @@ export function ProfileForm({
 
       {/* Personal Info Form */}
       <form action={updateAction} className="space-y-4">
-        <h2 className="text-base font-semibold tracking-tight text-neutral-900 dark:text-white border-b border-black/[0.05] dark:border-white/[0.06] pb-3">
+        <h2 className="text-base font-semibold tracking-tight text-neutral-900 border-b border-black/[0.05] pb-3">
           {effectiveDict?.profile?.my_profile || 'Personal Information'}
         </h2>
 
         {updateState?.error && (
-          <div className="p-3.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
+          <div className="p-3.5 bg-rose-500/10 text-rose-700 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
             {updateState.error}
           </div>
         )}
 
         {updateState?.success && (
-          <div className="p-3.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
+          <div className="p-3.5 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
             {effectiveDict?.profile?.save_changes || 'Profile updated successfully!'}
           </div>
         )}
@@ -135,19 +135,19 @@ export function ProfileForm({
       </form>
 
       {/* Driver License Document Upload */}
-      <form action={uploadAction} className="space-y-4 pt-6 border-t border-black/[0.05] dark:border-white/[0.06]">
-        <h2 className="text-base font-semibold tracking-tight text-neutral-900 dark:text-white">
+      <form action={uploadAction} className="space-y-4 pt-6 border-t border-black/[0.05]">
+        <h2 className="text-base font-semibold tracking-tight text-neutral-900">
           {effectiveDict?.profile?.upload_license || 'Upload License Document'}
         </h2>
 
         {uploadState?.error && (
-          <div className="p-3.5 bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
+          <div className="p-3.5 bg-rose-500/10 text-rose-700 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
             {uploadState.error}
           </div>
         )}
 
         {uploadState?.success && (
-          <div className="p-3.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
+          <div className="p-3.5 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
             License uploaded successfully!
           </div>
         )}

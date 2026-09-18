@@ -22,20 +22,20 @@ export function StatsCard({
   trend,
 }: StatsCardProps) {
   return (
-    <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-6 flex flex-col justify-between apple-card-hover">
+    <div className="bg-white rounded-3xl border border-black/[0.06] shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-6 flex flex-col justify-between apple-card-hover">
       <div className="flex justify-between items-start mb-4">
-        <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+        <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
           {title}
         </span>
         {icon && (
-          <div className="p-2 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400">
+          <div className="p-2 rounded-2xl bg-brand-500/10 text-brand-600">
             {icon}
           </div>
         )}
       </div>
 
       <div>
-        <div className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
+        <div className="text-3xl font-semibold tracking-tight text-neutral-900">
           {value}
         </div>
 
@@ -45,8 +45,8 @@ export function StatsCard({
               <span
                 className={`inline-flex items-center font-medium px-1.5 py-0.5 rounded-full ${
                   trend.isPositive
-                    ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
-                    : 'bg-rose-500/10 text-rose-700 dark:text-rose-400'
+                    ? 'bg-emerald-500/10 text-emerald-700'
+                    : 'bg-rose-500/10 text-rose-700'
                 }`}
               >
                 <svg
@@ -70,7 +70,7 @@ export function StatsCard({
               </span>
             )}
             {subtitle && (
-              <span className="text-neutral-500 dark:text-neutral-400">
+              <span className="text-neutral-500">
                 {subtitle}
               </span>
             )}

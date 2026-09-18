@@ -100,64 +100,64 @@ export default async function VehicleDetailPage({
             />
 
             {/* Spec Matrix Card */}
-            <div className="bg-white dark:bg-neutral-900 p-6 sm:p-8 rounded-3xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)]">
-              <h2 className="text-base font-semibold tracking-tight text-neutral-900 dark:text-white mb-6">
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)]">
+              <h2 className="text-base font-semibold tracking-tight text-neutral-900 mb-6">
                 {dict.vehicles.vehicle_details || 'Technical Specifications'}
               </h2>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 text-xs">
-                <div className="bg-neutral-50/80 dark:bg-neutral-800/50 p-3.5 rounded-2xl border border-black/[0.03]">
+                <div className="bg-neutral-50/80 p-3.5 rounded-2xl border border-black/[0.03]">
                   <span className="text-neutral-400 block mb-1">
                     {dict.vehicles.transmission || 'Transmission'}
                   </span>
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-100 capitalize text-sm">
+                  <span className="font-semibold text-neutral-900 capitalize text-sm">
                     {vehicle.transmission === 'automatic'
                       ? dict.vehicles.automatic || 'Automatic'
                       : dict.vehicles.manual || 'Manual'}
                   </span>
                 </div>
 
-                <div className="bg-neutral-50/80 dark:bg-neutral-800/50 p-3.5 rounded-2xl border border-black/[0.03]">
+                <div className="bg-neutral-50/80 p-3.5 rounded-2xl border border-black/[0.03]">
                   <span className="text-neutral-400 block mb-1">
                     {dict.vehicles.seats || 'Seating Capacity'}
                   </span>
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-100 text-sm">
+                  <span className="font-semibold text-neutral-900 text-sm">
                     {vehicle.seats} {locale === 'ar' ? 'مقاعد' : 'Seats'}
                   </span>
                 </div>
 
-                <div className="bg-neutral-50/80 dark:bg-neutral-800/50 p-3.5 rounded-2xl border border-black/[0.03]">
+                <div className="bg-neutral-50/80 p-3.5 rounded-2xl border border-black/[0.03]">
                   <span className="text-neutral-400 block mb-1">
                     {dict.vehicles.fuel_type || 'Fuel Type'}
                   </span>
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-100 capitalize text-sm">
+                  <span className="font-semibold text-neutral-900 capitalize text-sm">
                     {vehicle.fuel_type}
                   </span>
                 </div>
 
-                <div className="bg-neutral-50/80 dark:bg-neutral-800/50 p-3.5 rounded-2xl border border-black/[0.03]">
+                <div className="bg-neutral-50/80 p-3.5 rounded-2xl border border-black/[0.03]">
                   <span className="text-neutral-400 block mb-1">
                     {dict.vehicles.category || 'Category'}
                   </span>
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-100 text-sm">
+                  <span className="font-semibold text-neutral-900 text-sm">
                     {catName || 'Standard'}
                   </span>
                 </div>
 
-                <div className="bg-neutral-50/80 dark:bg-neutral-800/50 p-3.5 rounded-2xl border border-black/[0.03]">
+                <div className="bg-neutral-50/80 p-3.5 rounded-2xl border border-black/[0.03]">
                   <span className="text-neutral-400 block mb-1">
                     {dict.reservations.pickup_branch || 'Current Location'}
                   </span>
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-100 text-sm">
+                  <span className="font-semibold text-neutral-900 text-sm">
                     {branchName || 'Main Hub'}
                   </span>
                 </div>
 
-                <div className="bg-neutral-50/80 dark:bg-neutral-800/50 p-3.5 rounded-2xl border border-black/[0.03]">
+                <div className="bg-neutral-50/80 p-3.5 rounded-2xl border border-black/[0.03]">
                   <span className="text-neutral-400 block mb-1">
                     {dict.vehicles.mileage_limit || 'Mileage Allowance'}
                   </span>
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-100 text-sm">
+                  <span className="font-semibold text-neutral-900 text-sm">
                     {vehicle.mileage_limit_km
                       ? `${vehicle.mileage_limit_km} km/day`
                       : dict.vehicles.unlimited_mileage || 'Unlimited'}
@@ -172,8 +172,8 @@ export default async function VehicleDetailPage({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 </div>
-                <div className="text-xs text-neutral-600 dark:text-neutral-300">
-                  <span className="font-semibold text-neutral-900 dark:text-white block">
+                <div className="text-xs text-neutral-600">
+                  <span className="font-semibold text-neutral-900 block">
                     {locale === 'ar' ? 'فحص رقمي وحماية كاملة' : 'Digital Handover & Verified Inspection'}
                   </span>
                   <span>
@@ -188,10 +188,10 @@ export default async function VehicleDetailPage({
 
           {/* Right Column: Pricing & Apple Booking Card */}
           <div className="lg:col-span-5 sticky top-24">
-            <div className="bg-white dark:bg-neutral-900 p-6 sm:p-8 rounded-3xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
-              <div className="mb-6 pb-6 border-b border-black/[0.05] dark:border-white/[0.06]">
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
+              <div className="mb-6 pb-6 border-b border-black/[0.05]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="bg-black/[0.04] dark:bg-white/[0.06] text-neutral-700 dark:text-neutral-300 text-xs font-semibold px-2.5 py-1 rounded-full">
+                  <span className="bg-black/[0.04] text-neutral-700 text-xs font-semibold px-2.5 py-1 rounded-full">
                     {vehicle.year}
                   </span>
                   <span className="text-xs font-mono text-neutral-400">
@@ -199,12 +199,12 @@ export default async function VehicleDetailPage({
                   </span>
                 </div>
 
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-white">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900">
                   {vehicle.make} {vehicle.model}
                 </h1>
 
                 <div className="mt-4 flex items-baseline gap-2">
-                  <span className="text-3xl font-bold text-neutral-900 dark:text-white tracking-tight">
+                  <span className="text-3xl font-bold text-neutral-900 tracking-tight">
                     {formatDZD(vehicle.daily_rate, locale)}
                   </span>
                   <span className="text-xs text-neutral-400 font-medium">
@@ -212,7 +212,7 @@ export default async function VehicleDetailPage({
                   </span>
                 </div>
 
-                <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/20 text-xs font-medium">
+                <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-800 border border-amber-500/20 text-xs font-medium">
                   <span>{dict.reservations.deposit_required}:</span>
                   <span className="font-semibold">
                     {formatDZD(vehicle.deposit_amount, locale)}
@@ -222,7 +222,7 @@ export default async function VehicleDetailPage({
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold tracking-tight text-neutral-900 dark:text-white mb-4">
+                <h3 className="text-sm font-semibold tracking-tight text-neutral-900 mb-4">
                   {dict.vehicles.book_now || 'Reserve This Vehicle'}
                 </h3>
                 <ReservationForm

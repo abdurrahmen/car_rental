@@ -85,7 +85,7 @@ export function FileUpload({
   return (
     <div className="w-full flex flex-col gap-1.5">
       {label && (
-        <span className="text-xs font-medium text-neutral-600 dark:text-neutral-300 ps-0.5">
+        <span className="text-xs font-medium text-neutral-600 ps-0.5">
           {label}
         </span>
       )}
@@ -95,7 +95,7 @@ export function FileUpload({
           ${
             dragActive
               ? 'border-brand-500 bg-brand-500/5 ring-4 ring-brand-500/15'
-              : 'border-neutral-300/90 dark:border-neutral-700 bg-neutral-50/70 hover:bg-neutral-100/70 hover:border-neutral-400'
+              : 'border-neutral-300/90 bg-neutral-50/70 hover:bg-neutral-100/70 hover:border-neutral-400'
           }
           ${error ? 'border-danger-500 bg-danger-50/30' : ''}
         `}
@@ -148,7 +148,7 @@ export function FileUpload({
                 />
               </svg>
             </div>
-            <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+            <p className="text-sm font-medium text-neutral-800">
               Drop your document here or <span className="text-brand-500">browse</span>
             </p>
             <p className="text-xs text-neutral-400 mt-1">
