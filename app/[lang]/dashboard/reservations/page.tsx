@@ -27,7 +27,7 @@ export default async function ReservationsPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-heading font-bold text-brand-900 mb-6">
+      <h1 className="text-2xl font-heading font-bold text-neutral-900 tracking-tight mb-6">
         {dict.reservations.my_reservations}
       </h1>
       <ReservationTable

@@ -63,13 +63,13 @@ export function VehicleForm({
       {isEditing && <input type="hidden" name="id" value={vehicle?.id} />}
 
       {state?.error && (
-        <div className="p-3 bg-danger-50 text-danger-700 border border-danger-200 rounded-lg text-sm">
+        <div className="p-3.5 bg-danger-50 text-danger-700 border border-danger-200 rounded-2xl text-xs font-medium">
           {state.error}
         </div>
       )}
 
       {state?.success && (
-        <div className="p-3 bg-success-50 text-success-700 border border-success-200 rounded-lg text-sm">
+        <div className="p-3.5 bg-success-50 text-success-700 border border-success-200 rounded-2xl text-xs font-medium">
           Vehicle saved successfully! Redirecting...
         </div>
       )}
@@ -115,14 +115,28 @@ export function VehicleForm({
           label={effectiveDict?.vehicles?.category || 'Category'}
           name="category_id"
           options={categoryOptions}
-          defaultValue={vehicle?.category_id || categories[0]?.id || ''}
+          placeholder={
+            effectiveLocale === 'ar'
+              ? 'اختر فئة المركبة...'
+              : effectiveLocale === 'fr'
+              ? 'Sélectionner une catégorie...'
+              : 'Select a category...'
+          }
+          defaultValue={vehicle?.category_id || ''}
           required
         />
         <Select
           label={effectiveDict?.reservations?.pickup_branch || 'Branch'}
           name="branch_id"
           options={branchOptions}
-          defaultValue={vehicle?.branch_id || branches[0]?.id || ''}
+          placeholder={
+            effectiveLocale === 'ar'
+              ? 'اختر الوكالة...'
+              : effectiveLocale === 'fr'
+              ? 'Sélectionner une agence...'
+              : 'Select a branch...'
+          }
+          defaultValue={vehicle?.branch_id || ''}
           required
         />
       </div>
@@ -217,7 +231,7 @@ export function VehicleForm({
         />
       )}
 
-      <div className="flex gap-4 pt-4 border-t border-neutral-200">
+      <div className="flex gap-4 pt-4 border-t border-black/[0.06]">
         <Button
           type="submit"
           variant="primary"

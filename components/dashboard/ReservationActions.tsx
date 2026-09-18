@@ -47,47 +47,47 @@ export function ReservationActions({
   return (
     <div className="space-y-6">
       {confirmState?.error && (
-        <div className="p-3 bg-danger-50 text-danger-700 border border-danger-200 rounded-lg text-sm">
+        <div className="p-3.5 bg-danger-50 text-danger-700 border border-danger-200 rounded-2xl text-xs font-medium">
           {confirmState.error}
         </div>
       )}
 
       {rejectState?.error && (
-        <div className="p-3 bg-danger-50 text-danger-700 border border-danger-200 rounded-lg text-sm">
+        <div className="p-3.5 bg-danger-50 text-danger-700 border border-danger-200 rounded-2xl text-xs font-medium">
           {rejectState.error}
         </div>
       )}
 
       {confirmState?.success && (
-        <div className="p-3 bg-success-50 text-success-700 border border-success-200 rounded-lg text-sm">
+        <div className="p-3.5 bg-success-50 text-success-700 border border-success-200 rounded-2xl text-xs font-medium">
           Reservation confirmed! A 48-hour deposit window has been granted.
         </div>
       )}
 
       {rejectState?.success && (
-        <div className="p-3 bg-neutral-100 text-neutral-800 border border-neutral-300 rounded-lg text-sm">
+        <div className="p-3.5 bg-neutral-100 text-neutral-800 border border-black/[0.06] rounded-2xl text-xs font-medium">
           Reservation has been rejected and cancelled.
         </div>
       )}
 
       {isPending ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-neutral-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-black/[0.06]">
           {/* Confirm Form */}
           <form
             action={confirmAction}
-            className="p-5 bg-success-50 border border-success-200 rounded-xl space-y-4"
+            className="p-6 sm:p-8 bg-white border border-emerald-500/20 rounded-3xl shadow-sm space-y-4"
           >
             <input type="hidden" name="id" value={reservation.id} />
-            <h3 className="font-heading font-bold text-success-900 text-base">
+            <h3 className="font-bold text-emerald-950 text-base tracking-tight">
               {effectiveDict?.staff?.confirm_reservation || 'Confirm Reservation'}
             </h3>
-            <p className="text-xs text-success-800">
+            <p className="text-xs text-neutral-600">
               Confirming locks the vehicle for the requested dates and notifies the customer to submit the deposit.
             </p>
             <div>
               <label
                 htmlFor="staff_notes"
-                className="block text-xs font-medium text-neutral-700 mb-1"
+                className="block text-xs font-medium text-neutral-700 mb-1.5"
               >
                 {effectiveDict?.staff?.staff_notes || 'Internal Staff Notes'}
               </label>
@@ -96,7 +96,7 @@ export function ReservationActions({
                 name="staff_notes"
                 rows={2}
                 placeholder="Called customer, license looks verified..."
-                className="w-full text-sm border border-neutral-300 rounded-lg p-2.5 focus:ring-2 focus:ring-success-500 focus:outline-none"
+                className="w-full text-sm bg-white border border-neutral-300 rounded-xl p-3 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 focus:outline-none transition-all"
               />
             </div>
             <Button
@@ -113,19 +113,19 @@ export function ReservationActions({
           {/* Reject Form */}
           <form
             action={rejectAction}
-            className="p-5 bg-danger-50 border border-danger-200 rounded-xl space-y-4"
+            className="p-6 sm:p-8 bg-white border border-red-500/20 rounded-3xl shadow-sm space-y-4"
           >
             <input type="hidden" name="id" value={reservation.id} />
-            <h3 className="font-heading font-bold text-danger-900 text-base">
+            <h3 className="font-bold text-red-950 text-base tracking-tight">
               {effectiveDict?.staff?.reject_reservation || 'Reject Reservation'}
             </h3>
-            <p className="text-xs text-danger-800">
+            <p className="text-xs text-neutral-600">
               Rejecting releases any hold on the vehicle immediately.
             </p>
             <div>
               <label
                 htmlFor="reason"
-                className="block text-xs font-medium text-neutral-700 mb-1"
+                className="block text-xs font-medium text-neutral-700 mb-1.5"
               >
                 Reason for Rejection
               </label>
@@ -135,7 +135,7 @@ export function ReservationActions({
                 rows={2}
                 required
                 placeholder="Invalid license, customer unreachable, vehicle unavailable..."
-                className="w-full text-sm border border-neutral-300 rounded-lg p-2.5 focus:ring-2 focus:ring-danger-500 focus:outline-none"
+                className="w-full text-sm bg-white border border-neutral-300 rounded-xl p-3 focus:border-red-500 focus:ring-4 focus:ring-red-500/15 focus:outline-none transition-all"
               />
             </div>
             <Button
@@ -150,9 +150,9 @@ export function ReservationActions({
           </form>
         </div>
       ) : (
-        <div className="p-4 bg-neutral-100 rounded-xl text-neutral-600 text-sm">
+        <div className="p-4 bg-neutral-50 border border-black/[0.06] rounded-2xl text-neutral-600 text-sm">
           This reservation is currently{' '}
-          <strong className="capitalize">{reservation.status}</strong>. No further pending queue actions required.
+          <strong className="capitalize text-neutral-900">{reservation.status}</strong>. No further pending queue actions required.
         </div>
       )}
     </div>

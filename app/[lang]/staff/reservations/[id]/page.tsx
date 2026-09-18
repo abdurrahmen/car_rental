@@ -31,12 +31,12 @@ export default async function StaffReservationDetailPage({
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-200 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/[0.06] pb-4">
         <div>
-          <span className="text-xs font-mono text-neutral-500 block">
+          <span className="text-xs font-mono text-neutral-400 block">
             Reservation #{reservation.id}
           </span>
-          <h1 className="text-2xl font-heading font-bold text-brand-900 mt-1">
+          <h1 className="text-2xl font-bold text-neutral-900 tracking-tight mt-1">
             {dict.reservations.reservation_details}
           </h1>
         </div>
@@ -46,7 +46,7 @@ export default async function StaffReservationDetailPage({
         />
       </div>
 
-      <div className="bg-neutral-50 p-6 rounded-xl border border-neutral-200">
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-sm">
         <ReservationTimeline
           reservation={reservation as Reservation}
           locale={locale}
@@ -55,8 +55,8 @@ export default async function StaffReservationDetailPage({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Customer Information & Documents */}
-        <div className="bg-neutral-50 p-6 rounded-xl border border-neutral-200 space-y-3">
-          <h2 className="text-lg font-heading font-bold text-brand-900">
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-sm space-y-4">
+          <h2 className="text-lg font-bold text-neutral-900 tracking-tight">
             Customer Information
           </h2>
           <p className="text-sm">
@@ -69,7 +69,7 @@ export default async function StaffReservationDetailPage({
             <span className="text-neutral-500">{dict.profile.phone}:</span>{' '}
             <a
               href={`tel:${reservation.customer?.phone}`}
-              className="text-accent-600 font-semibold hover:underline"
+              className="text-brand-500 font-semibold hover:underline"
             >
               {reservation.customer?.phone || 'N/A'}
             </a>
@@ -82,13 +82,13 @@ export default async function StaffReservationDetailPage({
               {reservation.customer?.license_number || 'Not provided'}
             </span>
           </p>
-          <div className="pt-2 border-t border-neutral-200 text-xs text-neutral-600">
+          <div className="pt-3 border-t border-black/[0.06] text-xs text-neutral-600">
             {reservation.customer?.license_document_url ? (
-              <span className="text-success-700 font-semibold flex items-center gap-1">
+              <span className="text-emerald-700 font-semibold flex items-center gap-1">
                 ✓ Driver license document uploaded
               </span>
             ) : (
-              <span className="text-warning-800 font-medium">
+              <span className="text-amber-800 font-medium">
                 ⚠ No driver license uploaded yet
               </span>
             )}
@@ -96,8 +96,8 @@ export default async function StaffReservationDetailPage({
         </div>
 
         {/* Vehicle & Reservation Details */}
-        <div className="bg-neutral-50 p-6 rounded-xl border border-neutral-200 space-y-3">
-          <h2 className="text-lg font-heading font-bold text-brand-900">
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-sm space-y-4">
+          <h2 className="text-lg font-bold text-neutral-900 tracking-tight">
             Vehicle & Rental Period
           </h2>
           <p className="text-sm">
@@ -112,7 +112,7 @@ export default async function StaffReservationDetailPage({
             {formatDate(reservation.start_date, locale)} →{' '}
             {formatDate(reservation.end_date, locale)}
           </p>
-          <div className="pt-2 border-t border-neutral-200 space-y-1">
+          <div className="pt-3 border-t border-black/[0.06] space-y-1.5">
             <div className="flex justify-between text-sm">
               <span className="text-neutral-500">
                 {dict.reservations.deposit_required}:
@@ -121,9 +121,9 @@ export default async function StaffReservationDetailPage({
                 {formatDZD(reservation.deposit_amount, locale)}
               </span>
             </div>
-            <div className="flex justify-between text-base font-bold text-brand-900 pt-1">
+            <div className="flex justify-between text-base font-bold text-neutral-900 pt-1">
               <span>{dict.reservations.total_price}:</span>
-              <span className="text-accent-600">
+              <span className="text-brand-600">
                 {formatDZD(reservation.total_price, locale)}
               </span>
             </div>

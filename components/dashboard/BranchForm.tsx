@@ -19,7 +19,7 @@ export function BranchForm({ locale }: { locale: Language }) {
       ) : (
         <form
           action={formAction}
-          className="p-6 bg-neutral-50 rounded-xl border border-neutral-200 space-y-4 max-w-xl"
+          className="p-6 sm:p-8 bg-white rounded-3xl border border-black/[0.06] shadow-sm space-y-6 max-w-xl"
         >
           <div className="flex justify-between items-center mb-2">
             <h3 className="font-heading font-bold text-brand-900 text-lg">
@@ -28,20 +28,20 @@ export function BranchForm({ locale }: { locale: Language }) {
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="text-neutral-500 hover:text-neutral-700 text-sm"
+              className="text-neutral-500 hover:text-neutral-700 text-xs font-semibold px-2.5 py-1 rounded-full hover:bg-black/[0.04] transition-colors"
             >
               ✕ Cancel
             </button>
           </div>
 
           {state?.error && (
-            <div className="p-3 bg-danger-50 text-danger-700 border border-danger-200 rounded-lg text-sm">
+            <div className="p-3.5 bg-danger-50 text-danger-700 border border-danger-200 rounded-2xl text-xs font-medium">
               {state.error}
             </div>
           )}
 
           {state?.success && (
-            <div className="p-3 bg-success-50 text-success-700 border border-success-200 rounded-lg text-sm">
+            <div className="p-3.5 bg-success-50 text-success-700 border border-success-200 rounded-2xl text-xs font-medium">
               Branch created successfully!
             </div>
           )}
@@ -90,7 +90,7 @@ export function BranchForm({ locale }: { locale: Language }) {
           />
 
           <div className="flex gap-3 pt-2">
-            <Button type="submit" variant="primary" loading={isPending}>
+            <Button type="submit" variant="primary" loading={isPending} disabled={isPending}>
               Create Branch
             </Button>
             <Button

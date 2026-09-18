@@ -33,7 +33,7 @@ export default async function AdminReservationsPage({
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-heading font-bold text-brand-900">
+          <h1 className="text-2xl font-heading font-bold text-neutral-900 tracking-tight">
             {dict.admin.all_reservations}
           </h1>
           <p className="text-sm text-neutral-500 mt-1">

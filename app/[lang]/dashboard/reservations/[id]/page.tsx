@@ -41,12 +41,12 @@ export default async function ReservationDetailPage({
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-200 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/[0.06] pb-4">
         <div>
-          <span className="text-xs font-mono text-neutral-500 block">
+          <span className="text-xs font-mono text-neutral-400 block">
             ID: #{reservation.id}
           </span>
-          <h1 className="text-2xl font-heading font-bold text-brand-900 mt-1">
+          <h1 className="text-2xl font-bold text-neutral-900 tracking-tight mt-1">
             {dict.reservations.reservation_details}
           </h1>
         </div>
@@ -57,7 +57,7 @@ export default async function ReservationDetailPage({
       </div>
 
       {/* State Timeline */}
-      <div className="bg-neutral-50 p-6 rounded-xl border border-neutral-200">
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-sm">
         <ReservationTimeline
           reservation={reservation as Reservation}
           locale={locale}
@@ -67,8 +67,8 @@ export default async function ReservationDetailPage({
       {/* Details Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Vehicle Info */}
-        <div className="bg-neutral-50 p-6 rounded-xl border border-neutral-200 space-y-3">
-          <h2 className="text-lg font-heading font-bold text-brand-900">
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-sm space-y-4">
+          <h2 className="text-lg font-bold text-neutral-900 tracking-tight">
             {reservation.vehicle?.make} {reservation.vehicle?.model}
           </h2>
           <p className="text-sm text-neutral-600">
@@ -77,7 +77,7 @@ export default async function ReservationDetailPage({
               ? dict.vehicles.automatic
               : dict.vehicles.manual}
           </p>
-          <div className="pt-2 border-t border-neutral-200 text-sm space-y-1">
+          <div className="pt-3 border-t border-black/[0.06] text-sm space-y-1.5">
             <p>
               <span className="text-neutral-500">
                 {dict.reservations.pickup_branch}:
@@ -106,15 +106,15 @@ export default async function ReservationDetailPage({
         </div>
 
         {/* Pricing and Dates */}
-        <div className="bg-neutral-50 p-6 rounded-xl border border-neutral-200 space-y-3">
-          <h2 className="text-lg font-heading font-bold text-brand-900">
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-sm space-y-4">
+          <h2 className="text-lg font-bold text-neutral-900 tracking-tight">
             {dict.reservations.pickup_date} & {dict.reservations.return_date}
           </h2>
           <p className="text-sm text-neutral-700">
             {formatDate(reservation.start_date, locale)} →{' '}
             {formatDate(reservation.end_date, locale)}
           </p>
-          <div className="pt-2 border-t border-neutral-200 space-y-1">
+          <div className="pt-3 border-t border-black/[0.06] space-y-1.5">
             <div className="flex justify-between text-sm">
               <span className="text-neutral-500">
                 {dict.reservations.deposit_required}:
@@ -123,9 +123,9 @@ export default async function ReservationDetailPage({
                 {formatDZD(reservation.deposit_amount, locale)}
               </span>
             </div>
-            <div className="flex justify-between text-base font-bold text-brand-900 pt-1">
+            <div className="flex justify-between text-base font-bold text-neutral-900 pt-1">
               <span>{dict.reservations.total_price}:</span>
-              <span className="text-accent-600">
+              <span className="text-brand-600">
                 {formatDZD(reservation.total_price, locale)}
               </span>
             </div>
@@ -135,11 +135,11 @@ export default async function ReservationDetailPage({
 
       {/* Cancellation section */}
       {canCancel && (
-        <div className="p-6 bg-danger-50 rounded-xl border border-danger-200">
-          <h3 className="font-heading font-bold text-danger-900 text-lg mb-2">
+        <div className="p-6 sm:p-8 bg-red-50/50 rounded-3xl border border-red-200/60">
+          <h3 className="font-bold text-danger-900 text-lg mb-2">
             {dict.reservations.cancel_reservation}
           </h3>
-          <p className="text-sm text-danger-700 mb-4">
+          <p className="text-sm text-neutral-600 mb-4">
             If your travel plans have changed, you can cancel your request. The blocked vehicle will be immediately released.
           </p>
           <form
@@ -154,7 +154,7 @@ export default async function ReservationDetailPage({
               type="text"
               name="reason"
               placeholder={dict.reservations.cancel_reason}
-              className="flex-1 bg-white border border-danger-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-danger-500 min-h-[44px]"
+              className="flex-1 bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 min-h-[44px]"
             />
             <Button type="submit" variant="danger">
               {dict.reservations.cancel_reservation}

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getDictionaryByLocale } from '@/app/[lang]/dictionaries';
 import { StaffForm } from '@/components/dashboard/StaffForm';
 import { Badge } from '@/components/ui/Badge';
+import { EmptyState } from '@/components/ui/EmptyState';
 import type { Language, Profile, Branch } from '@/types';
 
 interface AdminStaffPageProps {
@@ -26,7 +27,7 @@ export default async function AdminStaffPage({ params }: AdminStaffPageProps) {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-heading font-bold text-brand-900">
+          <h1 className="text-2xl font-heading font-bold text-neutral-900 tracking-tight">
             {dict.admin.manage_staff}
           </h1>
           <p className="text-sm text-neutral-500 mt-1">
@@ -45,11 +46,11 @@ export default async function AdminStaffPage({ params }: AdminStaffPageProps) {
           (staff as (Profile & { branch?: Branch })[]).map((s) => (
             <div
               key={s.id}
-              className="p-5 bg-card border border-neutral-200 rounded-xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              className="p-6 bg-white border border-black/[0.06] rounded-3xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
               <div>
                 <div className="flex items-center gap-3">
-                  <h3 className="font-heading font-bold text-lg text-brand-900">
+                  <h3 className="font-semibold text-lg text-neutral-900 tracking-tight">
                     {s.full_name || 'Staff Member'}
                   </h3>
                   <Badge
@@ -64,7 +65,7 @@ export default async function AdminStaffPage({ params }: AdminStaffPageProps) {
                     {s.role}
                   </Badge>
                 </div>
-                <p className="text-sm text-neutral-600 mt-1">
+                <p className="text-sm text-neutral-600 mt-1.5">
                   📞 {s.phone || 'No phone'}
                 </p>
                 <p className="text-xs text-neutral-500 mt-1">
@@ -87,9 +88,14 @@ export default async function AdminStaffPage({ params }: AdminStaffPageProps) {
             </div>
           ))
         ) : (
-          <div className="text-center py-12 bg-neutral-50 rounded-xl border border-neutral-200 text-neutral-500">
-            No staff accounts found.
-          </div>
+          <EmptyState
+            title={locale === 'ar' ? 'لا يوجد موظفون' : 'No Staff Accounts Found'}
+            description={
+              locale === 'ar'
+                ? 'قم بتسجيل حساب موظف أو مدير فرع جديد باستخدام النموذج أعلاه.'
+                : 'Create a staff agent or branch manager account using the form above.'
+            }
+          />
         )}
       </div>
     </div>

@@ -44,14 +44,16 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   return (
     <div>
-      <h1 className="text-2xl font-heading font-bold text-brand-900 mb-6">
+      <h1 className="text-2xl font-heading font-bold text-neutral-900 tracking-tight mb-6">
         {dict.profile.my_profile}
       </h1>
-      <ProfileForm
-        profile={profile as Profile}
-        locale={locale}
-        dictionary={dict}
-      />
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-sm max-w-2xl">
+        <ProfileForm
+          profile={profile as Profile}
+          locale={locale}
+          dictionary={dict}
+        />
+      </div>
     </div>
   );
 }

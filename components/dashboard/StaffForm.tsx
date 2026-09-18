@@ -35,7 +35,7 @@ export function StaffForm({
       ) : (
         <form
           action={formAction}
-          className="p-6 bg-neutral-50 rounded-xl border border-neutral-200 space-y-4 max-w-xl"
+          className="p-6 sm:p-8 bg-white rounded-3xl border border-black/[0.06] shadow-sm space-y-6 max-w-xl"
         >
           <div className="flex justify-between items-center mb-2">
             <h3 className="font-heading font-bold text-brand-900 text-lg">
@@ -44,20 +44,20 @@ export function StaffForm({
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="text-neutral-500 hover:text-neutral-700 text-sm"
+              className="text-neutral-500 hover:text-neutral-700 text-xs font-semibold px-2.5 py-1 rounded-full hover:bg-black/[0.04] transition-colors"
             >
               ✕ Cancel
             </button>
           </div>
 
           {state?.error && (
-            <div className="p-3 bg-danger-50 text-danger-700 border border-danger-200 rounded-lg text-sm">
+            <div className="p-3.5 bg-danger-50 text-danger-700 border border-danger-200 rounded-2xl text-xs font-medium">
               {state.error}
             </div>
           )}
 
           {state?.success && (
-            <div className="p-3 bg-success-50 text-success-700 border border-success-200 rounded-lg text-sm">
+            <div className="p-3.5 bg-success-50 text-success-700 border border-success-200 rounded-2xl text-xs font-medium">
               Staff account registered successfully!
             </div>
           )}
@@ -83,6 +83,14 @@ export function StaffForm({
             <Select
               name="role"
               label="Assigned Role"
+              placeholder={
+                locale === 'ar'
+                  ? 'اختر الرتبة...'
+                  : locale === 'fr'
+                  ? 'Sélectionner un rôle...'
+                  : 'Select assigned role...'
+              }
+              defaultValue=""
               options={[
                 { value: 'staff', label: 'Branch Staff Agent' },
                 { value: 'branch_manager', label: 'Branch Manager' },
@@ -93,13 +101,21 @@ export function StaffForm({
             <Select
               name="branch_id"
               label="Assigned Agency Branch"
+              placeholder={
+                locale === 'ar'
+                  ? 'اختر الوكالة...'
+                  : locale === 'fr'
+                  ? 'Sélectionner une agence...'
+                  : 'Select assigned branch...'
+              }
+              defaultValue=""
               options={branchOptions}
               required
             />
           </div>
 
           <div className="flex gap-3 pt-2">
-            <Button type="submit" variant="primary" loading={isPending}>
+            <Button type="submit" variant="primary" loading={isPending} disabled={isPending}>
               Create Account
             </Button>
             <Button
