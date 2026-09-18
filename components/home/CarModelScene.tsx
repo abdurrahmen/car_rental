@@ -16,24 +16,31 @@ export default function CarModelScene({ onLoaded }: CarModelSceneProps) {
   // Load GLB using the local Draco decoder binaries in /draco/
   const { scene } = useGLTF('/models/fiat_abarth_500.glb', '/draco/')
 
-  // Normalize model bounds: center at (0, 0, 0) and scale to standard viewport size
+  // Normalize model bounds: center at (0, 0, 0) and place tires exactly on ground (y = 0)
   const model = useMemo(() => {
     const cloned = scene.clone(true)
-    const box = new THREE.Box3().setFromObject(cloned)
+    const initialBox = new THREE.Box3().setFromObject(cloned)
     const size = new THREE.Vector3()
-    box.getSize(size)
+    initialBox.getSize(size)
     const center = new THREE.Vector3()
-    box.getCenter(center)
+    initialBox.getCenter(center)
 
-    // Normalize scale so the model fits comfortably in the visual frame
+    // Normalize scale so the model comfortably fills the visual column
     const maxDim = Math.max(size.x, size.y, size.z)
     const scaleFactor = 3.3 / maxDim
     cloned.scale.setScalar(scaleFactor)
 
-    // Center horizontally and place lowest point at y = 0
+    // Center horizontally (X and Z) around origin
     cloned.position.x = -center.x * scaleFactor
-    cloned.position.y = -box.min.y * scaleFactor
     cloned.position.z = -center.z * scaleFactor
+
+    // Align base of tires directly to ground plane (y = 0)
+    cloned.position.y = -initialBox.min.y * scaleFactor
+
+    // Micro-verify with post-transform bounding box to guarantee exact zero ground contact
+    cloned.updateMatrixWorld(true)
+    const postBox = new THREE.Box3().setFromObject(cloned)
+    cloned.position.y -= postBox.min.y
 
     // Ensure physical materials and shadow casting
     cloned.traverse((child) => {
@@ -54,13 +61,11 @@ export default function CarModelScene({ onLoaded }: CarModelSceneProps) {
     }
   }, [onLoaded])
 
-  // Continuous subtle idle motion: slow turntable rotation and gentle vertical float
-  useFrame((state, delta) => {
+  // Continuous subtle idle motion: slow showroom turntable rotation (tires permanently grounded)
+  useFrame((_, delta) => {
     if (!groupRef.current) return
-    // Gentle turntable rotation (~0.18 rad/s)
-    groupRef.current.rotation.y += delta * 0.18
-    // Subtle float
-    groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 1.4) * 0.02
+    // Gentle turntable rotation (~0.16 rad/s)
+    groupRef.current.rotation.y += delta * 0.16
   })
 
   return (
@@ -106,14 +111,14 @@ export default function CarModelScene({ onLoaded }: CarModelSceneProps) {
         <primitive object={model} />
       </group>
 
-      {/* Soft Ground Contact Shadow */}
+      {/* Soft Ground Contact Shadow tightly fitted to vehicle footprint */}
       <ContactShadows
         position={[0, 0, 0]}
-        opacity={0.65}
-        scale={8.5}
-        blur={1.8}
-        far={3}
-        color="#080e1a"
+        opacity={0.75}
+        scale={4.8}
+        blur={1.4}
+        far={2.2}
+        color="#060c18"
       />
 
       {/* Restrained OrbitControls: allow subtle user inspection without getting lost */}
