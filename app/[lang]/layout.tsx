@@ -1,6 +1,8 @@
+import { Suspense } from 'react';
 import { Cairo, Inter } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { isRtl, LOCALES } from '@/lib/utils/constants';
+import { NavigationProgress } from '@/components/ui/NavigationProgress';
 import type { Language } from '@/types';
 
 const cairo = Cairo({
@@ -51,6 +53,9 @@ export default async function LangLayout({
       className={`${cairo.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-body bg-background text-foreground selection:bg-brand-500/20 selection:text-brand-900">
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         {children}
       </body>
     </html>
