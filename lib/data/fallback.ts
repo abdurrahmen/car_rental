@@ -353,7 +353,7 @@ export const FALLBACK_VEHICLES: FallbackVehicleWithRelations[] = [
       {
         id: 'p8',
         vehicle_id: '40000000-0000-0000-0000-000000000008',
-        storage_path: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1200&q=80',
+        storage_path: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=1200&q=80',
         is_primary: true,
         sort_order: 0,
         created_at: '2026-01-01T00:00:00Z',
@@ -383,7 +383,7 @@ export const FALLBACK_VEHICLES: FallbackVehicleWithRelations[] = [
       {
         id: 'p10',
         vehicle_id: '40000000-0000-0000-0000-000000000010',
-        storage_path: 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=1200&q=80',
+        storage_path: 'https://images.unsplash.com/photo-1559297434-fae8a1916a79?w=1200&q=80',
         is_primary: true,
         sort_order: 0,
         created_at: '2026-01-01T00:00:00Z',

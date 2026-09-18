@@ -466,25 +466,25 @@ VALUES
 -- Peugeot 508
 ('40000000-0000-0000-0000-000000000005', '30000000-0000-0000-0000-000000000005', 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1200&auto=format&fit=crop&q=80', true, 0),
 -- Skoda Octavia
-('40000000-0000-0000-0000-000000000006', '30000000-0000-0000-0000-000000000006', 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1200&auto=format&fit=crop&q=80', true, 0),
+('40000000-0000-0000-0000-000000000006', '30000000-0000-0000-0000-000000000006', 'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=1200&auto=format&fit=crop&q=80', true, 0),
 -- Hyundai Tucson
 ('40000000-0000-0000-0000-000000000007', '30000000-0000-0000-0000-000000000007', 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=1200&auto=format&fit=crop&q=80', true, 0),
 -- Toyota Land Cruiser Prado
 ('40000000-0000-0000-0000-000000000008', '30000000-0000-0000-0000-000000000008', 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1200&auto=format&fit=crop&q=80', true, 0),
 -- Dacia Duster 4x4
-('40000000-0000-0000-0000-000000000009', '30000000-0000-0000-0000-000000000009', 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&auto=format&fit=crop&q=80', true, 0),
+('40000000-0000-0000-0000-000000000009', '30000000-0000-0000-0000-000000000009', 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=1200&auto=format&fit=crop&q=80', true, 0),
 -- Peugeot Boxer Fourgon
-('40000000-0000-0000-0000-000000000010', '30000000-0000-0000-0000-000000000010', 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1200&auto=format&fit=crop&q=80', true, 0),
+('40000000-0000-0000-0000-000000000010', '30000000-0000-0000-0000-000000000010', 'https://images.unsplash.com/photo-1559297434-fae8a1916a79?w=1200&auto=format&fit=crop&q=80', true, 0),
 -- Renault Master Utility
-('40000000-0000-0000-0000-000000000011', '30000000-0000-0000-0000-000000000011', 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200&auto=format&fit=crop&q=80', true, 0),
+('40000000-0000-0000-0000-000000000011', '30000000-0000-0000-0000-000000000011', 'https://images.unsplash.com/photo-1559297434-fae8a1916a79?w=1200&auto=format&fit=crop&q=80', true, 0),
 -- Hyundai H-100 Truck
 ('40000000-0000-0000-0000-000000000012', '30000000-0000-0000-0000-000000000012', 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1200&auto=format&fit=crop&q=80', true, 0),
 -- Toyota Hilux 4x4
 ('40000000-0000-0000-0000-000000000013', '30000000-0000-0000-0000-000000000013', 'https://images.unsplash.com/photo-1559416523-140ddc3d238c?w=1200&auto=format&fit=crop&q=80', true, 0),
 -- Isuzu D-Max
-('40000000-0000-0000-0000-000000000014', '30000000-0000-0000-0000-000000000014', 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=1200&auto=format&fit=crop&q=80', true, 0),
+('40000000-0000-0000-0000-000000000014', '30000000-0000-0000-0000-000000000014', 'https://images.unsplash.com/photo-1559416523-140ddc3d238c?w=1200&auto=format&fit=crop&q=80', true, 0),
 -- JCB Heavy Equipment
-('40000000-0000-0000-0000-000000000015', '30000000-0000-0000-0000-000000000015', 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1200&auto=format&fit=crop&q=80', true, 0)
+('40000000-0000-0000-0000-000000000015', '30000000-0000-0000-0000-000000000015', 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?w=1200&auto=format&fit=crop&q=80', true, 0)
 ON CONFLICT (id) DO NOTHING;
 
 -------------------------------------------------------------------------------
