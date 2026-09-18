@@ -28,45 +28,121 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
 
     if (prefersReducedMotion) return
 
-    const ctx = gsap.context(() => {
-      // Scroll-linked progress line animation along the section
-      if (progressLineRef.current && sectionRef.current) {
-        gsap.fromTo(
+    const mm = gsap.matchMedia()
+
+    // Desktop (1024px+): Pinned scroll-driven sequence where cards reveal one after another while scrolling
+    mm.add('(min-width: 1024px)', () => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 10%',
+          end: '+=750',
+          pin: true,
+          scrub: 0.5,
+          anticipatePin: 1,
+        },
+      })
+
+      // Progress bar fill: 0 to 100% across the timeline
+      if (progressLineRef.current) {
+        tl.fromTo(
           progressLineRef.current,
-          { scaleX: 0 },
-          {
-            scaleX: 1,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: 'top 80%',
-              end: 'bottom 85%',
-              scrub: 0.4,
-            },
-          }
+          { scaleX: 0.12 },
+          { scaleX: 1, ease: 'none', duration: 3.5 },
+          0
         )
       }
 
-      // Subtle upward settlement on cards without hiding them with opacity: 0
-      gsap.fromTo(
-        '.journey-card',
-        { y: 20 },
-        {
-          y: 0,
-          duration: 0.6,
-          stagger: 0.08,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-            once: true,
-          },
-        }
+      // Step 01: Active by default, dot 0 highlighted
+      tl.to(
+        '#station-dot-0',
+        { borderColor: '#0071E3', scale: 1.25, duration: 0.3 },
+        0
       )
-    }, sectionRef)
+      tl.to(
+        '#station-dot-0 .station-inner',
+        { backgroundColor: '#0071E3', duration: 0.3 },
+        0
+      )
 
-    return () => ctx.revert()
-  }, [])
+      // Step 02: Reveals as user turns the scroll wheel (time 0.8 -> 1.8)
+      tl.fromTo(
+        '#journey-card-1',
+        { opacity: 0, y: 30, scale: 0.96 },
+        { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power2.out' },
+        0.8
+      )
+      tl.to(
+        '#station-dot-1',
+        { borderColor: '#0071E3', scale: 1.25, duration: 0.4 },
+        1.1
+      )
+      tl.to(
+        '#station-dot-1 .station-inner',
+        { backgroundColor: '#0071E3', duration: 0.4 },
+        1.1
+      )
+
+      // Step 03: Reveals as scroll advances further (time 1.8 -> 2.8)
+      tl.fromTo(
+        '#journey-card-2',
+        { opacity: 0, y: 30, scale: 0.96 },
+        { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power2.out' },
+        1.8
+      )
+      tl.to(
+        '#station-dot-2',
+        { borderColor: '#0071E3', scale: 1.25, duration: 0.4 },
+        2.1
+      )
+      tl.to(
+        '#station-dot-2 .station-inner',
+        { backgroundColor: '#0071E3', duration: 0.4 },
+        2.1
+      )
+
+      // Step 04: Reveals as journey completes (time 2.8 -> 3.5)
+      tl.fromTo(
+        '#journey-card-3',
+        { opacity: 0, y: 30, scale: 0.96 },
+        { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power2.out' },
+        2.8
+      )
+      tl.to(
+        '#station-dot-3',
+        { borderColor: '#10B981', scale: 1.25, duration: 0.4 },
+        3.1
+      )
+      tl.to(
+        '#station-dot-3 .station-inner',
+        { backgroundColor: '#10B981', duration: 0.4 },
+        3.1
+      )
+    })
+
+    // Mobile / Tablet (<1024px): Cards reveal sequentially as each scrolls into viewport
+    mm.add('(max-width: 1023px)', () => {
+      [0, 1, 2, 3].forEach((idx) => {
+        gsap.fromTo(
+          `#journey-card-${idx}`,
+          { opacity: 0, y: 25 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: `#journey-card-${idx}`,
+              start: 'top 85%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        )
+      })
+    })
+
+    return () => mm.revert()
+  }, [isArabic])
 
   const steps = [
     {
@@ -153,11 +229,11 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
   return (
     <section
       ref={sectionRef}
-      className="py-16 sm:py-24 bg-[#F6F6F9] border-y border-black/[0.06] relative overflow-hidden"
+      className="py-12 sm:py-16 bg-[#F6F6F9] border-y border-black/[0.06] relative overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header with Typographic Hierarchy */}
-        <div className="max-w-3xl mb-10 sm:mb-12 text-start">
+        <div className="max-w-3xl mb-8 sm:mb-10 text-start">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 text-xs font-bold uppercase tracking-wider mb-3">
             <span>01 → 04</span>
             <span>•</span>
@@ -190,7 +266,7 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
         </div>
 
         {/* Connected Horizontal Progress Line Track with Station Markers (Desktop) */}
-        <div className="hidden lg:block relative mb-8">
+        <div className="hidden lg:block relative mb-7">
           <div className="h-1.5 w-full bg-black/[0.06] rounded-full overflow-hidden">
             <div
               ref={progressLineRef}
@@ -200,10 +276,13 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
           </div>
           {/* Station Milestone Anchor Dots */}
           <div className="absolute top-1/2 -translate-y-1/2 w-full grid grid-cols-4 gap-6 pointer-events-none">
-            {['01', '02', '03', '04'].map((num) => (
-              <div key={num} className="flex justify-center">
-                <div className="w-4 h-4 rounded-full bg-white border-2 border-brand-500 shadow-sm flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 rounded-full bg-brand-600" />
+            {steps.map((step, idx) => (
+              <div key={step.num} className="flex justify-center">
+                <div
+                  id={`station-dot-${idx}`}
+                  className="station-dot w-5 h-5 rounded-full bg-white border-2 border-neutral-300 shadow-sm flex items-center justify-center transition-all duration-300"
+                >
+                  <div className="station-inner w-2 h-2 rounded-full bg-neutral-300 transition-colors duration-300" />
                 </div>
               </div>
             ))}
@@ -215,10 +294,11 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
           ref={stepsContainerRef}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
-          {steps.map((step) => (
+          {steps.map((step, idx) => (
             <div
               key={step.num}
-              className="journey-card bg-white rounded-3xl p-6 sm:p-7 border border-black/[0.06] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_-6px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between h-full group"
+              id={`journey-card-${idx}`}
+              className="journey-card bg-white rounded-3xl p-5 sm:p-6 border border-black/[0.06] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_-6px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between h-full group will-change-transform"
             >
               <div>
                 {/* Header: Giant decorative numeral + Tag */}
