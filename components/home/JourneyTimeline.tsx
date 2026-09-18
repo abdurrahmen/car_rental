@@ -29,7 +29,7 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
     if (prefersReducedMotion) return
 
     const ctx = gsap.context(() => {
-      // Scroll-linked progress line animation
+      // Scroll-linked progress line animation along the section
       if (progressLineRef.current && sectionRef.current) {
         gsap.fromTo(
           progressLineRef.current,
@@ -39,27 +39,30 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
             ease: 'none',
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: 'top 70%',
+              start: 'top 80%',
               end: 'bottom 85%',
-              scrub: 0.5,
+              scrub: 0.4,
             },
           }
         )
       }
 
-      // Staggered appearance of milestone cards
-      gsap.from('.journey-card', {
-        y: 35,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: stepsContainerRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none none',
-        },
-      })
+      // Subtle upward settlement on cards without hiding them with opacity: 0
+      gsap.fromTo(
+        '.journey-card',
+        { y: 20 },
+        {
+          y: 0,
+          duration: 0.6,
+          stagger: 0.08,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+            once: true,
+          },
+        }
+      )
     }, sectionRef)
 
     return () => ctx.revert()
@@ -150,11 +153,11 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
   return (
     <section
       ref={sectionRef}
-      className="py-20 sm:py-28 bg-[#F6F6F9] border-y border-black/[0.06] relative overflow-hidden"
+      className="py-16 sm:py-24 bg-[#F6F6F9] border-y border-black/[0.06] relative overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header with Typographic Hierarchy */}
-        <div className="max-w-3xl mb-14 sm:mb-20 text-start">
+        <div className="max-w-3xl mb-10 sm:mb-12 text-start">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 text-brand-600 text-xs font-bold uppercase tracking-wider mb-3">
             <span>01 → 04</span>
             <span>•</span>
@@ -186,13 +189,24 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
           </h2>
         </div>
 
-        {/* Connected Horizontal Progress Line Track (Desktop) */}
-        <div className="hidden lg:block relative mb-6">
-          <div className="h-1 w-full bg-black/[0.06] rounded-full overflow-hidden">
+        {/* Connected Horizontal Progress Line Track with Station Markers (Desktop) */}
+        <div className="hidden lg:block relative mb-8">
+          <div className="h-1.5 w-full bg-black/[0.06] rounded-full overflow-hidden">
             <div
               ref={progressLineRef}
-              className="h-full bg-gradient-to-r from-brand-500 via-brand-600 to-emerald-500 origin-start"
+              style={{ transformOrigin: isArabic ? 'right center' : 'left center' }}
+              className="h-full bg-gradient-to-r from-brand-500 via-brand-600 to-emerald-500 ltr:origin-left rtl:origin-right"
             />
+          </div>
+          {/* Station Milestone Anchor Dots */}
+          <div className="absolute top-1/2 -translate-y-1/2 w-full grid grid-cols-4 gap-6 pointer-events-none">
+            {['01', '02', '03', '04'].map((num) => (
+              <div key={num} className="flex justify-center">
+                <div className="w-4 h-4 rounded-full bg-white border-2 border-brand-500 shadow-sm flex items-center justify-center">
+                  <div className="w-1.5 h-1.5 rounded-full bg-brand-600" />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
