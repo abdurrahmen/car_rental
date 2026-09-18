@@ -24,7 +24,7 @@ export function FileUpload({
   preview = false,
 }: FileUploadProps) {
   const [dragActive, setDragActive] = useState(false)
-  const [file, setFile] = useState<File | null>(null)
+  const [, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 

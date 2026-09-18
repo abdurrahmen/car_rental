@@ -1,7 +1,6 @@
 'use client'
 
 import { useActionState, useEffect, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
 import { signIn, loginAsDemo, type AuthState } from '@/lib/actions/auth'
 import Link from 'next/link'
 import { Input } from '@/components/ui/Input'
@@ -10,7 +9,6 @@ import { Logo } from '@/components/ui/Logo'
 import type { Language } from '@/types'
 
 export function LoginForm({ lang }: { lang: string }) {
-  const router = useRouter()
   const [isDemoPending, startDemoTransition] = useTransition()
   const [state, formAction, pending] = useActionState<AuthState, FormData>(
     signIn,

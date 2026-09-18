@@ -1,7 +1,5 @@
 import React from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { Logo } from '@/components/ui/Logo'
 import type { Language, Dictionary } from '@/types'
@@ -25,7 +23,6 @@ export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
 
   const authUser = await getAuthUser()
 
-  const appName = effectiveDict?.common?.app_name || 'DZ Rent'
   const browseVehicles =
     effectiveDict?.vehicles?.browse_vehicles || 'Vehicles'
   const loginText = effectiveDict?.auth?.login || 'Sign In'

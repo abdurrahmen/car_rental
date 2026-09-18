@@ -2,7 +2,6 @@ import React from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { getDictionaryByLocale } from '@/app/[lang]/dictionaries'
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
@@ -66,8 +65,6 @@ export default async function StaffLayout({
       ? branch.name_fr
       : branch.name_en
     : 'All Branches (Admin)'
-
-  const isArabic = locale === 'ar'
 
   return (
     <div className="min-h-screen bg-[#FBFBFD] text-neutral-900 flex flex-col">

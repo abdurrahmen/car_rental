@@ -371,13 +371,13 @@ export default async function HomePage({ params }: HomePageProps) {
               <div className="flex flex-wrap items-center gap-4">
                 <Link
                   href={`/${locale}/vehicles`}
-                  className="apple-press inline-flex items-center justify-center px-7 py-3 rounded-full text-xs font-semibold tracking-tight bg-brand-500 text-white hover:bg-brand-600 transition-all min-h-[44px]"
+                  className="apple-press inline-flex items-center justify-center px-6 py-3 rounded-full text-xs font-semibold tracking-tight bg-brand-500 text-white hover:bg-brand-600 transition-all min-h-[44px]"
                 >
                   {dict.vehicles.browse_vehicles || 'Browse Fleet'}
                 </Link>
                 <Link
                   href={`/${locale}/signup`}
-                  className="apple-press inline-flex items-center justify-center px-7 py-3 rounded-full text-xs font-semibold tracking-tight bg-white/10 hover:bg-white/15 text-white border border-white/20 transition-all min-h-[44px]"
+                  className="apple-press inline-flex items-center justify-center px-6 py-3 rounded-full text-xs font-semibold tracking-tight bg-white/10 hover:bg-white/15 text-white border border-white/20 transition-all min-h-[44px]"
                 >
                   {dict.auth.create_account || 'Create Account'}
                 </Link>

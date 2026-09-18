@@ -16,7 +16,6 @@ export interface FooterProps {
 export function Footer({ locale, lang, dictionary, dict }: FooterProps) {
   const effectiveLocale = (locale || lang || 'ar') as Language
   const effectiveDict = dictionary || dict
-  const appName = effectiveDict?.common?.app_name || 'DZ Rent'
 
   return (
     <footer className="mt-auto border-t border-black/[0.06] bg-neutral-100/60 text-neutral-500 py-12">

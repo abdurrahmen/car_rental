@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { getDictionaryByLocale } from '@/app/[lang]/dictionaries'
 import { StatsCard } from '@/components/dashboard/StatsCard'
-import { Badge } from '@/components/ui/Badge'
 import { formatDZD } from '@/lib/utils/constants'
 import { FALLBACK_BRANCHES, FALLBACK_VEHICLES } from '@/lib/data/fallback'
 import Link from 'next/link'
@@ -40,7 +39,6 @@ export default async function AdminOverviewPage({
     .select('id, status, total_price, deposit_amount, created_at')
   const reservations = dbReservations || []
 
-  const totalBookings = reservations.length
   const pendingRequests = reservations.filter((r) => r.status === 'pending').length
   const activeRentals = reservations.filter((r) => r.status === 'active').length
   const completedRentals = reservations.filter((r) => r.status === 'completed').length

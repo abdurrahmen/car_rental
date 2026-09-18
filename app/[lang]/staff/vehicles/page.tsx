@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDZD } from '@/lib/utils/constants';
-import type { Language, Vehicle } from '@/types';
+import type { Language } from '@/types';
 
 import { getAuthUser } from '@/lib/auth';
 

@@ -39,30 +39,28 @@ export function ReservationForm({
   const [state, formAction, isPending] = useActionState(action, null)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
-  const [days, setDays] = useState(0)
 
   const effectiveVehicleId = vehicleId || vehicle?.id || ''
   const effectiveDailyRate = propDailyRate ?? vehicle?.daily_rate ?? 0
   const initialBranch = vehicle?.branch_id || branches[0]?.id || ''
   const [pickupBranch, setPickupBranch] = useState(initialBranch)
 
-  useEffect(() => {
-    if (state?.success) {
-      router.push(`/${lang}/dashboard/reservations`)
-    }
-  }, [state, router, lang])
-
-  useEffect(() => {
+  const days = React.useMemo(() => {
     if (startDate && endDate) {
       const start = new Date(startDate)
       const end = new Date(endDate)
       const diffTime = end.getTime() - start.getTime()
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-      setDays(diffDays > 0 ? diffDays : 0)
-    } else {
-      setDays(0)
+      return diffDays > 0 ? diffDays : 0
     }
+    return 0
   }, [startDate, endDate])
+
+  useEffect(() => {
+    if (state?.success) {
+      router.push(`/${lang}/dashboard/reservations`)
+    }
+  }, [state, router, lang])
 
   const branchOptions = branches.map((b) => {
     const label =

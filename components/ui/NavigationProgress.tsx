@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useTransition } from 'react'
+import React, { useEffect, useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 
 /**
@@ -15,14 +15,15 @@ export function NavigationProgress() {
 
   // Reset when route changes complete
   useEffect(() => {
-    if (loading) {
+    const timer = setTimeout(() => {
       setProgress(100)
-      const timer = setTimeout(() => {
+      const resetTimer = setTimeout(() => {
         setLoading(false)
         setProgress(0)
       }, 200)
-      return () => clearTimeout(timer)
-    }
+      return () => clearTimeout(resetTimer)
+    }, 0)
+    return () => clearTimeout(timer)
   }, [pathname, searchParams])
 
   // Listen to link clicks globally

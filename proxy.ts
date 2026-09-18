@@ -68,7 +68,7 @@ export async function proxy(request: NextRequest) {
   const pathWithoutLocale = pathname.replace(`/${pathLocale}`, '') || '/';
 
   // Create a Supabase client to check auth
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request: { headers: request.headers },
   });
 
