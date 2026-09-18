@@ -31,8 +31,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={`
-            flex w-full rounded-xl border border-neutral-300/80 bg-white dark:bg-neutral-900 px-3.5 py-2.5 
-            text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400
+            flex w-full rounded-xl border border-neutral-300/80 bg-white px-3.5 py-2.5 
+            text-sm text-neutral-900 placeholder:text-neutral-400
             min-h-[44px] transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
             shadow-[0_1px_2px_rgba(0,0,0,0.02)]
             focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15

@@ -124,20 +124,6 @@
   --color-card-foreground: var(--color-neutral-900);
 }
 
-/* Dark mode subtle adjustments */
-@media (prefers-color-scheme: dark) {
-  @theme inline {
-    --color-background: #000000;
-    --color-foreground: #F5F5F7;
-    --color-muted: #86868B;
-    --color-border: rgba(255, 255, 255, 0.12);
-    --color-input: #1C1C1E;
-    --color-ring: #0A84FF;
-    --color-card: #1C1C1E;
-    --color-card-foreground: #F5F5F7;
-  }
-}
-
 /* ===================================================================
    BASE TYPOGRAPHY & SMOOTH SCROLLING
    =================================================================== */
