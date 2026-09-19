@@ -5,6 +5,9 @@ import { useFrame } from '@react-three/fiber'
 import { useGLTF, PerspectiveCamera, ContactShadows, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 
+// Resting three-quarter angle (radians) — front grille + wheels clearly visible
+const RESTING_Y_ROTATION = Math.PI * 0.15 // ~27° from front-center
+
 export interface CarModelSceneProps {
   onLoaded?: () => void
 }
@@ -12,6 +15,8 @@ export interface CarModelSceneProps {
 export default function CarModelScene({ onLoaded }: CarModelSceneProps) {
   const groupRef = useRef<THREE.Group>(null)
   const hasNotifiedRef = useRef(false)
+  const arrivalProgressRef = useRef(0) // 0 → 1 arrival animation progress
+  const idleTimeRef = useRef(0) // elapsed time for idle pendulum
 
   // Load GLB using the local Draco decoder binaries in /draco/
   const { scene } = useGLTF('/models/fiat_abarth_500.glb', '/draco/')
@@ -55,56 +60,109 @@ export default function CarModelScene({ onLoaded }: CarModelSceneProps) {
   }, [scene])
 
   useEffect(() => {
+    // Set initial rotation to start position for arrival animation (facing away, will rotate to front 3/4)
+    if (groupRef.current) {
+      groupRef.current.rotation.y = RESTING_Y_ROTATION + Math.PI * 0.6 // start ~108° offset
+    }
     if (!hasNotifiedRef.current && onLoaded) {
       hasNotifiedRef.current = true
       onLoaded()
     }
   }, [onLoaded])
 
-  // Continuous subtle idle motion: slow showroom turntable rotation (tires permanently grounded)
+  // Animation: arrival spin-in for ~1.8s then gentle idle pendulum rocking around the resting angle
   useFrame((_, delta) => {
     if (!groupRef.current) return
-    // Gentle turntable rotation (~0.16 rad/s)
-    groupRef.current.rotation.y += delta * 0.16
+
+    const arrivalDuration = 1.8 // seconds for arrival animation
+    const arrival = arrivalProgressRef.current
+
+    if (arrival < 1) {
+      // Arrival phase: ease-out rotation from offset to resting angle
+      arrivalProgressRef.current = Math.min(1, arrival + delta / arrivalDuration)
+      const t = arrivalProgressRef.current
+      // Smooth ease-out cubic
+      const eased = 1 - Math.pow(1 - t, 3)
+      const startAngle = RESTING_Y_ROTATION + Math.PI * 0.6
+      const endAngle = RESTING_Y_ROTATION
+      groupRef.current.rotation.y = startAngle + (endAngle - startAngle) * eased
+    } else {
+      // Idle phase: gentle pendulum swing around the resting angle (±12°, ~10s cycle)
+      idleTimeRef.current += delta
+      const swingAmplitude = Math.PI * 0.067 // ~12°
+      const swingSpeed = 0.63 // ~10 second cycle
+      groupRef.current.rotation.y =
+        RESTING_Y_ROTATION + Math.sin(idleTimeRef.current * swingSpeed) * swingAmplitude
+    }
   })
 
   return (
     <>
-      {/* Camera: 3/4 front quarter editorial angle */}
-      <PerspectiveCamera makeDefault position={[3.6, 1.4, 4.2]} fov={38} />
+      {/* Camera: low front three-quarter view at bumper-to-beltline height */}
+      <PerspectiveCamera makeDefault position={[3.8, 0.65, 3.4]} fov={36} />
 
-      {/* Manual Three-Point Studio Lighting (100% self-contained, no remote CDN dependencies) */}
-      <ambientLight intensity={0.75} />
+      {/* Manual Three-Point Lighting — warm directional key (100% local, no CDN) */}
+      <ambientLight intensity={0.6} />
 
-      {/* Key Light (Front-Right, soft warm) */}
+      {/* Key Light (Front-Right, warm golden-hour tint) */}
       <directionalLight
-        position={[6, 8, 5]}
-        intensity={2.0}
+        position={[6, 6, 5]}
+        intensity={2.2}
+        color="#fff0d4"
         castShadow
         shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0001}
       />
 
-      {/* Fill Light (Left, soft cool sky tint) */}
+      {/* Fill Light (Left, soft cool sky tint for contrast) */}
       <directionalLight
-        position={[-6, 4, 3]}
-        intensity={1.0}
-        color="#d0e4ff"
+        position={[-6, 3, 3]}
+        intensity={0.9}
+        color="#c8ddf8"
       />
 
-      {/* Rim / Back Light (Rear definition) */}
+      {/* Rim / Back Light (Rear edge definition, slightly warm) */}
       <directionalLight
-        position={[0, 6, -6]}
-        intensity={1.4}
-        color="#ffffff"
+        position={[0, 5, -6]}
+        intensity={1.3}
+        color="#ffe8cc"
       />
 
-      {/* Subtle Ground Bounce */}
+      {/* Subtle warm ground bounce */}
       <directionalLight
         position={[0, -2, 2]}
-        intensity={0.3}
-        color="#f8fafc"
+        intensity={0.25}
+        color="#faf0e4"
       />
+
+      {/* Ground Plane — subtle asphalt-like gradient surface giving the car a "place" */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, -0.005, 0]}
+        receiveShadow
+      >
+        <circleGeometry args={[6, 64]} />
+        <meshStandardMaterial
+          color="#e8e4e0"
+          roughness={0.92}
+          metalness={0.02}
+          transparent
+          opacity={0.55}
+        />
+      </mesh>
+
+      {/* Radial gradient vignette ring around ground for soft edge fade */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, -0.006, 0]}
+      >
+        <ringGeometry args={[4.5, 8, 64]} />
+        <meshBasicMaterial
+          color="#f5f2ef"
+          transparent
+          opacity={0.3}
+        />
+      </mesh>
 
       {/* 3D Car Model Hierarchy */}
       <group ref={groupRef} position={[0, 0, 0]}>
@@ -114,11 +172,11 @@ export default function CarModelScene({ onLoaded }: CarModelSceneProps) {
       {/* Soft Ground Contact Shadow tightly fitted to vehicle footprint */}
       <ContactShadows
         position={[0, 0, 0]}
-        opacity={0.75}
-        scale={4.8}
-        blur={1.4}
-        far={2.2}
-        color="#060c18"
+        opacity={0.7}
+        scale={5.2}
+        blur={1.6}
+        far={2.4}
+        color="#0a1628"
       />
 
       {/* Restrained OrbitControls: allow subtle user inspection without getting lost */}
@@ -126,7 +184,7 @@ export default function CarModelScene({ onLoaded }: CarModelSceneProps) {
         enableZoom={false}
         enablePan={false}
         maxPolarAngle={Math.PI / 2.05}
-        minPolarAngle={Math.PI / 3.6}
+        minPolarAngle={Math.PI / 3.2}
         rotateSpeed={0.5}
         dampingFactor={0.06}
       />

@@ -111,7 +111,7 @@ export function Hero3DCanvas({ locale }: Hero3DCanvasProps) {
   // Before hydration check, render a clean placeholder of the exact same dimensions to avoid any layout shift
   if (!isReadyToCheck) {
     return (
-      <div className="w-full h-[320px] sm:h-[400px] lg:h-[460px] rounded-3xl bg-neutral-100/60 border border-black/[0.05] animate-pulse" />
+      <div className="w-full h-[340px] sm:h-[420px] lg:h-[480px] bg-transparent" />
     )
   }
 
@@ -119,9 +119,9 @@ export function Hero3DCanvas({ locale }: Hero3DCanvasProps) {
     <div
       ref={canvasWrapperRef}
       aria-hidden="true"
-      className="relative w-full h-[340px] sm:h-[420px] lg:h-[480px] rounded-3xl overflow-hidden bg-gradient-to-b from-neutral-50/80 via-white to-neutral-100/60 border border-black/[0.08] shadow-[0_16px_48px_-12px_rgba(0,0,0,0.08)] select-none"
+      className="relative w-full h-[340px] sm:h-[420px] lg:h-[480px] select-none group"
     >
-      {/* 3D Canvas Container */}
+      {/* 3D Canvas — no card chrome, bleeds directly into page background */}
       <div
         className={`w-full h-full transition-opacity duration-700 ${
           isSceneLoaded ? 'opacity-100' : 'opacity-0'
@@ -145,10 +145,10 @@ export function Hero3DCanvas({ locale }: Hero3DCanvasProps) {
 
       {/* Shimmer Placeholder while 3D Model streams in */}
       {!isSceneLoaded && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-neutral-50/90 backdrop-blur-sm z-10 transition-opacity duration-500">
-          <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center mb-3 animate-bounce">
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 z-10 transition-opacity duration-500">
+          <div className="w-10 h-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center mb-3 animate-bounce">
             <svg
-              className="w-6 h-6 text-brand-600"
+              className="w-5 h-5 text-brand-600"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -161,46 +161,35 @@ export function Hero3DCanvas({ locale }: Hero3DCanvasProps) {
               />
             </svg>
           </div>
-          <span className="text-xs font-semibold text-neutral-800 tracking-tight">
-            {isArabic ? 'جاري تحميل النموذج ثلاثي الأبعاد...' : isFrench ? 'Chargement du modèle 3D...' : 'Loading 3D Showpiece...'}
-          </span>
-          <span className="text-[11px] text-neutral-400 font-mono mt-0.5">
-            FIAT ABARTH 500 • DZRENT
+          <span className="text-xs font-medium text-neutral-500 tracking-tight">
+            {isArabic ? 'جاري التحميل...' : isFrench ? 'Chargement...' : 'Loading...'}
           </span>
         </div>
       )}
 
-      {/* Interactive Drag Hint Pill */}
+      {/* Subtle hover-only drag hint — replaces the two prominent badges */}
       {isSceneLoaded && (
-        <div className="pointer-events-none absolute bottom-4 start-4 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-black/[0.06] text-[11px] font-semibold text-neutral-700 shadow-sm flex items-center gap-1.5">
-          <svg
-            className="w-3.5 h-3.5 text-brand-600 animate-spin"
-            style={{ animationDuration: '8s' }}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
+        <div className="pointer-events-none absolute bottom-3 inset-x-0 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/5 backdrop-blur-sm text-[10px] font-medium text-neutral-400">
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
               strokeWidth={2}
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
-          <span>
-            {isArabic
-              ? 'تفاعل ثلاثي الأبعاد • اسحب للتدوير'
-              : isFrench
-              ? 'Interactif 3D • Glissez pour pivoter'
-              : '3D Interactive • Drag to inspect'}
-          </span>
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
+              />
+            </svg>
+            <span>
+              {isArabic ? 'اسحب للتدوير' : isFrench ? 'Glissez pour pivoter' : 'Drag to rotate'}
+            </span>
+          </div>
         </div>
       )}
-
-      {/* Model Showpiece Badge */}
-      <div className="pointer-events-none absolute top-4 end-4 px-2.5 py-1 rounded-full bg-black/5 backdrop-blur-md border border-black/[0.06] text-[10px] font-mono font-bold text-neutral-600 uppercase tracking-wider">
-        DZRENT 3D
-      </div>
     </div>
   )
 }
