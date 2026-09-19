@@ -2,9 +2,10 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { gsap } from 'gsap'
 import type { Branch, Language, Dictionary } from '@/types'
-import { Hero3DCanvas } from './Hero3DCanvas'
+import { HeroParallaxVisual } from './HeroParallaxVisual'
 
 export interface HeroAsymmetricProps {
   locale: Language
@@ -21,7 +22,7 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
     branches[0]?.id || ''
   )
 
-  const heroRef = useRef<HTMLDivElement>(null)
+  const heroRef = useRef<HTMLElement>(null)
   const leadColRef = useRef<HTMLDivElement>(null)
   const visualColRef = useRef<HTMLDivElement>(null)
 
@@ -43,13 +44,12 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
         ease: 'power3.out',
       })
 
-      // Smooth subtle entrance for 3D visual column
+      // Smooth subtle entrance for visual column
       if (visualColRef.current) {
         gsap.from(visualColRef.current, {
-          scale: 0.96,
-          opacity: 0,
           y: 20,
-          duration: 1,
+          opacity: 0,
+          duration: 0.9,
           ease: 'power3.out',
           delay: 0.15,
         })
@@ -82,6 +82,27 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
         aria-hidden="true"
         className="pointer-events-none absolute top-1/2 end-[-100px] w-[500px] h-[400px] bg-brand-500/5 blur-3xl opacity-60"
       />
+
+      {/* Full-width environmental backdrop bleed for integrated scene feel */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.08]"
+        style={{
+          maskImage:
+            'radial-gradient(ellipse 90% 80% at 75% 50%, black 20%, transparent 80%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse 90% 80% at 75% 50%, black 20%, transparent 80%)',
+        }}
+      >
+        <Image
+          src="https://images.unsplash.com/photo-1572629166063-011a332eafed?w=2400&auto=format&fit=crop&q=85"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[center_40%] scale-105"
+        />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Asymmetric 12-column grid */}
@@ -224,11 +245,11 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
           </div>
 
           {/* =========================================================
-              VISUAL COLUMN: 3D Car Showpiece (Fiat Abarth 500)
+              VISUAL COLUMN: Fleet Photography + Motion Parallax
               (Span 5 on lg)
               ========================================================= */}
           <div ref={visualColRef} className="lg:col-span-5 w-full flex flex-col items-center">
-            <Hero3DCanvas locale={locale} />
+            <HeroParallaxVisual locale={locale} heroRef={heroRef} />
           </div>
         </div>
       </div>
