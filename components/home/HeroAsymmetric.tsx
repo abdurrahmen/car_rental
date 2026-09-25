@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { gsap } from 'gsap'
 import type { Branch, Language, Dictionary } from '@/types'
+import { Select } from '@/components/ui/Select'
 import { HeroParallaxVisual } from './HeroParallaxVisual'
 
 export interface HeroAsymmetricProps {
@@ -179,36 +180,22 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
 
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
                   {/* Agency Selector */}
-                  <div className="sm:col-span-8 flex flex-col gap-1">
-                    <label
-                      htmlFor="hero_branch_select"
-                      className="text-xs font-semibold text-neutral-700 ps-0.5 text-start"
-                    >
-                      {dict.reservations.pickup_branch || 'Pickup Gateway'}
-                    </label>
-                    <div className="relative">
-                      <select
-                        id="hero_branch_select"
-                        value={selectedBranchId}
-                        onChange={(e) => setSelectedBranchId(e.target.value)}
-                        className="w-full appearance-none rounded-xl border border-neutral-300/80 bg-neutral-50/60 px-3.5 pe-9 py-2.5 text-xs sm:text-sm font-medium text-neutral-900 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 transition-all min-h-[44px]"
-                      >
-                        {branches.map((b) => {
-                          const name =
-                            isArabic ? b.name_ar : isFrench ? b.name_fr : b.name_en
-                          return (
-                            <option key={b.id} value={b.id}>
-                              📍 {b.city} — {name}
-                            </option>
-                          )
-                        })}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 end-3 flex items-center text-neutral-400">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    </div>
+                  <div className="sm:col-span-8 flex flex-col">
+                    <Select
+                      id="hero_branch_select"
+                      name="branch"
+                      label={dict.reservations.pickup_branch || 'Pickup Gateway'}
+                      value={selectedBranchId}
+                      onChange={(e) => setSelectedBranchId(e.target.value)}
+                      options={branches.map((b) => {
+                        const name =
+                          isArabic ? b.name_ar : isFrench ? b.name_fr : b.name_en
+                        return {
+                          value: b.id,
+                          label: `📍 ${b.city} — ${name}`,
+                        }
+                      })}
+                    />
                   </div>
 
                   {/* Submit Button */}
