@@ -93,7 +93,7 @@ export function HubExplorer({ locale, branches }: HubExplorerProps) {
   const activeCorridors = activeHub ? getCorridors(activeHub.city) : []
 
   return (
-    <section className="py-20 sm:py-28 bg-[#FBFBFD] border-t border-black/[0.05]">
+    <section id="hubs" className="py-20 sm:py-28 bg-[#FBFBFD] border-t border-black/[0.05]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="max-w-3xl mb-12 text-start">

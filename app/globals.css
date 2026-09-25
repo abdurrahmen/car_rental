@@ -316,3 +316,8 @@ h1, h2, h3, h4, h5, h6 {
   color: #B91C1C;
   border: 1px solid rgba(239, 68, 68, 0.25);
 }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}

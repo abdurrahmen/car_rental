@@ -237,6 +237,7 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
   return (
     <section
       ref={sectionRef}
+      id="how-it-works"
       className="py-16 sm:py-20 lg:py-0 lg:min-h-[calc(100vh-4rem)] lg:flex lg:flex-col lg:justify-center bg-[#F6F6F9] border-y border-black/[0.06] relative z-20"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">

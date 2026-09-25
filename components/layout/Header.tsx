@@ -2,7 +2,9 @@ import React from 'react'
 import Link from 'next/link'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { SignOutButton } from './SignOutButton'
+import { MobileNav } from './MobileNav'
 import { Logo } from '@/components/ui/Logo'
+import { getAuthUser } from '@/lib/auth'
 import type { Language, Dictionary } from '@/types'
 
 export interface HeaderProps {
@@ -13,19 +15,15 @@ export interface HeaderProps {
 }
 
 /**
- * Apple-style frosted glass navigation bar with subpixel border
- * and refined pill action buttons.
+ * Apple-style frosted glass navigation bar with trilingual navigation links,
+ * subpixel border, refined pill action buttons, and responsive mobile drawer.
  */
-import { getAuthUser } from '@/lib/auth'
-
 export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
   const effectiveLocale = (locale || lang || 'ar') as Language
   const effectiveDict = dictionary || dict
 
   const authUser = await getAuthUser()
 
-  const browseVehicles =
-    effectiveDict?.vehicles?.browse_vehicles || 'Vehicles'
   const loginText = effectiveDict?.auth?.login || 'Sign In'
   const dashboardText = effectiveDict?.nav?.dashboard || 'Dashboard'
 
@@ -46,33 +44,80 @@ export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
       ? effectiveDict?.staff?.staff_dashboard || 'Staff Portal'
       : dashboardText
 
+  // Navigation Links
+  const navLinks = [
+    {
+      href: `/${effectiveLocale}/vehicles`,
+      label:
+        effectiveDict?.vehicles?.browse_vehicles ||
+        effectiveDict?.nav?.vehicles ||
+        (effectiveLocale === 'ar'
+          ? 'الأسطول'
+          : effectiveLocale === 'fr'
+          ? 'Véhicules'
+          : 'Fleet'),
+    },
+    {
+      href: `/${effectiveLocale}#how-it-works`,
+      label:
+        effectiveLocale === 'ar'
+          ? 'مسار الحجز'
+          : effectiveLocale === 'fr'
+          ? 'Comment ça marche'
+          : 'How It Works',
+    },
+    {
+      href: `/${effectiveLocale}#hubs`,
+      label:
+        effectiveDict?.nav?.branches ||
+        (effectiveLocale === 'ar'
+          ? 'المطارات والفروع'
+          : effectiveLocale === 'fr'
+          ? 'Agences & Hubs'
+          : 'Hubs & Agencies'),
+    },
+    {
+      href: `/${effectiveLocale}#guarantee`,
+      label:
+        effectiveLocale === 'ar'
+          ? 'الضمان الرقمي'
+          : effectiveLocale === 'fr'
+          ? 'Garantie PV'
+          : 'Digital Guarantee',
+    },
+  ]
+
   return (
     <header className="glass-nav sticky top-0 z-50 w-full transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand Logo */}
-        <div className="flex items-center gap-6">
+        {/* Brand Logo & Desktop Navigation */}
+        <div className="flex items-center gap-6 lg:gap-8">
           <Logo
             href={`/${effectiveLocale}`}
             locale={effectiveLocale}
             size="md"
           />
 
-          {/* Nav links */}
-          <nav className="hidden md:flex items-center gap-1">
-            <Link
-              href={`/${effectiveLocale}/vehicles`}
-              className="px-3 py-1.5 rounded-full text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors"
-            >
-              {browseVehicles}
-            </Link>
+          {/* Desktop Nav links */}
+          <nav className="hidden md:flex items-center gap-1 lg:gap-1.5">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="px-3 py-1.5 rounded-full text-xs lg:text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors whitespace-nowrap"
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
         </div>
 
         {/* Right actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <LanguageSwitcher locale={effectiveLocale} />
 
-          <div className="flex items-center gap-2">
+          {/* Desktop Auth Button */}
+          <div className="hidden sm:flex items-center gap-2">
             {isAuthenticated ? (
               <>
                 <Link
@@ -101,6 +146,17 @@ export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
               </Link>
             )}
           </div>
+
+          {/* Mobile Navigation Drawer Toggle */}
+          <MobileNav
+            locale={effectiveLocale}
+            links={navLinks}
+            isAuthenticated={isAuthenticated}
+            userRole={userRole}
+            dashboardHref={dashboardHref}
+            dashboardLabel={dashboardLabel}
+            loginText={loginText}
+          />
         </div>
       </div>
     </header>
