@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { Check, ClipboardCheck } from 'lucide-react'
 import type { Language } from '@/types'
 
 export interface DigitalGuaranteeProps {
@@ -71,7 +72,7 @@ export function DigitalGuarantee({ locale }: DigitalGuaranteeProps) {
               ].map((item, idx) => (
                 <div key={idx} className="flex items-start gap-3">
                   <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
-                    ✓
+                    <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
                   </div>
                   <div>
                     <h3 className="text-xs sm:text-sm font-bold text-neutral-900">
@@ -96,15 +97,18 @@ export function DigitalGuarantee({ locale }: DigitalGuaranteeProps) {
                     <span className="text-xs font-mono font-bold bg-neutral-900 text-white px-2 py-0.5 rounded">
                       PV #2026-0894
                     </span>
-                    <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                      VERIFIED ✓
+                    <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                      <span>VERIFIED</span>
+                      <Check className="w-3 h-3 text-emerald-700 stroke-[2.5]" />
                     </span>
                   </div>
                   <span className="text-[11px] text-neutral-400 font-mono block mt-1">
                     PROCÈS-VERBAL DE PRISE EN CHARGE
                   </span>
                 </div>
-                <span className="text-xl">📋</span>
+                <div className="p-2 rounded-2xl bg-brand-50 border border-brand-100/60">
+                  <ClipboardCheck className="w-6 h-6 text-brand-600" />
+                </div>
               </div>
 
               {/* Inspection Matrix */}
@@ -151,8 +155,8 @@ export function DigitalGuarantee({ locale }: DigitalGuaranteeProps) {
                     {isArabic ? 'توقيع العميل وطاقم الوكالة' : 'Customer & Agent Digitally Signed'}
                   </span>
                 </div>
-                <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600 font-bold">
-                  ✓
+                <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600">
+                  <Check className="w-5 h-5 text-emerald-600 stroke-[3]" />
                 </div>
               </div>
             </div>

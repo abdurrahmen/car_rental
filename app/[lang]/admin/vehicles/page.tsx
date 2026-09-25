@@ -8,6 +8,7 @@ import { FALLBACK_BRANCHES, FALLBACK_CATEGORIES, FALLBACK_VEHICLES } from '@/lib
 import Link from 'next/link'
 import Image from 'next/image'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { X, MapPin } from 'lucide-react'
 import type { Language, Vehicle, Branch, VehicleCategory, VehicleStatus } from '@/types'
 
 interface AdminVehiclesPageProps {
@@ -163,7 +164,7 @@ export default async function AdminVehiclesPage({
                 className="apple-press inline-flex items-center justify-center text-xs font-semibold px-3 py-2.5 rounded-2xl bg-neutral-200/80 text-neutral-700 hover:bg-neutral-300 transition-colors"
                 title={dict.vehicles?.clear_filters || 'Clear'}
               >
-                ✕
+                <X className="w-3.5 h-3.5" />
               </Link>
             )}
           </div>
@@ -279,8 +280,9 @@ export default async function AdminVehiclesPage({
                       </span>
                     </div>
 
-                    <p className="text-[11px] text-neutral-400 line-clamp-1">
-                      📍 {branchName}
+                    <p className="text-[11px] text-neutral-400 line-clamp-1 flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-neutral-400 shrink-0" />
+                      <span>{branchName}</span>
                     </p>
                   </div>
                 </div>

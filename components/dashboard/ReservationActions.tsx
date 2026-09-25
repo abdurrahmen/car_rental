@@ -6,6 +6,7 @@ import {
   rejectReservation,
 } from '@/lib/actions/reservations';
 import { Button } from '@/components/ui/Button';
+import { Check, X } from 'lucide-react';
 import type { Reservation, Language, Dictionary } from '@/types';
 
 export interface ReservationActionsProps {
@@ -106,7 +107,8 @@ export function ReservationActions({
               disabled={isConfirming || isRejecting}
               fullWidth
             >
-              ✓ {effectiveDict?.staff?.confirm_reservation || 'Confirm Request'}
+              <Check className="w-4 h-4 inline me-1.5" />
+              <span>{effectiveDict?.staff?.confirm_reservation || 'Confirm Request'}</span>
             </Button>
           </form>
 
@@ -145,7 +147,8 @@ export function ReservationActions({
               disabled={isConfirming || isRejecting}
               fullWidth
             >
-              ✕ {effectiveDict?.staff?.reject_reservation || 'Reject Request'}
+              <X className="w-4 h-4 inline me-1.5" />
+              <span>{effectiveDict?.staff?.reject_reservation || 'Reject Request'}</span>
             </Button>
           </form>
         </div>

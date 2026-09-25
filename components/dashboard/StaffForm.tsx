@@ -5,6 +5,7 @@ import { createStaffAccount } from '@/lib/actions/admin';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
+import { X } from 'lucide-react';
 import type { Branch, Language } from '@/types';
 
 export function StaffForm({
@@ -44,9 +45,10 @@ export function StaffForm({
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="text-neutral-500 hover:text-neutral-700 text-xs font-semibold px-2.5 py-1 rounded-full hover:bg-black/[0.04] transition-colors"
+              className="text-neutral-500 hover:text-neutral-700 text-xs font-semibold px-2.5 py-1 rounded-full hover:bg-black/[0.04] transition-colors inline-flex items-center gap-1"
             >
-              ✕ Cancel
+              <X className="w-3.5 h-3.5" />
+              <span>Cancel</span>
             </button>
           </div>
 

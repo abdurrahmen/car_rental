@@ -5,6 +5,7 @@ import { ReservationActions } from '@/components/dashboard/ReservationActions';
 import { ReservationStatusBadge } from '@/components/reservations/ReservationStatusBadge';
 import { ReservationTimeline } from '@/components/reservations/ReservationTimeline';
 import { formatDZD, formatDate } from '@/lib/utils/constants';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 import type { Language, Reservation } from '@/types';
 
 interface StaffReservationDetailPageProps {
@@ -84,12 +85,14 @@ export default async function StaffReservationDetailPage({
           </p>
           <div className="pt-3 border-t border-black/[0.06] text-xs text-neutral-600">
             {reservation.customer?.license_document_url ? (
-              <span className="text-emerald-700 font-semibold flex items-center gap-1">
-                ✓ Driver license document uploaded
+              <span className="text-emerald-700 font-semibold flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Driver license document uploaded</span>
               </span>
             ) : (
-              <span className="text-amber-800 font-medium">
-                ⚠ No driver license uploaded yet
+              <span className="text-amber-800 font-medium flex items-center gap-1.5">
+                <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span>No driver license uploaded yet</span>
               </span>
             )}
           </div>

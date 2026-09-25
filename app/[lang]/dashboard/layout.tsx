@@ -2,6 +2,7 @@ import React from 'react'
 import { getDictionaryByLocale } from '@/app/[lang]/dictionaries'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { Shield } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import type { Language } from '@/types'
@@ -39,8 +40,9 @@ export default async function DashboardLayout({
         <aside className="w-full md:w-64 shrink-0 space-y-2">
           {role === 'admin' && (
             <div className="p-4 rounded-3xl bg-purple-500/10 border border-purple-500/20 text-xs space-y-2">
-              <span className="font-bold text-purple-700 block">
-                🛡️ Platform Administrator
+              <span className="font-bold text-purple-700 flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 shrink-0" />
+                <span>Platform Administrator</span>
               </span>
               <p className="text-[11px] text-neutral-500 leading-snug">
                 You have superadmin rights to manage vehicles, branches, and bookings.

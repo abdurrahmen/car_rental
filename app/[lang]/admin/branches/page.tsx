@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getDictionaryByLocale } from '@/app/[lang]/dictionaries';
 import { BranchForm } from '@/components/dashboard/BranchForm';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { MapPin, Phone } from 'lucide-react';
 import type { Language, Branch } from '@/types';
 
 interface AdminBranchesPageProps {
@@ -54,11 +55,13 @@ export default async function AdminBranchesPage({
                 <p className="text-xs text-neutral-400 mt-0.5">
                   {b.name_ar} · {b.name_fr} · {b.name_en}
                 </p>
-                <p className="text-sm text-neutral-600 mt-2">
-                  📍 {b.address}, {b.city}
+                <p className="text-sm text-neutral-600 mt-2 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                  <span>{b.address}, {b.city}</span>
                 </p>
-                <p className="text-sm text-brand-600 font-medium mt-1">
-                  📞 {b.phone}
+                <p className="text-sm text-brand-600 font-medium mt-1 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-brand-500 shrink-0" />
+                  <span>{b.phone}</span>
                 </p>
               </div>
 

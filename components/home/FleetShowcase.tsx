@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { MapPin } from 'lucide-react'
 import { formatDZD } from '@/lib/utils/constants'
 import type { Language, Vehicle, VehiclePhoto } from '@/types'
 
@@ -191,8 +192,9 @@ export function FleetShowcase({ locale, vehicles }: FleetShowcaseProps) {
               <div className="p-5 sm:p-6 flex flex-col flex-1 justify-between space-y-4">
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[11px] font-semibold text-brand-600 bg-brand-500/10 px-2 py-0.5 rounded-full">
-                      📍 {vehicle.branch?.city || 'Alger'}
+                    <span className="text-[11px] font-semibold text-brand-600 bg-brand-500/10 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                      <MapPin className="w-3 h-3 shrink-0" />
+                      <span>{vehicle.branch?.city || 'Alger'}</span>
                     </span>
                     <span className="text-[10px] font-mono text-neutral-400">
                       {vehicle.plate_number}

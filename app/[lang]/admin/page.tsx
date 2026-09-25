@@ -4,6 +4,7 @@ import { StatsCard } from '@/components/dashboard/StatsCard'
 import { formatDZD } from '@/lib/utils/constants'
 import { FALLBACK_BRANCHES, FALLBACK_VEHICLES } from '@/lib/data/fallback'
 import Link from 'next/link'
+import { MapPin, Phone } from 'lucide-react'
 import type { Language, Branch, Vehicle } from '@/types'
 
 interface AdminOverviewPageProps {
@@ -287,11 +288,13 @@ export default async function AdminOverviewPage({
                       {branch.city}
                     </span>
                   </div>
-                  <p className="text-[11px] text-neutral-500 mt-1 line-clamp-1">
-                    📍 {branch.address}
+                  <p className="text-[11px] text-neutral-500 mt-1 line-clamp-1 flex items-center gap-1.5">
+                    <MapPin className="w-3 h-3 text-neutral-400 shrink-0" />
+                    <span>{branch.address}</span>
                   </p>
-                  <p className="text-[11px] text-neutral-500 mt-0.5 font-medium">
-                    📞 {branch.phone}
+                  <p className="text-[11px] text-neutral-500 mt-0.5 font-medium flex items-center gap-1.5">
+                    <Phone className="w-3 h-3 text-neutral-400 shrink-0" />
+                    <span>{branch.phone}</span>
                   </p>
                 </div>
 

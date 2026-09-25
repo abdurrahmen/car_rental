@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Logo } from '@/components/ui/Logo'
+import { Shield, Building2, User } from 'lucide-react'
 import type { Language } from '@/types'
 
 export function LoginForm({ lang, redirectTo }: { lang: string; redirectTo?: string }) {
@@ -71,7 +72,8 @@ export function LoginForm({ lang, redirectTo }: { lang: string; redirectTo?: str
             className="apple-press flex flex-col items-start p-3 rounded-2xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-start transition-all disabled:opacity-60 min-h-[52px]"
           >
             <span className="text-xs font-bold text-purple-700 flex items-center gap-1.5">
-              <span>🛡️</span> {isArabic ? 'المسؤول' : 'Admin'}
+              <Shield className="w-3.5 h-3.5 shrink-0" />
+              <span>{isArabic ? 'المسؤول' : 'Admin'}</span>
             </span>
             <span className="text-[10px] text-purple-600/70 mt-0.5 font-medium">
               {isArabic ? 'لوحة التحكم المركزية' : 'Admin Console'}
@@ -86,7 +88,8 @@ export function LoginForm({ lang, redirectTo }: { lang: string; redirectTo?: str
             className="apple-press flex flex-col items-start p-3 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-start transition-all disabled:opacity-60 min-h-[52px]"
           >
             <span className="text-xs font-bold text-amber-700 flex items-center gap-1.5">
-              <span>🏢</span> {isArabic ? 'مدير فرع' : 'Manager'}
+              <Building2 className="w-3.5 h-3.5 shrink-0" />
+              <span>{isArabic ? 'مدير فرع' : 'Manager'}</span>
             </span>
             <span className="text-[10px] text-amber-600/70 mt-0.5 font-medium">
               {isArabic ? 'بوابة وكالة الجزائر' : 'Staff Agency Portal'}
@@ -101,7 +104,8 @@ export function LoginForm({ lang, redirectTo }: { lang: string; redirectTo?: str
             className="apple-press flex flex-col items-start p-3 rounded-2xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-start transition-all disabled:opacity-60 min-h-[52px]"
           >
             <span className="text-xs font-bold text-blue-700 flex items-center gap-1.5">
-              <span>👤</span> {isArabic ? 'زبون' : 'Customer'}
+              <User className="w-3.5 h-3.5 shrink-0" />
+              <span>{isArabic ? 'زبون' : 'Customer'}</span>
             </span>
             <span className="text-[10px] text-blue-600/70 mt-0.5 font-medium">
               {isArabic ? 'الحجوزات والملف' : 'Client Bookings'}

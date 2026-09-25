@@ -6,6 +6,7 @@ import { gsap } from 'gsap'
 import type { Branch, Language, Dictionary } from '@/types'
 import { Select } from '@/components/ui/Select'
 import { HeroVideoPlaceholder } from './HeroVideoPlaceholder'
+import { MapPin, Check, X, Search } from 'lucide-react'
 
 export interface HeroAsymmetricProps {
   locale: Language
@@ -127,10 +128,10 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
 
           setGpsFeedback(
             isArabic
-              ? `📍 تم رصد موقعك: أقرب نقطة استلام "${branchName}" (${minDistance} كم)`
+              ? `تم رصد موقعك: أقرب نقطة استلام "${branchName}" (${minDistance} كم)`
               : isFrench
-              ? `📍 Position détectée: Agence la plus proche "${branchName}" (${minDistance} km)`
-              : `📍 Located! Nearest agency: "${branchName}" (${minDistance} km)`
+              ? `Position détectée: Agence la plus proche "${branchName}" (${minDistance} km)`
+              : `Located! Nearest agency: "${branchName}" (${minDistance} km)`
           )
         }
       },
@@ -328,7 +329,7 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
                           </>
                         ) : (
                           <>
-                            <span>📍</span>
+                            <MapPin className="w-3.5 h-3.5 text-brand-600 shrink-0" />
                             <span>{isArabic ? 'موقعي الحالي' : isFrench ? 'Ma position' : 'Current Location'}</span>
                           </>
                         )}
@@ -347,7 +348,7 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
                             isArabic ? b.name_ar : isFrench ? b.name_fr : b.name_en
                           return {
                             value: b.id,
-                            label: `📍 ${b.city} — ${name}`,
+                            label: `${b.city} — ${name}`,
                           }
                         })}
                       />
@@ -368,8 +369,8 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
                           }
                           className="w-full appearance-none rounded-xl border border-neutral-300/80 bg-white px-3.5 pe-9 py-2.5 text-xs sm:text-sm font-medium text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 transition-all min-h-[44px]"
                         />
-                        <span className="pointer-events-none absolute inset-y-0 end-3 flex items-center text-neutral-400 text-sm">
-                          📍
+                        <span className="pointer-events-none absolute inset-y-0 end-3 flex items-center text-neutral-400">
+                          <MapPin className="w-4 h-4" />
                         </span>
                       </div>
                     )}
@@ -381,9 +382,7 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
                       type="submit"
                       className="apple-press w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-[0_2px_8px_rgba(0,113,227,0.3)] transition-all min-h-[44px] cursor-pointer"
                     >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
+                      <Search className="w-4 h-4" />
                       <span>{isArabic ? 'استعراض' : isFrench ? 'Explorer' : 'Search'}</span>
                     </button>
                   </div>
@@ -391,14 +390,17 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
 
                 {/* GPS Feedback Pill */}
                 {gpsFeedback && (
-                  <div className="p-2.5 rounded-xl bg-brand-50/90 border border-brand-200/60 text-xs text-brand-900 flex items-center justify-between animate-apple-fade-in">
-                    <span className="font-medium text-[11px] sm:text-xs">{gpsFeedback}</span>
+                  <div className="p-2.5 rounded-xl bg-brand-50/90 border border-brand-200/60 text-xs text-brand-900 flex items-center justify-between gap-2 animate-apple-fade-in">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <MapPin className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+                      <span className="font-medium text-[11px] sm:text-xs truncate">{gpsFeedback}</span>
+                    </div>
                     <button
                       type="button"
                       onClick={() => setGpsFeedback(null)}
-                      className="text-brand-400 hover:text-brand-700 text-xs px-1"
+                      className="text-brand-400 hover:text-brand-700 p-0.5 rounded hover:bg-brand-100/50 transition-colors shrink-0"
                     >
-                      ✕
+                      <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 )}
@@ -408,15 +410,15 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
             {/* Trust Assurance Markers */}
             <div className="hero-stagger flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-neutral-600">
               <div className="flex items-center gap-1.5">
-                <span className="text-emerald-600 font-bold">✓</span>
+                <Check className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
                 <span>{isArabic ? 'محضر استلام رقمي (PV)' : 'Digital Condition PV'}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-brand-500 font-bold">✓</span>
+                <Check className="w-4 h-4 text-brand-500 stroke-[2.5]" />
                 <span>{isArabic ? 'عربون 5000 دج مسترجع' : '5,000 DZD Safe Deposit'}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-amber-500 font-bold">✓</span>
+                <Check className="w-4 h-4 text-amber-500 stroke-[2.5]" />
                 <span>{isArabic ? 'دفع المتبقي نقدًا بالوكالة' : 'Pay Remainder at Branch'}</span>
               </div>
             </div>

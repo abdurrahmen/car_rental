@@ -3,6 +3,7 @@ import { getDictionaryByLocale } from '@/app/[lang]/dictionaries';
 import { StaffForm } from '@/components/dashboard/StaffForm';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Phone } from 'lucide-react';
 import type { Language, Profile, Branch } from '@/types';
 
 interface AdminStaffPageProps {
@@ -65,8 +66,9 @@ export default async function AdminStaffPage({ params }: AdminStaffPageProps) {
                     {s.role}
                   </Badge>
                 </div>
-                <p className="text-sm text-neutral-600 mt-1.5">
-                  📞 {s.phone || 'No phone'}
+                <p className="text-sm text-neutral-600 mt-1.5 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                  <span>{s.phone || 'No phone'}</span>
                 </p>
                 <p className="text-xs text-neutral-500 mt-1">
                   Branch:{' '}

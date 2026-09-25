@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { Check, ShieldCheck } from 'lucide-react'
 import type { Language } from '@/types'
 
 if (typeof window !== 'undefined') {
@@ -184,7 +185,8 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
         <div className="mt-3.5 p-3 rounded-xl bg-emerald-500/[0.05] border border-emerald-500/20 flex items-center justify-between text-xs">
           <span className="text-emerald-800 font-medium flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            {isArabic ? 'رخصة سياقة معتمدة' : 'Permis vérifié ✓'}
+            <span>{isArabic ? 'رخصة سياقة معتمدة' : 'Permis vérifié'}</span>
+            <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[2.5]" />
           </span>
           <span className="text-[10px] font-mono text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded font-bold">
             ZERO PAPIER
@@ -203,8 +205,9 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
         : 'Once confirmed by the branch, lock the car with 5,000 DZD hold via Edahabia or CIB within 48h.',
       visual: (
         <div className="mt-3.5 p-3 rounded-xl bg-amber-500/[0.06] border border-amber-500/20 flex items-center justify-between text-xs">
-          <span className="text-amber-900 font-semibold flex items-center gap-1">
-            <span>🛡️</span> 5,000 DZD
+          <span className="text-amber-900 font-semibold flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>5,000 DZD</span>
           </span>
           <span className="text-[10px] font-semibold text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-full">
             {isArabic ? 'ضمان عدم تكرار الحجز' : 'GiST Excluded'}
@@ -226,8 +229,9 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
           <span className="text-neutral-900 font-medium">
             {isArabic ? 'محضر استلام (PV) موثق' : 'Procès-Verbal Signé'}
           </span>
-          <span className="text-[10px] font-mono text-brand-700 bg-brand-100/60 px-1.5 py-0.5 rounded font-bold">
-            CHECKLIST ✓
+          <span className="text-[10px] font-mono text-brand-700 bg-brand-100/60 px-1.5 py-0.5 rounded font-bold flex items-center gap-1">
+            <span>CHECKLIST</span>
+            <Check className="w-3 h-3 text-brand-700 stroke-[2.5]" />
           </span>
         </div>
       ),

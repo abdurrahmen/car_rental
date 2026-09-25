@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { Plane, Ship, Fuel, Building2, MapPin, Phone } from 'lucide-react'
 import type { Branch, Language } from '@/types'
 
 export interface HubExplorerProps {
@@ -34,28 +35,32 @@ export function HubExplorer({ locale, branches }: HubExplorerProps) {
     if (text.includes('airport') || text.includes('aéroport') || text.includes('مطار')) {
       return {
         type: isArabic ? 'مطار دولي' : 'International Airport',
-        icon: '✈️',
+        Icon: Plane,
         color: 'bg-blue-50 text-blue-700 border-blue-200/60',
+        iconBg: 'bg-blue-500/10 text-blue-600',
       }
     }
     if (text.includes('port') || text.includes('maritime') || text.includes('بحرية') || text.includes('ميناء')) {
       return {
         type: isArabic ? 'محطة بحرية وميناء' : 'Maritime Port Gateway',
-        icon: '🚢',
+        Icon: Ship,
         color: 'bg-teal-50 text-teal-700 border-teal-200/60',
+        iconBg: 'bg-teal-500/10 text-teal-600',
       }
     }
     if (text.includes('oil') || text.includes('pétrol') || text.includes('بترول') || text.includes('hassi')) {
       return {
         type: isArabic ? 'قاعدة بترولية وصحراوية' : 'Sahara Energy Hub',
-        icon: '🛢️',
+        Icon: Fuel,
         color: 'bg-amber-50 text-amber-800 border-amber-200/60',
+        iconBg: 'bg-amber-500/10 text-amber-600',
       }
     }
     return {
       type: isArabic ? 'قطب تجاري ووسط المدينة' : 'Commercial City Hub',
-      icon: '🏢',
+      Icon: Building2,
       color: 'bg-purple-50 text-purple-700 border-purple-200/60',
+      iconBg: 'bg-purple-500/10 text-purple-600',
     }
   }
 
@@ -136,7 +141,9 @@ export function HubExplorer({ locale, branches }: HubExplorerProps) {
                       : 'bg-white/60 hover:bg-white border-black/[0.06] hover:shadow-sm'
                   }`}
                 >
-                  <span className="text-2xl mt-0.5">{badge.icon}</span>
+                  <span className={`p-2.5 rounded-2xl ${badge.iconBg} shrink-0 mt-0.5`}>
+                    <badge.Icon className="w-5 h-5" />
+                  </span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-bold text-sm text-neutral-900 truncate">
@@ -149,8 +156,9 @@ export function HubExplorer({ locale, branches }: HubExplorerProps) {
                     <h3 className="text-xs text-neutral-600 font-medium line-clamp-1">
                       {name}
                     </h3>
-                    <p className="text-[11px] text-neutral-400 truncate mt-1">
-                      📍 {b.address}
+                    <p className="text-[11px] text-neutral-400 truncate mt-1 flex items-center gap-1">
+                      <MapPin className="w-3 h-3 shrink-0" />
+                      <span>{b.address}</span>
                     </p>
                   </div>
                 </button>
@@ -164,8 +172,12 @@ export function HubExplorer({ locale, branches }: HubExplorerProps) {
               {/* Dossier Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-black/[0.06]">
                 <div className="text-start">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xl">{activeBadge?.icon}</span>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    {activeBadge && (
+                      <span className={`p-1.5 rounded-xl ${activeBadge.iconBg}`}>
+                        <activeBadge.Icon className="w-4 h-4" />
+                      </span>
+                    )}
                     <span className="text-xs font-mono font-bold uppercase text-brand-600">
                       {activeHub.city} HUB DOSSIER
                     </span>
@@ -173,8 +185,9 @@ export function HubExplorer({ locale, branches }: HubExplorerProps) {
                   <h3 className="text-xl sm:text-2xl font-bold text-neutral-900 tracking-tight">
                     {activeHubName}
                   </h3>
-                  <p className="text-xs text-neutral-500 mt-1">
-                    📍 {activeHub.address}
+                  <p className="text-xs text-neutral-500 mt-1 flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                    <span>{activeHub.address}</span>
                   </p>
                 </div>
 
@@ -182,9 +195,7 @@ export function HubExplorer({ locale, branches }: HubExplorerProps) {
                   href={`tel:${activeHub.phone}`}
                   className="apple-press inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 border border-brand-200/80 transition-all self-start sm:self-center"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
+                  <Phone className="w-3.5 h-3.5" />
                   <span>{activeHub.phone}</span>
                 </a>
               </div>
