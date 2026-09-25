@@ -154,7 +154,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     }
 
     return (
-      <div ref={containerRef} className="w-full flex flex-col gap-1.5 relative">
+      <div
+        ref={containerRef}
+        className={`w-full flex flex-col gap-1.5 relative ${isOpen ? 'z-50' : 'z-10'}`}
+      >
         {label && (
           <label
             htmlFor={selectId}
@@ -262,7 +265,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             <div
               role="listbox"
               aria-label={label || 'Select option'}
-              className="absolute z-50 mt-1.5 w-full min-w-[200px] overflow-hidden rounded-2xl bg-white/95 backdrop-blur-xl border border-black/[0.08] p-1.5 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_0_0_1px_rgba(0,0,0,0.04)] animate-apple-fade-in"
+              className="absolute z-[100] mt-1.5 w-full min-w-[200px] overflow-hidden rounded-2xl bg-white/95 backdrop-blur-xl border border-black/[0.08] p-1.5 shadow-[0_20px_40px_-6px_rgba(0,0,0,0.18),0_0_0_1px_rgba(0,0,0,0.06)] animate-apple-fade-in"
             >
               <div className="max-h-60 overflow-y-auto space-y-0.5 overscroll-contain">
                 {options.map((option, idx) => {

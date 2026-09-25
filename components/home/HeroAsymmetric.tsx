@@ -2,11 +2,10 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { gsap } from 'gsap'
 import type { Branch, Language, Dictionary } from '@/types'
 import { Select } from '@/components/ui/Select'
-import { HeroParallaxVisual } from './HeroParallaxVisual'
+import { HeroVideoPlaceholder } from './HeroVideoPlaceholder'
 
 export interface HeroAsymmetricProps {
   locale: Language
@@ -14,20 +13,41 @@ export interface HeroAsymmetricProps {
   dict: Dictionary
 }
 
+type LocationMode = 'agency' | 'custom'
+
+// Helper: Haversine distance in kilometers
+function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371
+  const dLat = ((lat2 - lat1) * Math.PI) / 180
+  const dLon = ((lon2 - lon1) * Math.PI) / 180
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return Math.round(R * c * 10) / 10
+}
+
 export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) {
   const router = useRouter()
   const isArabic = locale === 'ar'
   const isFrench = locale === 'fr'
 
+  const [mode, setMode] = useState<LocationMode>('agency')
   const [selectedBranchId, setSelectedBranchId] = useState<string>(
     branches[0]?.id || ''
   )
+  const [customLocation, setCustomLocation] = useState<string>('')
+  const [isLocating, setIsLocating] = useState<boolean>(false)
+  const [gpsFeedback, setGpsFeedback] = useState<string | null>(null)
 
   const heroRef = useRef<HTMLElement>(null)
   const leadColRef = useRef<HTMLDivElement>(null)
   const visualColRef = useRef<HTMLDivElement>(null)
 
-  // GSAP Entrance & Parallax (respects prefers-reduced-motion)
+  // GSAP Entrance (respects prefers-reduced-motion)
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)'
@@ -60,12 +80,93 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
     return () => ctx.revert()
   }, [])
 
+  // Geolocation detection handler
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      alert(
+        isArabic
+          ? 'المتصفح لا يدعم تحديد الموقع الجغرافي تلقائياً. يمكنك كتابة موقعك يدوياً.'
+          : isFrench
+          ? 'La géolocalisation n est pas supportée par votre navigateur.'
+          : 'Geolocation is not supported by your browser.'
+      )
+      return
+    }
+
+    setIsLocating(true)
+    setGpsFeedback(null)
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setIsLocating(false)
+        const userLat = pos.coords.latitude
+        const userLng = pos.coords.longitude
+
+        // Find nearest branch using Haversine calculation
+        let closestBranch = branches[0]
+        let minDistance = Infinity
+
+        branches.forEach((b) => {
+          if (b.lat && b.lng) {
+            const dist = getDistanceKm(userLat, userLng, b.lat, b.lng)
+            if (dist < minDistance) {
+              minDistance = dist
+              closestBranch = b
+            }
+          }
+        })
+
+        if (closestBranch) {
+          setSelectedBranchId(closestBranch.id)
+          setMode('agency')
+          const branchName = isArabic
+            ? closestBranch.name_ar
+            : isFrench
+            ? closestBranch.name_fr
+            : closestBranch.name_en
+
+          setGpsFeedback(
+            isArabic
+              ? `📍 تم رصد موقعك: أقرب نقطة استلام "${branchName}" (${minDistance} كم)`
+              : isFrench
+              ? `📍 Position détectée: Agence la plus proche "${branchName}" (${minDistance} km)`
+              : `📍 Located! Nearest agency: "${branchName}" (${minDistance} km)`
+          )
+        }
+      },
+      () => {
+        setIsLocating(false)
+        setGpsFeedback(
+          isArabic
+            ? 'تعذر الوصول إلى نظام GPS. يرجى تفعيل الموقع أو اختيار الوكالة يدوياً.'
+            : isFrench
+            ? 'Impossible d accéder au GPS. Veuillez activer la localisation ou choisir manuellement.'
+            : 'Could not access GPS. Please enable location permissions or choose manually.'
+        )
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    )
+  }
+
   // Quick-finder submission handler
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    const targetUrl = selectedBranchId
-      ? `/${locale}/vehicles?branch=${selectedBranchId}`
+
+    const params = new URLSearchParams()
+    if (mode === 'agency' && selectedBranchId) {
+      params.set('branch', selectedBranchId)
+    } else if (mode === 'custom' && customLocation) {
+      params.set('location', customLocation)
+      if (selectedBranchId) {
+        params.set('branch', selectedBranchId)
+      }
+    }
+
+    const queryString = params.toString()
+    const targetUrl = queryString
+      ? `/${locale}/vehicles?${queryString}`
       : `/${locale}/vehicles`
+
     router.push(targetUrl)
   }
 
@@ -84,35 +185,17 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
         className="pointer-events-none absolute top-1/2 end-[-100px] w-[500px] h-[400px] bg-brand-500/5 blur-3xl opacity-60"
       />
 
-      {/* Full-width environmental backdrop bleed for integrated scene feel */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.08]"
-        style={{
-          maskImage:
-            'radial-gradient(ellipse 90% 80% at 75% 50%, black 20%, transparent 80%)',
-          WebkitMaskImage:
-            'radial-gradient(ellipse 90% 80% at 75% 50%, black 20%, transparent 80%)',
-        }}
-      >
-        <Image
-          src="https://images.unsplash.com/photo-1572629166063-011a332eafed?w=2400&auto=format&fit=crop&q=85"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-[center_40%] scale-105"
-        />
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Asymmetric 12-column grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* =========================================================
               LEAD COLUMN: Editorial Display, Value Proposition & Search
-              (Span 7 on lg)
+              (Span 7 on lg, elevated z-index)
               ========================================================= */}
-          <div ref={leadColRef} className="lg:col-span-7 flex flex-col items-start">
+          <div
+            ref={leadColRef}
+            className="lg:col-span-7 flex flex-col items-start relative z-20"
+          >
             {/* National Network Eyebrow Badge */}
             <div className="hero-stagger inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white border border-black/[0.08] text-xs font-semibold text-neutral-800 tracking-tight mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
               <span className="relative flex h-2 w-2">
@@ -166,43 +249,137 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
                 : 'Direct cross-wilaya and airport rentals. Immediate reservation, protected 5,000 DZD refundable hold, and photographic digital inspection (PV) for total peace of mind.'}
             </p>
 
-            {/* Quick-Finder Booking Widget (Hero-integrated) */}
-            <div className="hero-stagger w-full max-w-xl bg-white p-4 sm:p-5 rounded-3xl border border-black/[0.08] shadow-[0_8px_30px_rgba(0,0,0,0.04)] mb-8">
-              <form onSubmit={handleSearch} className="space-y-3">
-                <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.05]">
-                  <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
-                    {isArabic ? 'البحث السريع في الأسطول' : isFrench ? 'Recherche Rapide' : 'Quick Fleet Finder'}
-                  </span>
-                  <span className="text-[11px] font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
-                    {isArabic ? 'استلام فوري' : isFrench ? 'Prise en charge directe' : 'Instant Pickup'}
-                  </span>
+            {/* =========================================================
+                QUICK-FINDER BOOKING WIDGET (Elevated z-30 stacking context)
+                ========================================================= */}
+            <div className="hero-stagger relative z-30 w-full max-w-xl bg-white p-4 sm:p-5 rounded-3xl border border-black/[0.08] shadow-[0_12px_36px_rgba(0,0,0,0.06)] mb-8">
+              <form onSubmit={handleSearch} className="space-y-3.5">
+                {/* Header row & Location Options */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-black/[0.05] gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-neutral-600">
+                      {isArabic ? 'البحث السريع في الأسطول' : isFrench ? 'Recherche Rapide' : 'Quick Fleet Finder'}
+                    </span>
+                    <span className="text-[11px] font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
+                      {isArabic ? 'استلام فوري' : isFrench ? 'Prise directe' : 'Instant Pickup'}
+                    </span>
+                  </div>
+
+                  {/* Mode Tabs: Official Branch vs Custom Any Location */}
+                  <div className="inline-flex items-center p-0.5 rounded-xl bg-neutral-100 text-xs font-medium self-start sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => setMode('agency')}
+                      className={`px-2.5 py-1 rounded-lg transition-all text-[11px] font-semibold cursor-pointer ${
+                        mode === 'agency'
+                          ? 'bg-white text-neutral-900 shadow-2xs'
+                          : 'text-neutral-500 hover:text-neutral-900'
+                      }`}
+                    >
+                      {isArabic ? 'الوكالات والمطارات' : isFrench ? 'Agences & Aéroports' : 'Agencies & Hubs'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMode('custom')}
+                      className={`px-2.5 py-1 rounded-lg transition-all text-[11px] font-semibold cursor-pointer ${
+                        mode === 'custom'
+                          ? 'bg-white text-neutral-900 shadow-2xs'
+                          : 'text-neutral-500 hover:text-neutral-900'
+                      }`}
+                    >
+                      {isArabic ? 'أي عنوان أو توصيل' : isFrench ? 'Tout lieu / Livraison' : 'Any Address'}
+                    </button>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                  {/* Agency Selector */}
-                  <div className="sm:col-span-8 flex flex-col">
-                    <Select
-                      id="hero_branch_select"
-                      name="branch"
-                      label={dict.reservations.pickup_branch || 'Pickup Gateway'}
-                      value={selectedBranchId}
-                      onChange={(e) => setSelectedBranchId(e.target.value)}
-                      options={branches.map((b) => {
-                        const name =
-                          isArabic ? b.name_ar : isFrench ? b.name_fr : b.name_en
-                        return {
-                          value: b.id,
-                          label: `📍 ${b.city} — ${name}`,
+                {/* Location Selection Area */}
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                  <div className="sm:col-span-8 flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor={mode === 'agency' ? 'hero_branch_select' : 'hero_custom_location'}
+                        className="text-xs font-semibold text-neutral-700 ps-0.5 text-start"
+                      >
+                        {mode === 'agency'
+                          ? dict.reservations.pickup_branch || 'Pickup Gateway'
+                          : isArabic
+                          ? 'مكان الاستلام أو التوصيل'
+                          : isFrench
+                          ? 'Lieu de prise en charge ou livraison'
+                          : 'Pickup or Delivery Location'}
+                      </label>
+
+                      {/* GPS Current Location One-Click Button */}
+                      <button
+                        type="button"
+                        onClick={handleDetectLocation}
+                        disabled={isLocating}
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100/70 px-2 py-0.5 rounded-full transition-colors cursor-pointer"
+                        title={
+                          isArabic
+                            ? 'تحديد أقرب نقطة استلام عبر موقعك الحالي'
+                            : 'Detect closest branch using your current GPS location'
                         }
-                      })}
-                    />
+                      >
+                        {isLocating ? (
+                          <>
+                            <span className="w-2.5 h-2.5 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
+                            <span>{isArabic ? 'جاري التحديد...' : 'Locating...'}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>📍</span>
+                            <span>{isArabic ? 'موقعي الحالي' : isFrench ? 'Ma position' : 'Current Location'}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {mode === 'agency' ? (
+                      /* Mode A: Select from Verified Branches */
+                      <Select
+                        id="hero_branch_select"
+                        name="branch"
+                        value={selectedBranchId}
+                        onChange={(e) => setSelectedBranchId(e.target.value)}
+                        options={branches.map((b) => {
+                          const name =
+                            isArabic ? b.name_ar : isFrench ? b.name_fr : b.name_en
+                          return {
+                            value: b.id,
+                            label: `📍 ${b.city} — ${name}`,
+                          }
+                        })}
+                      />
+                    ) : (
+                      /* Mode B: Any Custom Location / Doorstep Address */
+                      <div className="relative w-full">
+                        <input
+                          id="hero_custom_location"
+                          type="text"
+                          value={customLocation}
+                          onChange={(e) => setCustomLocation(e.target.value)}
+                          placeholder={
+                            isArabic
+                              ? 'اكتب أي عنوان، فندق، أو مطار (مثال: فندق الأوراسي، الجزائر)...'
+                              : isFrench
+                              ? 'Ex: Hôtel Sheraton Club des Pins, Alger ou Aéroport...'
+                              : 'e.g. Sheraton Hotel Club des Pins, Algiers or Airport...'
+                          }
+                          className="w-full appearance-none rounded-xl border border-neutral-300/80 bg-white px-3.5 pe-9 py-2.5 text-xs sm:text-sm font-medium text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 transition-all min-h-[44px]"
+                        />
+                        <span className="pointer-events-none absolute inset-y-0 end-3 flex items-center text-neutral-400 text-sm">
+                          📍
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Submit Button */}
                   <div className="sm:col-span-4 flex items-end">
                     <button
                       type="submit"
-                      className="apple-press w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-[0_2px_8px_rgba(0,113,227,0.3)] transition-all min-h-[44px]"
+                      className="apple-press w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 shadow-[0_2px_8px_rgba(0,113,227,0.3)] transition-all min-h-[44px] cursor-pointer"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -211,6 +388,20 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
                     </button>
                   </div>
                 </div>
+
+                {/* GPS Feedback Pill */}
+                {gpsFeedback && (
+                  <div className="p-2.5 rounded-xl bg-brand-50/90 border border-brand-200/60 text-xs text-brand-900 flex items-center justify-between animate-apple-fade-in">
+                    <span className="font-medium text-[11px] sm:text-xs">{gpsFeedback}</span>
+                    <button
+                      type="button"
+                      onClick={() => setGpsFeedback(null)}
+                      className="text-brand-400 hover:text-brand-700 text-xs px-1"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
               </form>
             </div>
 
@@ -232,11 +423,14 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
           </div>
 
           {/* =========================================================
-              VISUAL COLUMN: Fleet Photography + Motion Parallax
-              (Span 5 on lg)
+              VISUAL COLUMN: Cinematic Promotion Video Placeholder
+              (Span 5 on lg, relative z-10)
               ========================================================= */}
-          <div ref={visualColRef} className="lg:col-span-5 w-full flex flex-col items-center">
-            <HeroParallaxVisual locale={locale} heroRef={heroRef} />
+          <div
+            ref={visualColRef}
+            className="lg:col-span-5 w-full flex flex-col items-center relative z-10"
+          >
+            <HeroVideoPlaceholder locale={locale} />
           </div>
         </div>
       </div>
