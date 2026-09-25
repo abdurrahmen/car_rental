@@ -20,6 +20,8 @@ export interface SelectProps
   error?: string
   options: SelectOption[]
   placeholder?: string
+  size?: 'sm' | 'md'
+  icon?: React.ReactNode
 }
 
 /**
@@ -42,6 +44,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
       disabled,
       required,
       name,
+      size = 'md',
+      icon,
       ...props
     },
     forwardedRef
@@ -215,7 +219,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             aria-expanded={isOpen}
             className={`
               flex w-full items-center justify-between appearance-none rounded-xl border border-neutral-300/80 bg-white
-              px-3.5 pe-9 py-2.5 text-xs sm:text-sm font-medium text-neutral-900 min-h-[44px]
+              ${size === 'sm' ? 'px-3 pe-8 py-1.5 text-xs min-h-[40px] h-10' : 'px-3.5 pe-9 py-2.5 text-xs sm:text-sm min-h-[44px]'}
+              font-medium text-neutral-900
               text-start transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
               shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer
               hover:border-neutral-400 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15
@@ -229,19 +234,22 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               ${className}
             `}
           >
-            <span
-              className={`truncate ${
-                !selectedOption && placeholder
-                  ? 'text-neutral-400'
-                  : 'text-neutral-900'
-              }`}
-            >
-              {displayLabel}
-            </span>
+            <div className="flex items-center gap-2 min-w-0 flex-1 me-2">
+              {icon && <span className="shrink-0">{icon}</span>}
+              <span
+                className={`truncate ${
+                  !selectedOption && placeholder
+                    ? 'text-neutral-400'
+                    : 'text-neutral-900'
+                }`}
+              >
+                {displayLabel}
+              </span>
+            </div>
 
             {/* Rotating Chevron Indicator */}
             <span
-              className={`pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3 transition-transform duration-200 ${
+              className={`pointer-events-none absolute inset-y-0 end-0 flex items-center pe-2.5 transition-transform duration-200 ${
                 isOpen ? 'rotate-180 text-brand-600' : 'text-neutral-400'
               }`}
             >

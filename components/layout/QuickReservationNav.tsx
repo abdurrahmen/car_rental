@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Car, Calendar, Search } from 'lucide-react'
+import { Car, Calendar, Search, ChevronDown, Check } from 'lucide-react'
+import { Select } from '@/components/ui/Select'
 import type { Branch, Language } from '@/types'
 
 export interface QuickReservationNavProps {
@@ -23,12 +24,34 @@ export function QuickReservationNav({ locale, branches }: QuickReservationNavPro
   defaultReturn.setDate(today.getDate() + 4)
 
   const formatIsoDate = (d: Date) => d.toISOString().split('T')[0]
+  const todayStr = formatIsoDate(today)
 
   const [selectedBranchId, setSelectedBranchId] = useState<string>('')
   const [pickupDate, setPickupDate] = useState<string>(formatIsoDate(defaultPickup))
   const [pickupTime, setPickupTime] = useState<string>('12:00')
   const [returnDate, setReturnDate] = useState<string>(formatIsoDate(defaultReturn))
   const [returnTime, setReturnTime] = useState<string>('12:00')
+
+  // Popover state for dates
+  const [isPickupOpen, setIsPickupOpen] = useState(false)
+  const [isReturnOpen, setIsReturnOpen] = useState(false)
+
+  const pickupRef = useRef<HTMLDivElement>(null)
+  const returnRef = useRef<HTMLDivElement>(null)
+
+  // Close popovers on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (pickupRef.current && !pickupRef.current.contains(e.target as Node)) {
+        setIsPickupOpen(false)
+      }
+      if (returnRef.current && !returnRef.current.contains(e.target as Node)) {
+        setIsReturnOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const formatDisplayDate = (isoStr: string) => {
     try {
@@ -43,11 +66,17 @@ export function QuickReservationNav({ locale, branches }: QuickReservationNavPro
   }
 
   const formatDisplayTime = (timeStr: string) => {
-    if (timeStr === '12:00') return isArabic ? 'منتصف النهار' : isFrench ? 'Midi' : 'Noon'
-    if (timeStr === '09:00') return '09:00'
-    if (timeStr === '18:00') return '18:00'
+    if (timeStr === '12:00') return isArabic ? 'الظهيرة' : isFrench ? 'Midi' : 'Noon'
     return timeStr
   }
+
+  const TIME_OPTIONS = [
+    { value: '09:00', label: '09:00' },
+    { value: '12:00', label: isArabic ? '12:00 (الظهيرة)' : isFrench ? '12:00 (Midi)' : '12:00 (Noon)' },
+    { value: '15:00', label: '15:00' },
+    { value: '18:00', label: '18:00' },
+    { value: '21:00', label: '21:00' },
+  ]
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,94 +93,197 @@ export function QuickReservationNav({ locale, branches }: QuickReservationNavPro
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-center gap-1.5 sm:gap-2 max-w-2xl w-full animate-apple-fade-in"
+      className="flex items-center gap-2 max-w-2xl w-full animate-apple-fade-in"
     >
-      {/* Pill 1: Branch / City Location */}
-      <div className="relative flex-1 min-w-[140px] sm:min-w-[190px]">
-        <div className="flex items-center gap-2 h-10 px-3 rounded-xl bg-neutral-100/90 hover:bg-neutral-100 border border-black/[0.06] text-xs transition-colors">
-          <Car className="w-4 h-4 text-neutral-500 shrink-0" />
-          <select
-            value={selectedBranchId}
-            onChange={(e) => setSelectedBranchId(e.target.value)}
-            className="w-full bg-transparent text-neutral-800 font-medium text-xs focus:outline-none cursor-pointer truncate appearance-none"
-            aria-label={isArabic ? 'اختر نقطة الاستلام' : 'Choose pickup location'}
-          >
-            <option value="">
-              {isArabic ? 'مطار أو وكالة...' : isFrench ? 'Aéroport ou ville...' : 'Airport or city'}
-            </option>
-            {branches.map((b) => {
-              const name = isArabic ? b.name_ar : isFrench ? b.name_fr : b.name_en
-              return (
-                <option key={b.id} value={b.id} className="text-neutral-900 bg-white">
-                  {b.city} — {name}
-                </option>
-              )
-            })}
-          </select>
-        </div>
+      {/* Pill 1: Branch Dropdown using Webapp's Custom Select Component */}
+      <div className="flex-1 min-w-[170px] sm:min-w-[220px]">
+        <Select
+          id="quick_nav_branch"
+          name="branch"
+          size="sm"
+          icon={<Car className="w-4 h-4 text-neutral-500 shrink-0" />}
+          placeholder={isArabic ? 'مطار أو مدينة...' : isFrench ? 'Aéroport ou ville...' : 'Airport or city'}
+          value={selectedBranchId}
+          onChange={(e) => setSelectedBranchId(e.target.value)}
+          options={branches.map((b) => {
+            const name = isArabic ? b.name_ar : isFrench ? b.name_fr : b.name_en
+            return {
+              value: b.id,
+              label: `${b.city} — ${name}`,
+            }
+          })}
+        />
       </div>
 
-      {/* Pill 2: Pickup Date & Time */}
-      <div className="relative hidden sm:flex items-center gap-2 h-10 px-3 rounded-xl bg-neutral-100/90 hover:bg-neutral-100 border border-black/[0.06] text-xs transition-colors shrink-0">
-        <Calendar className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
-        <div className="flex items-center gap-1.5 font-medium text-neutral-800 text-[11px] lg:text-xs">
-          <label className="cursor-pointer relative flex items-center">
-            <span>{formatDisplayDate(pickupDate)}</span>
-            <input
-              type="date"
-              value={pickupDate}
-              onChange={(e) => setPickupDate(e.target.value)}
-              className="absolute inset-0 opacity-0 cursor-pointer w-full"
-            />
-          </label>
+      {/* Pill 2: Pickup Date & Time Popover */}
+      <div ref={pickupRef} className="relative hidden sm:block shrink-0">
+        <button
+          type="button"
+          onClick={() => {
+            setIsPickupOpen((prev) => !prev)
+            setIsReturnOpen(false)
+          }}
+          className={`flex items-center gap-2 h-10 px-3 rounded-xl bg-white border text-xs font-medium text-neutral-800 transition-all cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.02)] ${
+            isPickupOpen
+              ? 'border-brand-500 ring-4 ring-brand-500/15'
+              : 'border-neutral-300/80 hover:border-neutral-400'
+          }`}
+        >
+          <Calendar className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+          <span className="font-semibold text-neutral-900">{formatDisplayDate(pickupDate)}</span>
           <span className="text-neutral-300">|</span>
-          <select
-            value={pickupTime}
-            onChange={(e) => setPickupTime(e.target.value)}
-            className="bg-transparent text-neutral-600 hover:text-neutral-900 font-medium focus:outline-none cursor-pointer"
-          >
-            <option value="09:00">09:00</option>
-            <option value="12:00">{formatDisplayTime('12:00')}</option>
-            <option value="15:00">15:00</option>
-            <option value="18:00">18:00</option>
-            <option value="21:00">21:00</option>
-          </select>
-        </div>
+          <span className="text-neutral-500 text-[11px]">{formatDisplayTime(pickupTime)}</span>
+          <ChevronDown
+            className={`w-3.5 h-3.5 text-neutral-400 transition-transform duration-200 ${
+              isPickupOpen ? 'rotate-180 text-brand-600' : ''
+            }`}
+          />
+        </button>
+
+        {/* Popover Menu */}
+        {isPickupOpen && (
+          <div className="absolute z-[110] top-full mt-2 start-0 w-72 rounded-2xl bg-white/95 backdrop-blur-xl border border-black/[0.08] p-4 shadow-[0_20px_40px_-6px_rgba(0,0,0,0.18)] animate-apple-fade-in space-y-3">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5 text-start">
+                {isArabic ? 'تاريخ الاستلام' : isFrench ? 'Date de départ' : 'Pickup Date'}
+              </label>
+              <input
+                type="date"
+                min={todayStr}
+                value={pickupDate}
+                onChange={(e) => {
+                  setPickupDate(e.target.value)
+                  if (returnDate < e.target.value) {
+                    setReturnDate(e.target.value)
+                  }
+                }}
+                className="w-full h-10 px-3 rounded-xl bg-neutral-50 border border-neutral-300 text-xs font-semibold text-neutral-900 focus:bg-white focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/15 transition-all"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5 text-start">
+                {isArabic ? 'وقت الاستلام' : isFrench ? 'Heure de départ' : 'Pickup Time'}
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {TIME_OPTIONS.map((t) => {
+                  const isSelected = pickupTime === t.value
+                  return (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setPickupTime(t.value)}
+                      className={`px-2.5 py-1.5 rounded-lg text-xs font-medium text-start flex items-center justify-between transition-colors ${
+                        isSelected
+                          ? 'bg-brand-500 text-white font-semibold'
+                          : 'bg-neutral-100 hover:bg-neutral-200/80 text-neutral-800'
+                      }`}
+                    >
+                      <span>{t.label}</span>
+                      {isSelected && <Check className="w-3 h-3 text-white" />}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-black/[0.06] flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsPickupOpen(false)}
+                className="px-3.5 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-semibold shadow-sm transition-all"
+              >
+                {isArabic ? 'تأكيد' : 'Done'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Pill 3: Return Date & Time */}
-      <div className="relative hidden md:flex items-center gap-2 h-10 px-3 rounded-xl bg-neutral-100/90 hover:bg-neutral-100 border border-black/[0.06] text-xs transition-colors shrink-0">
-        <Calendar className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
-        <div className="flex items-center gap-1.5 font-medium text-neutral-800 text-[11px] lg:text-xs">
-          <label className="cursor-pointer relative flex items-center">
-            <span>{formatDisplayDate(returnDate)}</span>
-            <input
-              type="date"
-              value={returnDate}
-              min={pickupDate}
-              onChange={(e) => setReturnDate(e.target.value)}
-              className="absolute inset-0 opacity-0 cursor-pointer w-full"
-            />
-          </label>
+      {/* Pill 3: Return Date & Time Popover */}
+      <div ref={returnRef} className="relative hidden md:block shrink-0">
+        <button
+          type="button"
+          onClick={() => {
+            setIsReturnOpen((prev) => !prev)
+            setIsPickupOpen(false)
+          }}
+          className={`flex items-center gap-2 h-10 px-3 rounded-xl bg-white border text-xs font-medium text-neutral-800 transition-all cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.02)] ${
+            isReturnOpen
+              ? 'border-brand-500 ring-4 ring-brand-500/15'
+              : 'border-neutral-300/80 hover:border-neutral-400'
+          }`}
+        >
+          <Calendar className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+          <span className="font-semibold text-neutral-900">{formatDisplayDate(returnDate)}</span>
           <span className="text-neutral-300">|</span>
-          <select
-            value={returnTime}
-            onChange={(e) => setReturnTime(e.target.value)}
-            className="bg-transparent text-neutral-600 hover:text-neutral-900 font-medium focus:outline-none cursor-pointer"
-          >
-            <option value="09:00">09:00</option>
-            <option value="12:00">{formatDisplayTime('12:00')}</option>
-            <option value="15:00">15:00</option>
-            <option value="18:00">18:00</option>
-            <option value="21:00">21:00</option>
-          </select>
-        </div>
+          <span className="text-neutral-500 text-[11px]">{formatDisplayTime(returnTime)}</span>
+          <ChevronDown
+            className={`w-3.5 h-3.5 text-neutral-400 transition-transform duration-200 ${
+              isReturnOpen ? 'rotate-180 text-brand-600' : ''
+            }`}
+          />
+        </button>
+
+        {/* Popover Menu */}
+        {isReturnOpen && (
+          <div className="absolute z-[110] top-full mt-2 start-0 w-72 rounded-2xl bg-white/95 backdrop-blur-xl border border-black/[0.08] p-4 shadow-[0_20px_40px_-6px_rgba(0,0,0,0.18)] animate-apple-fade-in space-y-3">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5 text-start">
+                {isArabic ? 'تاريخ الإرجاع' : isFrench ? 'Date de retour' : 'Return Date'}
+              </label>
+              <input
+                type="date"
+                min={pickupDate}
+                value={returnDate}
+                onChange={(e) => setReturnDate(e.target.value)}
+                className="w-full h-10 px-3 rounded-xl bg-neutral-50 border border-neutral-300 text-xs font-semibold text-neutral-900 focus:bg-white focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/15 transition-all"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5 text-start">
+                {isArabic ? 'وقت الإرجاع' : isFrench ? 'Heure de retour' : 'Return Time'}
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {TIME_OPTIONS.map((t) => {
+                  const isSelected = returnTime === t.value
+                  return (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setReturnTime(t.value)}
+                      className={`px-2.5 py-1.5 rounded-lg text-xs font-medium text-start flex items-center justify-between transition-colors ${
+                        isSelected
+                          ? 'bg-brand-500 text-white font-semibold'
+                          : 'bg-neutral-100 hover:bg-neutral-200/80 text-neutral-800'
+                      }`}
+                    >
+                      <span>{t.label}</span>
+                      {isSelected && <Check className="w-3 h-3 text-white" />}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-black/[0.06] flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsReturnOpen(false)}
+                className="px-3.5 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-semibold shadow-sm transition-all"
+              >
+                {isArabic ? 'تأكيد' : 'Done'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Action Button: Search */}
+      {/* Action Button: Search in Application Apple Theme Blue */}
       <button
         type="submit"
-        className="apple-press h-10 w-10 sm:w-11 rounded-xl bg-gradient-to-r from-[#FF5500] to-[#FF7700] hover:from-[#E04B00] hover:to-[#FF6600] text-white flex items-center justify-center shadow-[0_2px_10px_rgba(255,85,0,0.35)] transition-all shrink-0 cursor-pointer"
+        className="apple-press h-10 w-10 sm:w-11 rounded-xl bg-brand-500 hover:bg-brand-600 text-white flex items-center justify-center shadow-[0_2px_12px_rgba(0,113,227,0.35)] transition-all shrink-0 cursor-pointer"
         title={isArabic ? 'البحث عن السيارات المتاحة' : 'Search available cars'}
         aria-label={isArabic ? 'بحث' : 'Search'}
       >
