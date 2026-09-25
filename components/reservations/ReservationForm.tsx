@@ -2,6 +2,7 @@
 
 import React, { useActionState, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
@@ -16,6 +17,7 @@ export interface ReservationFormProps {
   branches?: Branch[]
   dictionary?: Dictionary
   lang?: Language
+  isAuthenticated?: boolean
   action?: (
     state: unknown,
     payload: FormData
@@ -33,6 +35,7 @@ export function ReservationForm({
   branches = [],
   dictionary,
   lang = 'ar',
+  isAuthenticated = true,
   action = createReservation,
 }: ReservationFormProps) {
   const router = useRouter()
@@ -75,8 +78,18 @@ export function ReservationForm({
       <input type="hidden" name="vehicle_id" value={effectiveVehicleId} />
 
       {state?.error && (
-        <div className="p-3.5 bg-rose-500/10 text-rose-700 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in">
-          {state.error}
+        <div className="p-3.5 bg-rose-500/10 text-rose-700 border border-rose-500/20 rounded-2xl text-xs font-medium animate-apple-fade-in flex flex-col gap-1.5">
+          <span>{state.error}</span>
+          {(state.error.toLowerCase().includes('unauthorized') ||
+            state.error.toLowerCase().includes('sign in') ||
+            state.error.toLowerCase().includes('connecter')) && (
+            <Link
+              href={`/${lang}/login?redirect=/${lang}/vehicles/${effectiveVehicleId}`}
+              className="text-xs font-semibold text-brand-600 underline hover:text-brand-700 pt-0.5"
+            >
+              {lang === 'ar' ? 'انقر هنا لتسجيل الدخول' : lang === 'fr' ? 'Cliquez ici pour vous connecter' : 'Click here to sign in'}
+            </Link>
+          )}
         </div>
       )}
 
@@ -167,17 +180,39 @@ export function ReservationForm({
         </div>
       </div>
 
-      <Button
-        type="submit"
-        variant="primary"
-        fullWidth
-        size="lg"
-        loading={isPending}
-        disabled={days <= 0 || !pickupBranch || isPending}
-        className="mt-2 text-sm font-semibold"
-      >
-        {dictionary?.reservations?.reserve || 'Request Reservation'}
-      </Button>
+      {!isAuthenticated ? (
+        <div className="mt-4 p-4 rounded-2xl bg-brand-50/80 border border-brand-100 flex flex-col gap-2.5">
+          <p className="text-xs text-brand-900 font-medium">
+            {lang === 'ar'
+              ? 'يرجى تسجيل الدخول أولاً لتأكيد طلب حجز هذه المركبة ومتابعة حالتها.'
+              : lang === 'fr'
+              ? 'Veuillez vous connecter pour soumettre votre demande de réservation.'
+              : 'Please sign in to submit your reservation request and track vehicle status.'}
+          </p>
+          <Link
+            href={`/${lang}/login?redirect=/${lang}/vehicles/${effectiveVehicleId}`}
+            className="apple-press inline-flex items-center justify-center h-11 px-5 rounded-xl text-sm font-semibold bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-sm text-center"
+          >
+            {lang === 'ar'
+              ? 'تسجيل الدخول للمتابعة'
+              : lang === 'fr'
+              ? 'Se connecter pour réserver'
+              : 'Sign in to Reserve'}
+          </Link>
+        </div>
+      ) : (
+        <Button
+          type="submit"
+          variant="primary"
+          fullWidth
+          size="lg"
+          loading={isPending}
+          disabled={days <= 0 || !pickupBranch || isPending}
+          className="mt-2 text-sm font-semibold"
+        >
+          {dictionary?.reservations?.reserve || 'Request Reservation'}
+        </Button>
+      )}
     </form>
   )
 }

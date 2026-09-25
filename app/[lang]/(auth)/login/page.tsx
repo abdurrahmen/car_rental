@@ -1,6 +1,13 @@
 import { LoginForm } from './LoginForm'
 
-export default async function LoginPage({ params }: { params: Promise<{ lang: string }> }) {
+export default async function LoginPage({ 
+  params, 
+  searchParams 
+}: { 
+  params: Promise<{ lang: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
   const { lang } = await params
-  return <LoginForm lang={lang} />
+  const { redirect } = await searchParams
+  return <LoginForm lang={lang} redirectTo={typeof redirect === 'string' ? redirect : undefined} />
 }

@@ -29,6 +29,18 @@ export async function uploadLicense(prevState: unknown, formData: FormData) {
   const file = formData.get('file') as File;
   if (!file) return { error: 'No file' };
 
+  // Validate file type
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return { error: 'Invalid file type. Allowed: JPEG, PNG, WebP, PDF' };
+  }
+
+  // Validate file size (5MB max)
+  const MAX_SIZE = 5 * 1024 * 1024;
+  if (file.size > MAX_SIZE) {
+    return { error: 'File too large. Maximum size: 5MB' };
+  }
+
   const supabase = await createClient();
   const {
     data: { user },

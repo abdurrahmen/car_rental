@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { Logo } from '@/components/ui/Logo'
 import type { Language } from '@/types'
 
-export function LoginForm({ lang }: { lang: string }) {
+export function LoginForm({ lang, redirectTo }: { lang: string; redirectTo?: string }) {
   const [isDemoPending, startDemoTransition] = useTransition()
   const [state, formAction, pending] = useActionState<AuthState, FormData>(
     signIn,
@@ -17,10 +17,10 @@ export function LoginForm({ lang }: { lang: string }) {
 
   useEffect(() => {
     if (state?.success) {
-      const target = state.redirectPath || '/dashboard'
+      const target = redirectTo || state.redirectPath || '/dashboard'
       window.location.href = target.startsWith(`/${lang}`) ? target : `/${lang}${target}`
     }
-  }, [state, lang])
+  }, [state, lang, redirectTo])
 
   const handleDemoClick = (role: 'admin' | 'manager' | 'customer') => {
     const roleVal = role === 'manager' ? 'branch_manager' : role
@@ -133,6 +133,8 @@ export function LoginForm({ lang }: { lang: string }) {
               : 'Login successful! Redirecting...'}
           </div>
         )}
+
+        <input type="hidden" name="redirect" value={redirectTo || ''} />
 
         <Input
           type="email"

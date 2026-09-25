@@ -8,6 +8,7 @@ import { Footer } from '@/components/layout/Footer'
 import type { Language, Branch } from '@/types'
 
 import { getAuthUser } from '@/lib/auth'
+import { SignOutButton } from '@/components/layout/SignOutButton'
 
 interface StaffLayoutProps {
   children: React.ReactNode
@@ -108,6 +109,14 @@ export default async function StaffLayout({
               </svg>
               <span>{dict.staff?.vehicle_management || 'Fleet Management'}</span>
             </Link>
+
+            <div className="pt-2 border-t border-black/[0.04]">
+              <SignOutButton
+                locale={locale}
+                variant="sidebar"
+                label={locale === 'ar' ? 'تسجيل الخروج' : locale === 'fr' ? 'Déconnexion' : 'Sign Out'}
+              />
+            </div>
           </div>
         </aside>
 

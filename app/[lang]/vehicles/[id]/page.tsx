@@ -9,6 +9,7 @@ import { formatDZD } from '@/lib/utils/constants'
 import { notFound } from 'next/navigation'
 import type { Language, Branch, Vehicle, VehiclePhoto, VehicleCategory } from '@/types'
 import { FALLBACK_VEHICLES, FALLBACK_BRANCHES } from '@/lib/data/fallback'
+import { getAuthUser } from '@/lib/auth'
 
 interface VehicleDetailPageProps {
   params: Promise<{ lang: string; id: string }>
@@ -20,6 +21,7 @@ export default async function VehicleDetailPage({
   const { lang, id } = await params
   const dict = await getDictionaryByLocale(lang)
   const supabase = await createClient()
+  const authUser = await getAuthUser()
 
   const { data: dbVehicle } = await supabase
     .from('vehicles')
@@ -231,6 +233,7 @@ export default async function VehicleDetailPage({
                   branches={(branches as Branch[]) || []}
                   dictionary={dict}
                   lang={locale}
+                  isAuthenticated={Boolean(authUser)}
                 />
               </div>
             </div>

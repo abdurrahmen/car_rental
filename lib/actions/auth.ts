@@ -52,6 +52,7 @@ export async function signIn(
   formData: FormData,
 ): Promise<AuthState> {
   const data = Object.fromEntries(formData.entries());
+  const redirectTo = data.redirect as string | undefined;
   const result = loginSchema.safeParse(data);
 
   if (!result.success) {
@@ -93,25 +94,32 @@ export async function signIn(
 
     if (role === 'admin') {
       redirectPath = '/admin';
-      cookieStore.set('dzrent_demo_role', 'admin', {
-        path: '/',
-        maxAge: 60 * 60 * 24,
-        sameSite: 'lax',
-      });
+      if (process.env.NODE_ENV !== 'production') {
+        cookieStore.set('dzrent_demo_role', 'admin', {
+          path: '/',
+          maxAge: 60 * 60 * 24,
+          sameSite: 'lax',
+        });
+      }
     } else if (role === 'staff' || role === 'branch_manager') {
       redirectPath = '/staff';
-      cookieStore.set('dzrent_demo_role', role, {
-        path: '/',
-        maxAge: 60 * 60 * 24,
-        sameSite: 'lax',
-      });
+      if (process.env.NODE_ENV !== 'production') {
+        cookieStore.set('dzrent_demo_role', role, {
+          path: '/',
+          maxAge: 60 * 60 * 24,
+          sameSite: 'lax',
+        });
+      }
     }
   }
 
-  return { success: true, redirectPath };
+  return { success: true, redirectPath: redirectTo || redirectPath };
 }
 
 export async function loginAsDemo(role: 'admin' | 'manager' | 'customer', lang: string = 'en') {
+  if (process.env.NODE_ENV === 'production') {
+    return { success: false, redirectPath: `/${lang}/login` };
+  }
   const cookieStore = await cookies();
   const supabase = await createClient();
 

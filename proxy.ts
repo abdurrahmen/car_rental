@@ -90,8 +90,10 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  // Check for 1-click fast demo role bypass cookie
-  const demoRole = request.cookies.get('dzrent_demo_role')?.value;
+  // Fast demo role bypass routing (DEVELOPMENT ONLY)
+  const demoRole = process.env.NODE_ENV !== 'production'
+    ? request.cookies.get('dzrent_demo_role')?.value
+    : undefined;
 
   // Check if the route requires authentication
   const isProtectedRoute = AUTH_ROUTES.some((route) =>

@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { SignOutButton } from './SignOutButton'
 import { Logo } from '@/components/ui/Logo'
 import type { Language, Dictionary } from '@/types'
 
@@ -71,23 +72,26 @@ export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
         <div className="flex items-center gap-3">
           <LanguageSwitcher locale={effectiveLocale} />
 
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             {isAuthenticated ? (
-              <Link
-                href={dashboardHref}
-                className={`apple-press inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-full text-xs font-semibold tracking-tight transition-all shadow-sm min-h-[38px] ${
-                  userRole === 'admin'
-                    ? 'bg-purple-600 text-white hover:bg-purple-700'
-                    : userRole === 'staff' || userRole === 'branch_manager'
-                    ? 'bg-amber-600 text-white hover:bg-amber-700'
-                    : 'bg-neutral-900 text-white hover:opacity-90'
-                }`}
-              >
-                {userRole === 'admin' && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                )}
-                <span>{dashboardLabel}</span>
-              </Link>
+              <>
+                <Link
+                  href={dashboardHref}
+                  className={`apple-press inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-full text-xs font-semibold tracking-tight transition-all shadow-sm min-h-[38px] ${
+                    userRole === 'admin'
+                      ? 'bg-purple-600 text-white hover:bg-purple-700'
+                      : userRole === 'staff' || userRole === 'branch_manager'
+                      ? 'bg-amber-600 text-white hover:bg-amber-700'
+                      : 'bg-neutral-900 text-white hover:opacity-90'
+                  }`}
+                >
+                  {userRole === 'admin' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  )}
+                  <span>{dashboardLabel}</span>
+                </Link>
+                <SignOutButton locale={effectiveLocale} />
+              </>
             ) : (
               <Link
                 href={`/${effectiveLocale}/login`}

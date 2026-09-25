@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { branchSchema } from '@/lib/validations/branch';
 import { revalidatePath } from 'next/cache';
+import { assertRole } from '@/lib/auth';
 
 async function writeAuditLog(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -28,11 +29,9 @@ export async function createBranch(prevState: unknown, formData: FormData) {
   const result = branchSchema.safeParse(data);
   if (!result.success) return { error: 'Invalid fields' };
 
+  let appUser;
+  try { appUser = await assertRole(['admin']); } catch { return { error: 'Forbidden: admin access required' }; }
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: 'Unauthorized' };
 
   const { data: branch, error } = await supabase
     .from('branches')
@@ -48,7 +47,7 @@ export async function createBranch(prevState: unknown, formData: FormData) {
     branch.id,
     null,
     branch as unknown as Record<string, unknown>,
-    user.id,
+    appUser.id,
   );
   revalidatePath('/admin/branches');
   return { success: true };
@@ -60,11 +59,9 @@ export async function updateBranch(prevState: unknown, formData: FormData) {
   const result = branchSchema.safeParse(data);
   if (!result.success) return { error: 'Invalid fields' };
 
+  let appUser;
+  try { appUser = await assertRole(['admin']); } catch { return { error: 'Forbidden: admin access required' }; }
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: 'Unauthorized' };
 
   const { data: existing } = await supabase
     .from('branches')
@@ -87,7 +84,7 @@ export async function updateBranch(prevState: unknown, formData: FormData) {
     branch.id,
     existing as unknown as Record<string, unknown>,
     branch as unknown as Record<string, unknown>,
-    user.id,
+    appUser.id,
   );
   revalidatePath('/admin/branches');
   return { success: true };

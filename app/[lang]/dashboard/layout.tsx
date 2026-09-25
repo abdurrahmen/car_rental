@@ -12,6 +12,7 @@ interface DashboardLayoutProps {
 }
 
 import { getAuthUser } from '@/lib/auth'
+import { SignOutButton } from '@/components/layout/SignOutButton'
 
 export default async function DashboardLayout({
   children,
@@ -87,6 +88,14 @@ export default async function DashboardLayout({
               </svg>
               <span>{dict.dashboard?.profile || 'Profile & License'}</span>
             </Link>
+
+            <div className="pt-2 border-t border-black/[0.04]">
+              <SignOutButton
+                locale={locale}
+                variant="sidebar"
+                label={locale === 'ar' ? 'تسجيل الخروج' : locale === 'fr' ? 'Déconnexion' : 'Sign Out'}
+              />
+            </div>
           </div>
         </aside>
 

@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { reservationRequestSchema } from '@/lib/validations/reservation';
 import { revalidatePath } from 'next/cache';
+import { getAuthUser } from '@/lib/auth';
 
 async function writeAuditLog(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -39,12 +40,12 @@ export async function createReservation(
     return { error: result.error.issues[0]?.message || 'Invalid fields' };
   }
 
+  const appUser = await getAuthUser();
+  if (!appUser) {
+    return { error: 'Please sign in to make a reservation.' };
+  }
+
   const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-  if (authError || !user) return { error: 'Unauthorized' };
 
   const { data: vehicle, error: vErr } = await supabase
     .from('vehicles')
@@ -63,7 +64,7 @@ export async function createReservation(
   const { data: reservation, error } = await supabase
     .from('reservations')
     .insert({
-      customer_id: user.id,
+      customer_id: appUser.id,
       vehicle_id: result.data.vehicle_id,
       pickup_branch_id: result.data.pickup_branch_id,
       dropoff_branch_id: result.data.dropoff_branch_id,
@@ -92,7 +93,7 @@ export async function createReservation(
     reservation.id,
     null,
     reservation as unknown as Record<string, unknown>,
-    user.id,
+    appUser.id,
   );
 
   revalidatePath('/dashboard');

@@ -108,9 +108,11 @@ export function FileUpload({
         <input
           ref={inputRef}
           type="file"
+          name="file"
           className="hidden"
           accept={accept}
           onChange={handleChange}
+          aria-label={label || 'Upload file'}
         />
 
         {preview && previewUrl ? (

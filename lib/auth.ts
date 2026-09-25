@@ -59,8 +59,12 @@ export const DEMO_PROFILES: Record<string, AppUser> = {
  */
 export async function getAuthUser(): Promise<AppUser | null> {
   const cookieStore = await cookies();
-  const demoRole = cookieStore.get('dzrent_demo_role')?.value;
-  const demoUserRaw = cookieStore.get('dzrent_demo_user')?.value;
+  const demoRole = process.env.NODE_ENV !== 'production'
+    ? cookieStore.get('dzrent_demo_role')?.value
+    : undefined;
+  const demoUserRaw = process.env.NODE_ENV !== 'production'
+    ? cookieStore.get('dzrent_demo_user')?.value
+    : undefined;
 
   let demoUser: AppUser | null = null;
   if (demoUserRaw) {
@@ -118,4 +122,15 @@ export async function getAuthUser(): Promise<AppUser | null> {
   }
 
   return null;
+}
+
+/**
+ * Asserts the current user has one of the allowed roles.
+ * Throws if not authenticated or role doesn't match.
+ */
+export async function assertRole(allowedRoles: Role[]): Promise<AppUser> {
+  const user = await getAuthUser();
+  if (!user) throw new Error('Unauthorized');
+  if (!allowedRoles.includes(user.role)) throw new Error('Forbidden');
+  return user;
 }
