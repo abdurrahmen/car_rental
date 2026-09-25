@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
-import { Plane, Ship, Fuel, Building2, MapPin, Phone } from 'lucide-react'
+import { Plane, Ship, Fuel, Building2, MapPin } from 'lucide-react'
+import { AlgeriaMap } from './AlgeriaMap'
 import type { Branch, Language } from '@/types'
 
 export interface HubExplorerProps {
@@ -17,17 +17,6 @@ export function HubExplorer({ locale, branches }: HubExplorerProps) {
   const [selectedHubId, setSelectedHubId] = useState<string>(
     branches[0]?.id || ''
   )
-
-  const activeHub =
-    branches.find((b) => b.id === selectedHubId) || branches[0]
-
-  const activeHubName = activeHub
-    ? isArabic
-      ? activeHub.name_ar
-      : isFrench
-      ? activeHub.name_fr
-      : activeHub.name_en
-    : ''
 
   // Gateway categories and icons
   const getGatewayBadge = (b: Branch) => {
@@ -63,39 +52,6 @@ export function HubExplorer({ locale, branches }: HubExplorerProps) {
       iconBg: 'bg-purple-500/10 text-purple-600',
     }
   }
-
-  // Cross-wilaya corridors for the active hub
-  const getCorridors = (city: string) => {
-    const c = (city || '').toLowerCase()
-    if (c.includes('alger')) {
-      return [
-        { dest: isArabic ? 'تيزي وزو / بجاية' : 'Tizi Ouzou / Béjaïa', dist: '110 - 240 km', time: '2h - 3h30' },
-        { dest: isArabic ? 'تيبازة / الشلف' : 'Tipaza / Chlef', dist: '70 - 200 km', time: '1h - 2h15' },
-        { dest: isArabic ? 'سطيف / قسنطينة' : 'Sétif / Constantine', dist: '300 - 430 km', time: '3h30 - 4h45' },
-      ]
-    }
-    if (c.includes('oran')) {
-      return [
-        { dest: isArabic ? 'تلمسان / مغنية' : 'Tlemcen / Maghnia', dist: '140 - 180 km', time: '1h45 - 2h15' },
-        { dest: isArabic ? 'مستغانم / معسكر' : 'Mostaganem / Mascara', dist: '85 - 105 km', time: '1h - 1h30' },
-        { dest: isArabic ? 'عين تموشنت' : 'Aïn Témouchent', dist: '75 km', time: '55 min' },
-      ]
-    }
-    if (c.includes('hassi')) {
-      return [
-        { dest: isArabic ? 'ورقلة / تقرت' : 'Ouargla / Touggourt', dist: '85 - 170 km', time: '1h15 - 2h' },
-        { dest: isArabic ? 'غرداية' : 'Ghardaïa', dist: '270 km', time: '3h15' },
-        { dest: isArabic ? 'حقول النفط والغاز' : 'Oilfields & Drilling Sites', dist: 'Direct 4x4', time: 'All-Terrain' },
-      ]
-    }
-    return [
-      { dest: isArabic ? 'الولايات المجاورة' : 'Adjacent Wilayas', dist: 'Direct Highway', time: 'Express' },
-      { dest: isArabic ? 'الموانئ والمطارات' : 'Airports & Terminals', dist: 'Direct Link', time: 'Fast Track' },
-    ]
-  }
-
-  const activeBadge = activeHub ? getGatewayBadge(activeHub) : null
-  const activeCorridors = activeHub ? getCorridors(activeHub.city) : []
 
   return (
     <section id="hubs" className="py-20 sm:py-28 bg-[#FBFBFD] border-t border-black/[0.05]">
@@ -166,90 +122,15 @@ export function HubExplorer({ locale, branches }: HubExplorerProps) {
             })}
           </div>
 
-          {/* Gateway Dossier & Corridor Matrix (Span 7 on lg) */}
-          {activeHub && (
-            <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-black/[0.08] shadow-[0_8px_32px_-6px_rgba(0,0,0,0.05)] space-y-6">
-              {/* Dossier Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-black/[0.06]">
-                <div className="text-start">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    {activeBadge && (
-                      <span className={`p-1.5 rounded-xl ${activeBadge.iconBg}`}>
-                        <activeBadge.Icon className="w-4 h-4" />
-                      </span>
-                    )}
-                    <span className="text-xs font-mono font-bold uppercase text-brand-600">
-                      {activeHub.city} HUB DOSSIER
-                    </span>
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-neutral-900 tracking-tight">
-                    {activeHubName}
-                  </h3>
-                  <p className="text-xs text-neutral-500 mt-1 flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                    <span>{activeHub.address}</span>
-                  </p>
-                </div>
-
-                <a
-                  href={`tel:${activeHub.phone}`}
-                  className="apple-press inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 border border-brand-200/80 transition-all self-start sm:self-center"
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                  <span>{activeHub.phone}</span>
-                </a>
-              </div>
-
-              {/* Corridor Transit Connections from this Hub */}
-              <div className="text-start space-y-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-500 block">
-                  {isArabic ? 'المسارات والوجهات المباشرة من هذه الوكالة:' : isFrench ? 'Liaisons Interwilayas Directes :' : 'Direct Cross-Wilaya Corridors:'}
-                </span>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {activeCorridors.map((c, i) => (
-                    <div
-                      key={i}
-                      className="p-3.5 rounded-2xl bg-neutral-50 border border-black/[0.04] space-y-1"
-                    >
-                      <div className="flex items-center justify-between text-[11px] text-neutral-400">
-                        <span>{isArabic ? 'الوجهة' : 'Route'}</span>
-                        <span className="font-mono">{c.time}</span>
-                      </div>
-                      <span className="font-bold text-xs text-neutral-900 block">
-                        {c.dest}
-                      </span>
-                      <span className="text-[11px] text-brand-600 font-mono block">
-                        {c.dist}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Operating Checklist */}
-              <div className="pt-4 border-t border-black/[0.06] flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-4 text-xs text-neutral-600">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span>{isArabic ? 'استلام بمطار / ميناء' : 'Terminal Delivery'}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-brand-500" />
-                    <span>{isArabic ? 'مكتب محضر الفحص الرقمي' : 'Digital Inspection Desk'}</span>
-                  </div>
-                </div>
-
-                <Link
-                  href={`/${locale}/vehicles?branch=${activeHub.id}`}
-                  className="apple-press inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-bold text-white bg-brand-500 hover:bg-brand-600 transition-all shadow-sm"
-                >
-                  <span>{isArabic ? 'عرض سيارات هذا الفرع' : isFrench ? 'Véhicules de cette agence' : 'View Agency Fleet'}</span>
-                  <span className="rtl:rotate-180">→</span>
-                </Link>
-              </div>
-            </div>
-          )}
+          {/* Creative Interactive Algeria Map (Span 7 on lg) */}
+          <div className="lg:col-span-7 w-full">
+            <AlgeriaMap
+              locale={locale}
+              branches={branches}
+              selectedHubId={selectedHubId}
+              onSelectHub={(id) => setSelectedHubId(id)}
+            />
+          </div>
         </div>
       </div>
     </section>

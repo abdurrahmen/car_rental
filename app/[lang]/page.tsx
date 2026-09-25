@@ -63,7 +63,7 @@ export default async function HomePage({ params }: HomePageProps) {
   return (
     <div className="flex flex-col min-h-screen bg-[#FBFBFD] text-neutral-900 selection:bg-brand-500/20">
       {/* Frosted Glass Navigation */}
-      <Header locale={locale} dictionary={dict} />
+      <Header locale={locale} dictionary={dict} branches={branches} />
 
       {/* Main Creative Journey Layout */}
       <main className="flex-1 w-full block">

@@ -4,23 +4,27 @@ import { LanguageSwitcher } from './LanguageSwitcher'
 import { SignOutButton } from './SignOutButton'
 import { MobileNav } from './MobileNav'
 import { Logo } from '@/components/ui/Logo'
+import { HeaderNavClient } from './HeaderNavClient'
 import { getAuthUser } from '@/lib/auth'
-import type { Language, Dictionary } from '@/types'
+import { FALLBACK_BRANCHES } from '@/lib/data/fallback'
+import type { Language, Dictionary, Branch } from '@/types'
 
 export interface HeaderProps {
   locale?: Language
   lang?: Language
   dictionary?: Dictionary
   dict?: Dictionary
+  branches?: Branch[]
 }
 
 /**
  * Apple-style frosted glass navigation bar with trilingual navigation links,
  * subpixel border, refined pill action buttons, and responsive mobile drawer.
  */
-export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
+export async function Header({ locale, lang, dictionary, dict, branches }: HeaderProps) {
   const effectiveLocale = (locale || lang || 'ar') as Language
   const effectiveDict = dictionary || dict
+  const effectiveBranches = branches && branches.length > 0 ? branches : FALLBACK_BRANCHES
 
   const authUser = await getAuthUser()
 
@@ -90,74 +94,26 @@ export async function Header({ locale, lang, dictionary, dict }: HeaderProps) {
   return (
     <header className="glass-nav sticky top-0 z-50 w-full transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand Logo & Desktop Navigation */}
-        <div className="flex items-center gap-6 lg:gap-8">
+        {/* Brand Logo - Always retained on the start */}
+        <div className="shrink-0">
           <Logo
             href={`/${effectiveLocale}`}
             locale={effectiveLocale}
             size="md"
           />
-
-          {/* Desktop Nav links */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-1.5">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="px-3 py-1.5 rounded-full text-xs lg:text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100/80 transition-colors whitespace-nowrap"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
         </div>
 
-        {/* Right actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <LanguageSwitcher locale={effectiveLocale} />
-
-          {/* Desktop Auth Button */}
-          <div className="hidden sm:flex items-center gap-2">
-            {isAuthenticated ? (
-              <>
-                <Link
-                  href={dashboardHref}
-                  className={`apple-press inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-full text-xs font-semibold tracking-tight transition-all shadow-sm min-h-[38px] ${
-                    userRole === 'admin'
-                      ? 'bg-purple-600 text-white hover:bg-purple-700'
-                      : userRole === 'staff' || userRole === 'branch_manager'
-                      ? 'bg-amber-600 text-white hover:bg-amber-700'
-                      : 'bg-neutral-900 text-white hover:opacity-90'
-                  }`}
-                >
-                  {userRole === 'admin' && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                  )}
-                  <span>{dashboardLabel}</span>
-                </Link>
-                <SignOutButton locale={effectiveLocale} />
-              </>
-            ) : (
-              <Link
-                href={`/${effectiveLocale}/login`}
-                className="apple-press inline-flex items-center justify-center h-9 px-4 rounded-full text-xs font-semibold tracking-tight bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-sm min-h-[38px]"
-              >
-                {loginText}
-              </Link>
-            )}
-          </div>
-
-          {/* Mobile Navigation Drawer Toggle */}
-          <MobileNav
-            locale={effectiveLocale}
-            links={navLinks}
-            isAuthenticated={isAuthenticated}
-            userRole={userRole}
-            dashboardHref={dashboardHref}
-            dashboardLabel={dashboardLabel}
-            loginText={loginText}
-          />
-        </div>
+        {/* Dynamic Navigation: standard links at top, quick reservation bar on scroll */}
+        <HeaderNavClient
+          locale={effectiveLocale}
+          branches={effectiveBranches}
+          navLinks={navLinks}
+          isAuthenticated={isAuthenticated}
+          userRole={userRole}
+          dashboardHref={dashboardHref}
+          dashboardLabel={dashboardLabel}
+          loginText={loginText}
+        />
       </div>
     </header>
   )

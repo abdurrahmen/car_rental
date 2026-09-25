@@ -31,17 +31,13 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
 
     const mm = gsap.matchMedia()
 
-    // Desktop (1024px+): Pinned scroll-driven sequence where cards reveal one after another while scrolling
+    // Desktop (1024px+): Smooth one-time sequence when scrolled into view
     mm.add('(min-width: 1024px)', () => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top 64px',
-          end: '+=750',
-          pin: true,
-          pinSpacing: true,
-          scrub: 0.5,
-          anticipatePin: 1,
+          start: 'top 75%',
+          once: true,
         },
       })
 
@@ -50,7 +46,7 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
         tl.fromTo(
           progressLineRef.current,
           { scaleX: 0.12 },
-          { scaleX: 1, ease: 'none', duration: 3.5 },
+          { scaleX: 1, ease: 'power2.inOut', duration: 1.8 },
           0
         )
       }
@@ -67,62 +63,62 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
         0
       )
 
-      // Step 02: Reveals as user turns the scroll wheel (time 0.8 -> 1.8)
+      // Step 02: Reveals sequentially
       tl.fromTo(
         '#journey-card-1',
         { opacity: 0, y: 30, scale: 0.96 },
-        { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power2.out' },
-        0.8
+        { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'power2.out' },
+        0.35
       )
       tl.to(
         '#station-dot-1',
-        { borderColor: '#0071E3', scale: 1.25, duration: 0.4 },
-        1.1
+        { borderColor: '#0071E3', scale: 1.25, duration: 0.3 },
+        0.45
       )
       tl.to(
         '#station-dot-1 .station-inner',
-        { backgroundColor: '#0071E3', duration: 0.4 },
-        1.1
+        { backgroundColor: '#0071E3', duration: 0.3 },
+        0.45
       )
 
-      // Step 03: Reveals as scroll advances further (time 1.8 -> 2.8)
+      // Step 03: Reveals sequentially
       tl.fromTo(
         '#journey-card-2',
         { opacity: 0, y: 30, scale: 0.96 },
-        { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power2.out' },
-        1.8
+        { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'power2.out' },
+        0.8
       )
       tl.to(
         '#station-dot-2',
-        { borderColor: '#0071E3', scale: 1.25, duration: 0.4 },
-        2.1
+        { borderColor: '#0071E3', scale: 1.25, duration: 0.3 },
+        0.9
       )
       tl.to(
         '#station-dot-2 .station-inner',
-        { backgroundColor: '#0071E3', duration: 0.4 },
-        2.1
+        { backgroundColor: '#0071E3', duration: 0.3 },
+        0.9
       )
 
-      // Step 04: Reveals as journey completes (time 2.8 -> 3.5)
+      // Step 04: Reveals sequentially
       tl.fromTo(
         '#journey-card-3',
         { opacity: 0, y: 30, scale: 0.96 },
-        { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power2.out' },
-        2.8
+        { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'power2.out' },
+        1.25
       )
       tl.to(
         '#station-dot-3',
-        { borderColor: '#10B981', scale: 1.25, duration: 0.4 },
-        3.1
+        { borderColor: '#10B981', scale: 1.25, duration: 0.3 },
+        1.35
       )
       tl.to(
         '#station-dot-3 .station-inner',
-        { backgroundColor: '#10B981', duration: 0.4 },
-        3.1
+        { backgroundColor: '#10B981', duration: 0.3 },
+        1.35
       )
     })
 
-    // Mobile / Tablet (<1024px): Cards reveal sequentially as each scrolls into viewport
+    // Mobile / Tablet (<1024px): Cards reveal sequentially once as each scrolls into viewport
     mm.add('(max-width: 1023px)', () => {
       [0, 1, 2, 3].forEach((idx) => {
         gsap.fromTo(
@@ -136,7 +132,7 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
             scrollTrigger: {
               trigger: `#journey-card-${idx}`,
               start: 'top 85%',
-              toggleActions: 'play none none reverse',
+              once: true,
             },
           }
         )
@@ -242,7 +238,7 @@ export function JourneyTimeline({ locale }: JourneyTimelineProps) {
     <section
       ref={sectionRef}
       id="how-it-works"
-      className="py-16 sm:py-20 lg:py-0 lg:min-h-[calc(100vh-4rem)] lg:flex lg:flex-col lg:justify-center bg-[#F6F6F9] border-y border-black/[0.06] relative z-20"
+      className="py-16 sm:py-24 bg-[#F6F6F9] border-y border-black/[0.06] relative z-20"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         {/* Section Header with Typographic Hierarchy */}
