@@ -93,9 +93,9 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={`rounded-3xl border border-black/[0.06] bg-white shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)] py-12 px-6 text-center flex flex-col items-center justify-center transition-all ${className}`}
+      className={`rounded-2xl admin-card py-12 px-6 text-center flex flex-col items-center justify-center transition-all ${className}`}
     >
-      <div className="w-14 h-14 rounded-2xl bg-neutral-100/90 flex items-center justify-center mb-4 shadow-xs">
+      <div className="w-14 h-14 rounded-full bg-blue-50 text-brand-600 flex items-center justify-center mb-4 [&>svg]:w-7 [&>svg]:h-7 [&>svg]:stroke-[1.75] [&>svg]:text-brand-600">
         {typeof icon === 'string' ? renderDefaultIcon(icon) : icon}
       </div>
 
