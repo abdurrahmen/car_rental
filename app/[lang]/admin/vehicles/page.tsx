@@ -8,6 +8,7 @@ import { FALLBACK_BRANCHES, FALLBACK_CATEGORIES, FALLBACK_VEHICLES } from '@/lib
 import Link from 'next/link'
 import Image from 'next/image'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { SectionCard } from '@/components/admin'
 import { X, MapPin } from 'lucide-react'
 import type { Language, Vehicle, Branch, VehicleCategory, VehicleStatus } from '@/types'
 
@@ -79,15 +80,15 @@ export default async function AdminVehiclesPage({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-neutral-900">
               {dict.admin?.fleet_management || 'National Fleet Management'}
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-neutral-100 text-neutral-700">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-700">
               {totalCount} {dict.nav?.vehicles || 'vehicles'}
             </span>
           </div>
@@ -100,15 +101,15 @@ export default async function AdminVehiclesPage({
 
         <Link
           href={`/${lang}/admin/vehicles/new`}
-          className="apple-press inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-sm transition-all min-h-[42px]"
+          className="apple-press inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-sm transition-all min-h-[40px] shrink-0"
         >
-          <span className="text-base leading-none">+</span>
+          <span className="text-sm leading-none">+</span>
           <span>{dict.staff?.add_vehicle || 'Add Vehicle'}</span>
         </Link>
       </div>
 
-      {/* Filter Toolbar */}
-      <div className="bg-neutral-50/80 p-4 rounded-3xl border border-black/[0.04] space-y-4">
+      {/* Filter Toolbar wrapped in SectionCard */}
+      <SectionCard className="space-y-4">
         {/* Search & Selectors */}
         <form method="GET" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Search Input */}
@@ -118,7 +119,7 @@ export default async function AdminVehiclesPage({
               name="q"
               defaultValue={searchQuery}
               placeholder={isArabic ? 'ابحث بالاسم، الموديل، أو رقم اللوحة...' : 'Search make, model, plate...'}
-              className="w-full text-xs px-3.5 py-2.5 rounded-2xl bg-white border border-black/[0.08] text-neutral-800 outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full text-xs px-3.5 py-2.5 rounded-full bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-black/[0.06] text-neutral-800 outline-none focus:ring-2 focus:ring-brand-500 transition-all min-h-[40px]"
             />
           </div>
 
@@ -126,7 +127,7 @@ export default async function AdminVehiclesPage({
           <select
             name="branch"
             defaultValue={selectedBranch || 'all'}
-            className="text-xs px-3.5 py-2.5 rounded-2xl bg-white border border-black/[0.08] text-neutral-800 outline-none focus:ring-2 focus:ring-brand-500"
+            className="text-xs px-3.5 py-2.5 rounded-full bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-black/[0.06] text-neutral-800 outline-none focus:ring-2 focus:ring-brand-500 transition-all min-h-[40px]"
           >
             <option value="all">{isArabic ? 'جميع الفروع والوكالات' : 'All Branches / Hubs'}</option>
             {branches.map((b) => (
@@ -140,7 +141,7 @@ export default async function AdminVehiclesPage({
           <select
             name="category"
             defaultValue={selectedCategory || 'all'}
-            className="text-xs px-3.5 py-2.5 rounded-2xl bg-white border border-black/[0.08] text-neutral-800 outline-none focus:ring-2 focus:ring-brand-500"
+            className="text-xs px-3.5 py-2.5 rounded-full bg-neutral-50 hover:bg-neutral-100/70 focus:bg-white border border-black/[0.06] text-neutral-800 outline-none focus:ring-2 focus:ring-brand-500 transition-all min-h-[40px]"
           >
             <option value="all">{isArabic ? 'جميع الفئات' : 'All Categories'}</option>
             {categories.map((c) => (
@@ -150,18 +151,18 @@ export default async function AdminVehiclesPage({
             ))}
           </select>
 
-          {/* Submit / Apply */}
+          {/* Submit / Apply: Solid primary-blue pill */}
           <div className="flex gap-2">
             <button
               type="submit"
-              className="apple-press flex-1 inline-flex items-center justify-center text-xs font-semibold px-4 py-2.5 rounded-2xl bg-neutral-900 text-white hover:bg-neutral-800 transition-colors"
+              className="apple-press flex-1 inline-flex items-center justify-center text-xs font-semibold px-5 py-2.5 rounded-full bg-brand-500 text-white hover:bg-brand-600 transition-colors min-h-[40px]"
             >
               {dict.common?.search || 'Filter'}
             </button>
             {(searchQuery || selectedBranch || selectedCategory || selectedStatus) && (
               <Link
                 href={`/${lang}/admin/vehicles`}
-                className="apple-press inline-flex items-center justify-center text-xs font-semibold px-3 py-2.5 rounded-2xl bg-neutral-200/80 text-neutral-700 hover:bg-neutral-300 transition-colors"
+                className="apple-press inline-flex items-center justify-center text-xs font-semibold px-3 py-2.5 rounded-full bg-neutral-200/80 text-neutral-700 hover:bg-neutral-300 transition-colors min-h-[40px]"
                 title={dict.vehicles?.clear_filters || 'Clear'}
               >
                 <X className="w-3.5 h-3.5" />
@@ -170,39 +171,41 @@ export default async function AdminVehiclesPage({
           </div>
         </form>
 
-        {/* Status Pill Tabs */}
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-black/[0.04]">
-          {[
-            { id: 'all', label: isArabic ? 'الكل' : 'All Fleet' },
-            { id: 'available', label: statusLabels.available },
-            { id: 'rented', label: statusLabels.rented },
-            { id: 'maintenance', label: statusLabels.maintenance },
-            { id: 'retired', label: statusLabels.retired },
-          ].map((tab) => {
-            const isActive = (selectedStatus || 'all') === tab.id
-            return (
-              <Link
-                key={tab.id}
-                href={`/${lang}/admin/vehicles?status=${tab.id}${
-                  selectedBranch ? `&branch=${selectedBranch}` : ''
-                }${selectedCategory ? `&category=${selectedCategory}` : ''}${
-                  searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ''
-                }`}
-                className={`apple-press text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all ${
-                  isActive
-                    ? 'bg-neutral-900 text-white shadow-2xs'
-                    : 'bg-white text-neutral-600 hover:bg-neutral-100/80'
-                }`}
-              >
-                {tab.label}
-              </Link>
-            )
-          })}
+        {/* Status Pill Tabs: Segmented Control */}
+        <div className="pt-2 border-t border-black/[0.04]">
+          <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-full bg-neutral-100/80 w-fit">
+            {[
+              { id: 'all', label: isArabic ? 'الكل' : 'All Fleet' },
+              { id: 'available', label: statusLabels.available },
+              { id: 'rented', label: statusLabels.rented },
+              { id: 'maintenance', label: statusLabels.maintenance },
+              { id: 'retired', label: statusLabels.retired },
+            ].map((tab) => {
+              const isActive = (selectedStatus || 'all') === tab.id
+              return (
+                <Link
+                  key={tab.id}
+                  href={`/${lang}/admin/vehicles?status=${tab.id}${
+                    selectedBranch ? `&branch=${selectedBranch}` : ''
+                  }${selectedCategory ? `&category=${selectedCategory}` : ''}${
+                    searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ''
+                  }`}
+                  className={`apple-press text-xs font-semibold px-4 py-1.5 rounded-full transition-all ${
+                    isActive
+                      ? 'bg-brand-500 text-white shadow-2xs'
+                      : 'text-neutral-600 hover:text-neutral-900 hover:bg-white/60'
+                  }`}
+                >
+                  {tab.label}
+                </Link>
+              )
+            })}
+          </div>
         </div>
-      </div>
+      </SectionCard>
 
       {/* Vehicle Grid / Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {vehicles && vehicles.length > 0 ? (
           vehicles.map((v) => {
             const primaryPhoto = v.photos?.find((p) => p.is_primary) || v.photos?.[0]
@@ -225,12 +228,12 @@ export default async function AdminVehiclesPage({
             return (
               <div
                 key={v.id}
-                className="bg-white p-5 rounded-3xl border border-black/[0.06] shadow-[0_4px_24px_-6px_rgba(0,0,0,0.04)] hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                className="admin-card p-4 md:p-6 admin-card-hover flex flex-col justify-between space-y-4"
               >
                 {/* Top: Photo & Info */}
                 <div className="flex gap-4 items-start">
-                  {/* Vehicle Thumbnail */}
-                  <div className="w-24 h-20 rounded-2xl bg-neutral-100 overflow-hidden relative shrink-0 border border-black/[0.04] flex items-center justify-center">
+                  {/* Vehicle Thumbnail: rounded-xl */}
+                  <div className="w-24 h-20 rounded-xl bg-neutral-100 overflow-hidden relative shrink-0 flex items-center justify-center">
                     {primaryPhoto?.storage_path ? (
                       <Image
                         src={primaryPhoto.storage_path}
@@ -288,7 +291,7 @@ export default async function AdminVehiclesPage({
                 </div>
 
                 {/* Middle: Specs */}
-                <div className="grid grid-cols-3 gap-2 py-2.5 px-3 bg-neutral-50 rounded-2xl text-[11px] text-neutral-600 font-medium">
+                <div className="grid grid-cols-3 gap-2 py-2.5 px-3 bg-neutral-50 rounded-xl text-[11px] text-neutral-600 font-medium">
                   <div className="text-center">
                     <span className="text-neutral-400 block text-[10px]">Transmission</span>
                     <span className="font-semibold text-neutral-800">
@@ -326,7 +329,7 @@ export default async function AdminVehiclesPage({
                     <Link
                       href={`/${lang}/vehicles/${v.id}`}
                       target="_blank"
-                      className="apple-press px-2.5 py-1.5 rounded-xl text-xs font-semibold text-neutral-500 hover:text-neutral-800 transition-colors"
+                      className="apple-press px-2.5 py-1.5 rounded-full text-xs font-semibold text-neutral-500 hover:text-neutral-800 transition-colors"
                       title="Preview public catalog page"
                     >
                       ↗
@@ -334,7 +337,7 @@ export default async function AdminVehiclesPage({
 
                     <Link
                       href={`/${lang}/admin/vehicles/${v.id}`}
-                      className="apple-press px-3 py-1.5 rounded-xl text-xs font-semibold bg-neutral-100 text-neutral-800 hover:bg-neutral-200 transition-colors"
+                      className="apple-press px-3.5 py-1.5 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-800 hover:bg-neutral-200 transition-colors"
                     >
                       {dict.common?.edit || 'Edit'}
                     </Link>

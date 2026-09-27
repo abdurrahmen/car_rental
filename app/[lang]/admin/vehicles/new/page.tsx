@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getDictionaryByLocale } from '@/app/[lang]/dictionaries'
 import { VehicleForm } from '@/components/dashboard/VehicleForm'
+import { SectionCard } from '@/components/admin'
 import { FALLBACK_BRANCHES, FALLBACK_CATEGORIES } from '@/lib/data/fallback'
 import Link from 'next/link'
 import type { Language, VehicleCategory, Branch } from '@/types'
@@ -26,16 +27,17 @@ export default async function AdminNewVehiclePage({
   const isArabic = locale === 'ar'
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-8">
       <div className="flex items-center gap-3">
         <Link
           href={`/${lang}/admin/vehicles`}
-          className="apple-press w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-xs text-neutral-600 hover:text-neutral-900 transition-colors"
+          className="apple-press w-9 h-9 rounded-full bg-white border border-neutral-200 shadow-2xs flex items-center justify-center text-xs text-neutral-600 hover:text-neutral-900 transition-colors"
+          title="Back to fleet"
         >
           &larr;
         </Link>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-neutral-900">
             {dict.staff?.add_vehicle || 'Add Vehicle to National Fleet'}
           </h1>
           <p className="text-xs text-neutral-400 mt-0.5">
@@ -46,14 +48,14 @@ export default async function AdminNewVehiclePage({
         </div>
       </div>
 
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-sm">
+      <SectionCard>
         <VehicleForm
           categories={categories}
           branches={branches}
           locale={locale}
           dictionary={dict}
         />
-      </div>
+      </SectionCard>
     </div>
   )
 }

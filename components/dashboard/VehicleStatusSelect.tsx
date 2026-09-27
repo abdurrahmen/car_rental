@@ -12,6 +12,14 @@ export interface VehicleStatusSelectProps {
   labels?: Record<VehicleStatus, string>
 }
 
+/**
+ * Restyled VehicleStatusSelect dropdown matching StatusBadge rounded-full pill styling:
+ * - Available: bg-emerald-50 text-emerald-700
+ * - Rented: bg-blue-50 text-blue-700
+ * - Maintenance: bg-amber-50 text-amber-700
+ * - Retired: bg-gray-100 text-gray-600
+ * - Preserves async transition and router.refresh() behavior.
+ */
 export function VehicleStatusSelect({
   vehicleId,
   currentStatus,
@@ -39,18 +47,33 @@ export function VehicleStatusSelect({
     })
   }
 
-  const getStatusColor = (s: VehicleStatus) => {
+  const getStatusStyle = (s: VehicleStatus) => {
     switch (s) {
       case 'available':
-        return 'bg-emerald-500 text-white'
+        return {
+          pill: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100/70',
+          chevron: 'text-emerald-700',
+        }
       case 'rented':
-        return 'bg-blue-500 text-white'
+        return {
+          pill: 'bg-blue-50 text-blue-700 hover:bg-blue-100/70',
+          chevron: 'text-blue-700',
+        }
       case 'maintenance':
-        return 'bg-amber-500 text-white'
+        return {
+          pill: 'bg-amber-50 text-amber-700 hover:bg-amber-100/70',
+          chevron: 'text-amber-700',
+        }
       case 'retired':
-        return 'bg-neutral-400 text-white'
+      default:
+        return {
+          pill: 'bg-gray-100 text-gray-600 hover:bg-gray-200/70',
+          chevron: 'text-gray-600',
+        }
     }
   }
+
+  const currentStyle = getStatusStyle(status)
 
   return (
     <div className="relative inline-flex items-center">
@@ -58,9 +81,9 @@ export function VehicleStatusSelect({
         value={status}
         disabled={isPending}
         onChange={handleChange}
-        className={`appearance-none text-[11px] font-bold px-3 py-1.5 pe-7 rounded-full transition-all cursor-pointer shadow-2xs border-0 outline-none focus:ring-2 focus:ring-offset-1 focus:ring-brand-500 ${getStatusColor(
-          status
-        )} ${isPending ? 'opacity-60 cursor-wait' : ''}`}
+        className={`appearance-none text-[11px] font-semibold px-3 py-1.5 pe-6.5 rounded-full transition-all cursor-pointer border-0 outline-none select-none focus:ring-2 focus:ring-offset-1 focus:ring-brand-500 ${
+          currentStyle.pill
+        } ${isPending ? 'opacity-60 cursor-wait' : ''}`}
       >
         <option value="available" className="bg-white text-neutral-900">
           {labels.available}
@@ -75,14 +98,16 @@ export function VehicleStatusSelect({
           {labels.retired}
         </option>
       </select>
-      <span className="pointer-events-none absolute end-2 text-white/80 text-[9px] flex items-center justify-center">
+      <span
+        className={`pointer-events-none absolute end-2 text-[9px] flex items-center justify-center ${currentStyle.chevron}`}
+      >
         {isPending ? (
-          <svg className="animate-spin w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-2.5 h-2.5" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
         ) : (
-          <ChevronDown className="w-2.5 h-2.5 text-white/90" />
+          <ChevronDown className="w-3 h-3 stroke-[2.2]" />
         )}
       </span>
     </div>

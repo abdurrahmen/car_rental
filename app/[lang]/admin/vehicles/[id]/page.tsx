@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getDictionaryByLocale } from '@/app/[lang]/dictionaries'
 import { VehicleForm } from '@/components/dashboard/VehicleForm'
+import { SectionCard } from '@/components/admin'
 import { FALLBACK_BRANCHES, FALLBACK_CATEGORIES, FALLBACK_VEHICLES } from '@/lib/data/fallback'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -37,20 +38,21 @@ export default async function AdminEditVehiclePage({
   const isArabic = locale === 'ar'
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-8">
       <div className="flex items-center gap-3">
         <Link
           href={`/${lang}/admin/vehicles`}
-          className="apple-press w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-xs text-neutral-600 hover:text-neutral-900 transition-colors"
+          className="apple-press w-9 h-9 rounded-full bg-white border border-neutral-200 shadow-2xs flex items-center justify-center text-xs text-neutral-600 hover:text-neutral-900 transition-colors"
+          title="Back to fleet"
         >
           &larr;
         </Link>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-neutral-900">
               {dict.common?.edit || 'Edit'} {vehicle.make} {vehicle.model}
             </h1>
-            <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-600 font-bold border border-neutral-200">
+            <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-neutral-100 text-neutral-700 font-bold">
               {vehicle.plate_number}
             </span>
           </div>
@@ -62,7 +64,7 @@ export default async function AdminEditVehiclePage({
         </div>
       </div>
 
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-sm">
+      <SectionCard>
         <VehicleForm
           vehicle={vehicle as Vehicle}
           categories={categories}
@@ -70,7 +72,7 @@ export default async function AdminEditVehiclePage({
           locale={locale}
           dictionary={dict}
         />
-      </div>
+      </SectionCard>
     </div>
   )
 }

@@ -3,7 +3,6 @@
 import React, { useActionState, useState } from 'react';
 import { createBranch } from '@/lib/actions/branches';
 import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
 import { X } from 'lucide-react';
 import type { Language } from '@/types';
 
@@ -12,39 +11,44 @@ export function BranchForm({ locale }: { locale: Language }) {
   const [state, formAction, isPending] = useActionState(createBranch, null);
 
   return (
-    <div className="mb-8">
+    <div className="mb-6">
       {!isOpen ? (
-        <Button onClick={() => setIsOpen(true)} variant="primary">
-          + Add New Branch
-        </Button>
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className="apple-press inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-sm transition-all min-h-[40px] cursor-pointer"
+        >
+          <span className="text-sm leading-none">+</span>
+          <span>{locale === 'ar' ? 'إضافة فرع جديد' : 'Add New Branch'}</span>
+        </button>
       ) : (
         <form
           action={formAction}
-          className="p-6 sm:p-8 bg-white rounded-3xl border border-black/[0.06] shadow-sm space-y-6 max-w-xl"
+          className="admin-card p-4 md:p-6 space-y-6 max-w-xl"
         >
           <div className="flex justify-between items-center mb-2">
-            <h3 className="font-heading font-bold text-brand-900 text-lg">
-              Create New Branch
+            <h3 className="font-bold text-neutral-900 text-base tracking-tight">
+              {locale === 'ar' ? 'إنشاء فرع جديد' : 'Create New Branch'}
             </h3>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="text-neutral-500 hover:text-neutral-700 text-xs font-semibold px-2.5 py-1 rounded-full hover:bg-black/[0.04] transition-colors inline-flex items-center gap-1"
+              className="text-neutral-500 hover:text-neutral-700 text-xs font-semibold px-2.5 py-1 rounded-full hover:bg-black/[0.04] transition-colors inline-flex items-center gap-1 cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
-              <span>Cancel</span>
+              <span>{locale === 'ar' ? 'إلغاء' : 'Cancel'}</span>
             </button>
           </div>
 
           {state?.error && (
-            <div className="p-3.5 bg-danger-50 text-danger-700 border border-danger-200 rounded-2xl text-xs font-medium">
+            <div className="p-3.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-xs font-medium">
               {state.error}
             </div>
           )}
 
           {state?.success && (
-            <div className="p-3.5 bg-success-50 text-success-700 border border-success-200 rounded-2xl text-xs font-medium">
-              Branch created successfully!
+            <div className="p-3.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-medium">
+              {locale === 'ar' ? 'تم إنشاء الفرع بنجاح!' : 'Branch created successfully!'}
             </div>
           )}
 
@@ -92,16 +96,20 @@ export function BranchForm({ locale }: { locale: Language }) {
           />
 
           <div className="flex gap-3 pt-2">
-            <Button type="submit" variant="primary" loading={isPending} disabled={isPending}>
-              Create Branch
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsOpen(false)}
+            <button
+              type="submit"
+              disabled={isPending}
+              className="apple-press inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold bg-brand-500 text-white hover:bg-brand-600 shadow-sm transition-all min-h-[40px] disabled:opacity-60 cursor-pointer"
             >
-              Cancel
-            </Button>
+              {isPending ? 'Saving...' : locale === 'ar' ? 'حفظ الفرع' : 'Create Branch'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="apple-press inline-flex items-center justify-center px-4 py-2.5 rounded-full text-xs font-semibold bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50 shadow-2xs transition-all min-h-[40px] cursor-pointer"
+            >
+              {locale === 'ar' ? 'إلغاء' : 'Cancel'}
+            </button>
           </div>
         </form>
       )}
