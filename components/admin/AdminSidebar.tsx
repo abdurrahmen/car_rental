@@ -18,7 +18,7 @@ export interface AdminSidebarProps {
  * Donezo-style Admin Sidebar:
  * - Eyebrow label: PLATFORM CONTROL
  * - Title: Admin Dashboard
- * - Role pill: bg-blue-50 text-blue-700 with primary blue dot (Zero purple)
+ * - Role pill: bg-blue-50 text-blue-700 with primary blue dot
  * - Navigation links using NavItem with active-state styling and fixed 44px height
  * - Optional lightweight Help card at bottom
  * - Responsive mobile drawer support

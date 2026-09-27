@@ -162,7 +162,7 @@ export function MobileNav({
                   onClick={() => setIsOpen(false)}
                   className={`apple-press flex items-center justify-center gap-2 h-11 px-4 rounded-xl text-xs font-semibold tracking-tight text-white transition-all shadow-sm ${
                     userRole === 'admin'
-                      ? 'bg-purple-600 hover:bg-purple-700'
+                      ? 'bg-brand-500 hover:bg-brand-600'
                       : userRole === 'staff' || userRole === 'branch_manager'
                       ? 'bg-amber-600 hover:bg-amber-700'
                       : 'bg-neutral-900 hover:opacity-90'

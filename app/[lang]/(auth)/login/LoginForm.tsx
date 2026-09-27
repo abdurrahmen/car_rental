@@ -69,13 +69,13 @@ export function LoginForm({ lang, redirectTo }: { lang: string; redirectTo?: str
             type="button"
             disabled={isDemoPending}
             onClick={() => handleDemoClick('admin')}
-            className="apple-press flex flex-col items-start p-3 rounded-2xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-start transition-all disabled:opacity-60 min-h-[52px]"
+            className="apple-press flex flex-col items-start p-3 rounded-2xl bg-blue-50 hover:bg-blue-100/70 border border-blue-200/60 text-start transition-all disabled:opacity-60 min-h-[52px]"
           >
-            <span className="text-xs font-bold text-purple-700 flex items-center gap-1.5">
+            <span className="text-xs font-bold text-blue-700 flex items-center gap-1.5">
               <Shield className="w-3.5 h-3.5 shrink-0" />
               <span>{isArabic ? 'المسؤول' : 'Admin'}</span>
             </span>
-            <span className="text-[10px] text-purple-600/70 mt-0.5 font-medium">
+            <span className="text-[10px] text-blue-600/80 mt-0.5 font-medium">
               {isArabic ? 'لوحة التحكم المركزية' : 'Admin Console'}
             </span>
           </button>

@@ -39,8 +39,8 @@ export default async function DashboardLayout({
         {/* Apple Dashboard Sidebar */}
         <aside className="w-full md:w-64 shrink-0 space-y-2">
           {role === 'admin' && (
-            <div className="p-4 rounded-3xl bg-purple-500/10 border border-purple-500/20 text-xs space-y-2">
-              <span className="font-bold text-purple-700 flex items-center gap-1.5">
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200/60 text-xs space-y-2">
+              <span className="font-bold text-blue-700 flex items-center gap-1.5">
                 <Shield className="w-3.5 h-3.5 shrink-0" />
                 <span>Platform Administrator</span>
               </span>
@@ -49,7 +49,7 @@ export default async function DashboardLayout({
               </p>
               <Link
                 href={`/${lang}/admin`}
-                className="apple-press inline-flex items-center gap-1 font-bold text-purple-600 hover:underline pt-1"
+                className="apple-press inline-flex items-center gap-1 font-bold text-brand-600 hover:underline pt-1"
               >
                 Go to Admin Console &rarr;
               </Link>

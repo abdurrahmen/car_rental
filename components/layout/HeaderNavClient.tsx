@@ -89,7 +89,7 @@ export function HeaderNavClient({
                   href={dashboardHref}
                   className={`apple-press inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-full text-xs font-semibold tracking-tight transition-all shadow-sm min-h-[38px] ${
                     userRole === 'admin'
-                      ? 'bg-purple-600 text-white hover:bg-purple-700'
+                      ? 'bg-brand-500 text-white hover:bg-brand-600'
                       : userRole === 'staff' || userRole === 'branch_manager'
                       ? 'bg-amber-600 text-white hover:bg-amber-700'
                       : 'bg-neutral-900 text-white hover:opacity-90'
