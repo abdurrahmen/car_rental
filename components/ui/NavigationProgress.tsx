@@ -1,32 +1,30 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 
 /**
  * Apple-style top loading progress bar that gives immediate visual feedback
- * whenever a route transition is initiated.
+ * whenever a route transition is initiated, and pre-warms routes on hover.
  */
 export function NavigationProgress() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
 
   // Reset when route changes complete
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setProgress(100)
-      const resetTimer = setTimeout(() => {
-        setLoading(false)
-        setProgress(0)
-      }, 200)
-      return () => clearTimeout(resetTimer)
-    }, 0)
-    return () => clearTimeout(timer)
+    setProgress(100)
+    const resetTimer = setTimeout(() => {
+      setLoading(false)
+      setProgress(0)
+    }, 180)
+    return () => clearTimeout(resetTimer)
   }, [pathname, searchParams])
 
-  // Listen to link clicks globally
+  // Listen to link clicks globally & pre-warm on hover
   useEffect(() => {
     const handleAnchorClick = (e: MouseEvent) => {
       const target = (e.target as HTMLElement).closest('a')
@@ -47,15 +45,38 @@ export function NavigationProgress() {
         const currentUrl = `${window.location.pathname}${window.location.search}`
         if (href !== currentUrl && !href.startsWith('#')) {
           setLoading(true)
-          setProgress(30)
-          setTimeout(() => setProgress(75), 150)
+          setProgress(35)
+          setTimeout(() => setProgress(80), 120)
+        }
+      }
+    }
+
+    const handleAnchorMouseEnter = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('a')
+      if (!target) return
+      const href = target.getAttribute('href')
+      if (
+        href &&
+        href.startsWith('/') &&
+        !href.startsWith('//') &&
+        !href.startsWith('#') &&
+        target.getAttribute('target') !== '_blank'
+      ) {
+        try {
+          router.prefetch(href)
+        } catch {
+          // Ignore prefetch errors silently
         }
       }
     }
 
     document.addEventListener('click', handleAnchorClick)
-    return () => document.removeEventListener('click', handleAnchorClick)
-  }, [])
+    document.addEventListener('mouseover', handleAnchorMouseEnter, { passive: true })
+    return () => {
+      document.removeEventListener('click', handleAnchorClick)
+      document.removeEventListener('mouseover', handleAnchorMouseEnter)
+    }
+  }, [router])
 
   if (!loading && progress === 0) return null
 

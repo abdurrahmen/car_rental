@@ -14,6 +14,13 @@ const nextConfig: NextConfig = {
     ],
   },
   transpilePackages: ['three'],
+  experimental: {
+    staleTimes: {
+      dynamic: 30,
+      static: 180,
+    },
+    optimizePackageImports: ['lucide-react', 'gsap'],
+  },
 };
 
 export default nextConfig;
