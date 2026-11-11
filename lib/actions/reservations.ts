@@ -382,7 +382,7 @@ export async function rejectReservation(
     reservationId,
     existing as unknown as Record<string, unknown>,
     updated as unknown as Record<string, unknown>,
-    user.id,
+    appUser.id,
   );
 
   // Notify customer
