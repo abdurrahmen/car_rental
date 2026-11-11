@@ -67,35 +67,6 @@ export async function proxy(request: NextRequest) {
   // Strip locale from the path for route checking
   const pathWithoutLocale = pathname.replace(`/${pathLocale}`, '') || '/';
 
-  // Create a Supabase client to check auth
-  const response = NextResponse.next({
-    request: { headers: request.headers },
-  });
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            request.cookies.set(name, value);
-            response.cookies.set(name, value, options);
-          });
-        },
-      },
-    },
-  );
-
-  // Fast demo role bypass routing (DEVELOPMENT ONLY)
-  const demoRole = process.env.NODE_ENV !== 'production'
-    ? request.cookies.get('dzrent_demo_role')?.value
-    : undefined;
-
-  // Check if the route requires authentication
   const isProtectedRoute = AUTH_ROUTES.some((route) =>
     pathWithoutLocale.startsWith(route),
   );
@@ -106,10 +77,18 @@ export async function proxy(request: NextRequest) {
     pathWithoutLocale.startsWith(route),
   );
 
-  // Fast demo role bypass routing
+  const response = NextResponse.next({
+    request: { headers: request.headers },
+  });
+
+  // Fast demo role bypass routing (DEVELOPMENT ONLY)
+  const demoRole =
+    process.env.NODE_ENV !== 'production'
+      ? request.cookies.get('dzrent_demo_role')?.value
+      : undefined;
+
   if (demoRole) {
     if (demoRole === 'admin') {
-      // Superadmin demo has unconditional access to all routes
       return response;
     }
     if (['branch_manager', 'manager', 'staff'].includes(demoRole)) {
@@ -130,12 +109,49 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Refresh the auth session
+  // Check if any Supabase session cookies exist
+  const allCookies = request.cookies.getAll();
+  const hasAuthCookie = allCookies.some(
+    (c) => c.name.startsWith('sb-') && c.name.includes('-auth-token'),
+  );
+
+  // If route is public, return immediately without blocking on remote auth
+  if (!isProtectedRoute) {
+    return response;
+  }
+
+  // Protected route with no auth cookies: redirect to login immediately (0ms network cost)
+  if (!hasAuthCookie) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = `/${pathLocale}/login`;
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Protected route with auth cookies: verify with Supabase
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value);
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    },
+  );
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (isProtectedRoute && !user) {
+  if (!user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = `/${pathLocale}/login`;
     loginUrl.searchParams.set('redirect', pathname);
@@ -143,43 +159,40 @@ export async function proxy(request: NextRequest) {
   }
 
   // For staff/admin routes, check role via profile or known admin credentials
-  if (user) {
-    // Admin email override
+  if (isStaffRoute || isAdminRoute) {
     if (user.email === 'admin@dzrent.dz') {
       return response;
     }
 
-    if (isStaffRoute || isAdminRoute) {
-      let role = 'customer';
-      if (user.email === 'manager.algiers@dzrent.dz') {
-        role = 'branch_manager';
-      } else if (user.email === 'staff.oran@dzrent.dz') {
-        role = 'staff';
-      } else {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-        if (profile?.role) {
-          role = profile.role;
-        }
+    let role = 'customer';
+    if (user.email === 'manager.algiers@dzrent.dz') {
+      role = 'branch_manager';
+    } else if (user.email === 'staff.oran@dzrent.dz') {
+      role = 'staff';
+    } else {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      if (profile?.role) {
+        role = profile.role;
       }
+    }
 
-      if (isAdminRoute && role !== 'admin') {
-        const url = request.nextUrl.clone();
-        url.pathname = `/${pathLocale}/dashboard`;
-        return NextResponse.redirect(url);
-      }
+    if (isAdminRoute && role !== 'admin') {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${pathLocale}/dashboard`;
+      return NextResponse.redirect(url);
+    }
 
-      if (
-        isStaffRoute &&
-        !['staff', 'branch_manager', 'admin'].includes(role)
-      ) {
-        const url = request.nextUrl.clone();
-        url.pathname = `/${pathLocale}/dashboard`;
-        return NextResponse.redirect(url);
-      }
+    if (
+      isStaffRoute &&
+      !['staff', 'branch_manager', 'admin'].includes(role)
+    ) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${pathLocale}/dashboard`;
+      return NextResponse.redirect(url);
     }
   }
 
@@ -193,7 +206,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt
+     * - static assets (.svg, .png, .jpg, .webp, fonts, 3d models)
      */
-    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|otf|glb|gltf)).*)',
   ],
 };
