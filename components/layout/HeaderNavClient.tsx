@@ -6,6 +6,7 @@ import { LanguageSwitcher } from './LanguageSwitcher'
 import { SignOutButton } from './SignOutButton'
 import { MobileNav } from './MobileNav'
 import { QuickReservationNav } from './QuickReservationNav'
+import { NotificationBell } from './NotificationBell'
 import type { Branch, Language } from '@/types'
 
 export interface HeaderNavClientProps {
@@ -79,6 +80,10 @@ export function HeaderNavClient({
 
         {/* Right actions: Language switcher, auth button, mobile drawer */}
         <div className="flex items-center gap-2 sm:gap-3 ms-auto">
+          {isAuthenticated && (
+            <NotificationBell locale={locale} userRole={userRole} />
+          )}
+
           <LanguageSwitcher locale={locale} />
 
           {/* Desktop Auth Button */}

@@ -17,11 +17,10 @@ export interface AdminShellClientProps {
 }
 
 /**
- * Client container for the Admin App Shell:
- * - Coordinates mobile sidebar open/close state
- * - Uses soft neutral canvas (#F6F7F9)
- * - Standard gutters px-6 md:px-8 and vertical rhythm py-6 md:py-8
- * - Dedicated app-shell topbar with zero marketing links
+ * DZRent Admin Control Room Container:
+ * - Coordinates mobile drawer state
+ * - Warm Algerian sand canvas (#FBF7F0) with deep ink dark mode (#0B1320)
+ * - Fluid wide layout with gutters for the 12-column bento grid
  */
 export function AdminShellClient({
   children,
@@ -32,18 +31,20 @@ export function AdminShellClient({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-[#F6F7F9] text-neutral-900 flex flex-col">
+    <div className="min-h-screen bg-[#FBF7F0] dark:bg-[#0B1320] text-neutral-900 dark:text-neutral-100 flex flex-col transition-colors selection:bg-brand-500/20 selection:text-brand-900">
       <AdminTopbar
         locale={locale}
+        dictionary={dictionary}
         user={user}
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
       />
 
-      <div className="flex-1 max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 flex flex-col md:flex-row gap-6 md:gap-8 w-full items-start">
+      <div className="flex-1 max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 py-5 md:py-7 flex flex-col md:flex-row gap-5 md:gap-7 w-full items-start">
         <AdminSidebar
           locale={locale}
           dictionary={dictionary}
+          userRole={user.role}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />

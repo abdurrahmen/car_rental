@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
+import { AlertTriangle } from 'lucide-react'
 import type { Branch, Vehicle, Language, Dictionary } from '@/types'
 import { formatDZD } from '@/lib/utils/constants'
 import { createReservation } from '@/lib/actions/reservations'
@@ -18,6 +19,7 @@ export interface ReservationFormProps {
   dictionary?: Dictionary
   lang?: Language
   isAuthenticated?: boolean
+  bookedRanges?: { start_date: string; end_date: string }[]
   action?: (
     state: unknown,
     payload: FormData
@@ -36,6 +38,7 @@ export function ReservationForm({
   dictionary,
   lang = 'ar',
   isAuthenticated = true,
+  bookedRanges = [],
   action = createReservation,
 }: ReservationFormProps) {
   const router = useRouter()
@@ -47,6 +50,17 @@ export function ReservationForm({
   const effectiveDailyRate = propDailyRate ?? vehicle?.daily_rate ?? 0
   const initialBranch = vehicle?.branch_id || branches[0]?.id || ''
   const [pickupBranch, setPickupBranch] = useState(initialBranch)
+
+  const conflict = React.useMemo(() => {
+    if (!startDate || !endDate || !bookedRanges.length) return null
+    const s = new Date(startDate).getTime()
+    const e = new Date(endDate).getTime()
+    return bookedRanges.find((r) => {
+      const rs = new Date(r.start_date).getTime()
+      const re = new Date(r.end_date).getTime()
+      return s <= re && e >= rs
+    })
+  }, [startDate, endDate, bookedRanges])
 
   const days = React.useMemo(() => {
     if (startDate && endDate) {
@@ -120,6 +134,17 @@ export function ReservationForm({
           min={startDate || new Date().toISOString().split('T')[0]}
         />
       </div>
+
+      {conflict && (
+        <div className="p-3 bg-rose-50 text-rose-700 border border-rose-200 rounded-2xl text-xs flex items-center gap-2 animate-apple-fade-in">
+          <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+          <span>
+            {lang === 'ar'
+              ? `المركبة محجوزة مسبقاً في الفترة من ${conflict.start_date} إلى ${conflict.end_date}. يرجى اختيار تاريخ آخر.`
+              : `Vehicle is already reserved from ${conflict.start_date} to ${conflict.end_date}. Please pick different dates.`}
+          </span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Select
@@ -207,7 +232,7 @@ export function ReservationForm({
           fullWidth
           size="lg"
           loading={isPending}
-          disabled={days <= 0 || !pickupBranch || isPending}
+          disabled={days <= 0 || !pickupBranch || isPending || Boolean(conflict)}
           className="mt-2 text-sm font-semibold"
         >
           {dictionary?.reservations?.reserve || 'Request Reservation'}

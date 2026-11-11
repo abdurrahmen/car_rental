@@ -58,6 +58,12 @@ export default async function VehiclesPage({
   // Use database data if populated; otherwise use fallback demo data with active filters applied
   let vehicles = (dbVehicles && dbVehicles.length > 0) ? (dbVehicles as unknown as FallbackVehicleWithRelations[]) : null
 
+  if (vehicles && resolvedSearchParams.city) {
+    vehicles = vehicles.filter(
+      (v) => v.branch?.city?.toLowerCase() === (resolvedSearchParams.city as string).toLowerCase()
+    )
+  }
+
   if (!vehicles) {
     let filteredFallback = [...FALLBACK_VEHICLES]
     if (resolvedSearchParams.category) {
@@ -73,6 +79,11 @@ export default async function VehiclesPage({
     if (resolvedSearchParams.branch) {
       filteredFallback = filteredFallback.filter(
         (v) => v.branch_id === resolvedSearchParams.branch
+      )
+    }
+    if (resolvedSearchParams.city) {
+      filteredFallback = filteredFallback.filter(
+        (v) => v.branch?.city?.toLowerCase() === (resolvedSearchParams.city as string).toLowerCase()
       )
     }
     vehicles = filteredFallback

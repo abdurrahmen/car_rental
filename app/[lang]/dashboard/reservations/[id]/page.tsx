@@ -4,9 +4,11 @@ import { notFound } from 'next/navigation';
 import { formatDZD, formatDate } from '@/lib/utils/constants';
 import { ReservationTimeline } from '@/components/reservations/ReservationTimeline';
 import { ReservationStatusBadge } from '@/components/reservations/ReservationStatusBadge';
+import { HandoverPvCard } from '@/components/reservations/HandoverPvCard';
+import { DepositPaymentCard } from '@/components/reservations/DepositPaymentCard';
 import { Button } from '@/components/ui/Button';
 import { cancelReservation } from '@/lib/actions/reservations';
-import type { Language, Reservation } from '@/types';
+import type { Language, Reservation, VehicleConditionReport } from '@/types';
 
 interface ReservationDetailPageProps {
   params: Promise<{ lang: string; id: string }>;
@@ -36,6 +38,12 @@ export default async function ReservationDetailPage({
     notFound();
   }
 
+  const { data: reports } = await supabase
+    .from('vehicle_condition_reports')
+    .select('*, staff:profiles!staff_id(full_name)')
+    .eq('reservation_id', id)
+    .order('created_at', { ascending: true });
+
   const canCancel =
     reservation.status === 'pending' || reservation.status === 'confirmed';
 
@@ -63,6 +71,16 @@ export default async function ReservationDetailPage({
           locale={locale}
         />
       </div>
+
+      {/* Deposit Payment Card for Customer (Step 2) */}
+      {reservation.status === 'confirmed' && (
+        <DepositPaymentCard
+          reservationId={reservation.id}
+          depositAmount={reservation.deposit_amount}
+          depositDeadline={reservation.deposit_deadline}
+          locale={locale}
+        />
+      )}
 
       {/* Details Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -132,6 +150,17 @@ export default async function ReservationDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Digital Handover PV (Inspection & Condition Report) */}
+      {reports && reports.length > 0 && (
+        <HandoverPvCard
+          reports={reports as unknown as (VehicleConditionReport & { staff?: { full_name?: string | null } | null })[]}
+          locale={locale}
+          dictionary={dict}
+          vehiclePlate={reservation.vehicle?.plate_number}
+          vehicleName={`${reservation.vehicle?.make} ${reservation.vehicle?.model}`}
+        />
+      )}
 
       {/* Cancellation section */}
       {canCancel && (

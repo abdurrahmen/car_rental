@@ -51,6 +51,13 @@ export default async function VehicleDetailPage({
     .select('*')
     .eq('is_active', true)
 
+  const { data: dbBookedRanges } = await supabase
+    .from('reservations')
+    .select('start_date, end_date')
+    .eq('vehicle_id', id)
+    .in('status', ['confirmed', 'deposit_paid', 'active'])
+
+  const bookedRanges = (dbBookedRanges || []) as { start_date: string; end_date: string }[]
   const branches = (dbBranches && dbBranches.length > 0) ? dbBranches : FALLBACK_BRANCHES
 
   const locale = lang as Language
@@ -234,6 +241,7 @@ export default async function VehicleDetailPage({
                   dictionary={dict}
                   lang={locale}
                   isAuthenticated={Boolean(authUser)}
+                  bookedRanges={bookedRanges}
                 />
               </div>
             </div>

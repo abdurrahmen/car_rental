@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { vehicleSchema, vehicleStatusSchema } from '@/lib/validations/vehicle';
 import { revalidatePath } from 'next/cache';
 
+import { getAuthUser } from '@/lib/auth';
+
 async function writeAuditLog(
   supabase: Awaited<ReturnType<typeof createClient>>,
   action: string,
@@ -13,38 +15,35 @@ async function writeAuditLog(
   new_values: Record<string, unknown> | null,
   actor_id: string,
 ) {
-  await supabase.from('audit_log').insert({
-    action,
-    entity_type,
-    entity_id,
-    old_values,
-    new_values,
-    actor_id,
-  });
+  try {
+    await supabase.from('audit_log').insert({
+      action,
+      entity_type,
+      entity_id,
+      old_values,
+      new_values,
+      actor_id,
+    });
+  } catch (err) {
+    console.warn('[AuditLog] Failed to insert audit log entry:', err);
+  }
 }
 
 export async function createVehicle(prevState: unknown, formData: FormData) {
   const data = Object.fromEntries(formData.entries());
+  delete data.id; // Ensure client-side id is never validated or passed to insert
+
   const result = vehicleSchema.safeParse(data);
   if (!result.success) {
     return { error: result.error.issues[0]?.message || 'Invalid fields' };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: 'Unauthorized' };
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || !['staff', 'branch_manager', 'admin'].includes(profile.role)) {
+  const appUser = await getAuthUser();
+  if (!appUser || !['staff', 'branch_manager', 'admin'].includes(appUser.role)) {
     return { error: 'Unauthorized' };
   }
+
+  const supabase = await createClient();
 
   const { data: vehicle, error } = await supabase
     .from('vehicles')
@@ -53,6 +52,20 @@ export async function createVehicle(prevState: unknown, formData: FormData) {
     .single();
   if (error) return { error: error.message };
 
+  const photoUrl = formData.get('photo_url') as string;
+  if (photoUrl && photoUrl.trim()) {
+    try {
+      await supabase.from('vehicle_photos').insert({
+        vehicle_id: vehicle.id,
+        storage_path: photoUrl.trim(),
+        is_primary: true,
+        sort_order: 0,
+      });
+    } catch (e) {
+      console.warn('[VehiclePhoto] Failed to insert photo:', e);
+    }
+  }
+
   await writeAuditLog(
     supabase,
     'vehicle.created',
@@ -60,7 +73,7 @@ export async function createVehicle(prevState: unknown, formData: FormData) {
     vehicle.id,
     null,
     vehicle as unknown as Record<string, unknown>,
-    user.id,
+    appUser.id,
   );
 
   revalidatePath('/vehicles');
@@ -73,17 +86,19 @@ export async function updateVehicle(prevState: unknown, formData: FormData) {
   const data = Object.fromEntries(formData.entries());
   const id = formData.get('id') as string;
   if (!id) return { error: 'Missing vehicle ID' };
+  delete data.id; // Do not validate or overwrite PK in payload
 
   const result = vehicleSchema.safeParse(data);
   if (!result.success) {
     return { error: result.error.issues[0]?.message || 'Invalid fields' };
   }
 
+  const appUser = await getAuthUser();
+  if (!appUser || !['staff', 'branch_manager', 'admin'].includes(appUser.role)) {
+    return { error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: 'Unauthorized' };
 
   const { data: existing } = await supabase
     .from('vehicles')
@@ -100,6 +115,34 @@ export async function updateVehicle(prevState: unknown, formData: FormData) {
     .single();
   if (error) return { error: error.message };
 
+  const photoUrl = formData.get('photo_url') as string;
+  if (photoUrl && photoUrl.trim()) {
+    try {
+      const { data: existingPhoto } = await supabase
+        .from('vehicle_photos')
+        .select('id')
+        .eq('vehicle_id', id)
+        .eq('is_primary', true)
+        .single();
+
+      if (existingPhoto) {
+        await supabase
+          .from('vehicle_photos')
+          .update({ storage_path: photoUrl.trim() })
+          .eq('id', existingPhoto.id);
+      } else {
+        await supabase.from('vehicle_photos').insert({
+          vehicle_id: id,
+          storage_path: photoUrl.trim(),
+          is_primary: true,
+          sort_order: 0,
+        });
+      }
+    } catch (e) {
+      console.warn('[VehiclePhoto] Failed to update photo:', e);
+    }
+  }
+
   await writeAuditLog(
     supabase,
     'vehicle.updated',
@@ -107,7 +150,7 @@ export async function updateVehicle(prevState: unknown, formData: FormData) {
     vehicle.id,
     existing as unknown as Record<string, unknown>,
     vehicle as unknown as Record<string, unknown>,
-    user.id,
+    appUser.id,
   );
 
   revalidatePath('/vehicles');
@@ -128,11 +171,12 @@ export async function updateVehicleStatus(
   if (!id) return { error: 'Missing vehicle ID' };
   if (!result.success) return { error: 'Invalid status' };
 
+  const appUser = await getAuthUser();
+  if (!appUser || !['staff', 'branch_manager', 'admin'].includes(appUser.role)) {
+    return { error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: 'Unauthorized' };
 
   const { data: existing } = await supabase
     .from('vehicles')
@@ -156,7 +200,7 @@ export async function updateVehicleStatus(
     vehicle.id,
     existing as unknown as Record<string, unknown>,
     vehicle as unknown as Record<string, unknown>,
-    user.id,
+    appUser.id,
   );
 
   revalidatePath('/vehicles');
@@ -168,21 +212,12 @@ export async function updateVehicleStatus(
 export async function deleteVehicle(vehicleId: string) {
   if (!vehicleId) return { error: 'Missing vehicle ID' };
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: 'Unauthorized' };
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || !['staff', 'branch_manager', 'admin'].includes(profile.role)) {
+  const appUser = await getAuthUser();
+  if (!appUser || !['staff', 'branch_manager', 'admin'].includes(appUser.role)) {
     return { error: 'Unauthorized' };
   }
+
+  const supabase = await createClient();
 
   const { data: vehicle } = await supabase
     .from('vehicles')
@@ -227,7 +262,7 @@ export async function deleteVehicle(vehicleId: string) {
       vehicleId,
       vehicle as unknown as Record<string, unknown>,
       { ...vehicle, status: 'retired' },
-      user.id,
+      appUser.id,
     );
 
     revalidatePath('/vehicles');
@@ -255,7 +290,7 @@ export async function deleteVehicle(vehicleId: string) {
     vehicleId,
     vehicle as unknown as Record<string, unknown>,
     null,
-    user.id,
+    appUser.id,
   );
 
   revalidatePath('/vehicles');

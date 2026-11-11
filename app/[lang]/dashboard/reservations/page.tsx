@@ -18,11 +18,14 @@ export default async function ReservationsPage({
   const supabase = await createClient();
 
   const user = await getAuthUser();
+  if (!user) {
+    return null;
+  }
 
   const { data: reservations } = await supabase
     .from('reservations')
-    .select('*, vehicle:vehicles(*), branch:branches(*)')
-    .eq('customer_id', user?.id || 'd0000000-0000-0000-0000-000000000001')
+    .select('*, vehicle:vehicles(*), pickup_branch:branches!pickup_branch_id(*)')
+    .eq('customer_id', user.id)
     .order('created_at', { ascending: false });
 
   return (

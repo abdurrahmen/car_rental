@@ -188,7 +188,7 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Asymmetric 12-column grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start lg:items-stretch">
           {/* =========================================================
               LEAD COLUMN: Editorial Display, Value Proposition & Search
               (Span 7 on lg, elevated z-index)
@@ -430,9 +430,9 @@ export function HeroAsymmetric({ locale, branches, dict }: HeroAsymmetricProps) 
               ========================================================= */}
           <div
             ref={visualColRef}
-            className="lg:col-span-5 w-full flex flex-col items-center relative z-10"
+            className="lg:col-span-5 w-full flex flex-col justify-start relative z-10 h-full"
           >
-            <HeroVideoPlaceholder locale={locale} />
+            <HeroVideoPlaceholder locale={locale} className="h-full flex-1 flex flex-col" />
           </div>
         </div>
       </div>

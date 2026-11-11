@@ -110,6 +110,18 @@ export default async function StaffLayout({
               <span>{dict.staff?.vehicle_management || 'Fleet Management'}</span>
             </Link>
 
+            {(user.role === 'branch_manager' || user.role === 'admin') && (
+              <Link
+                href={`/${lang}/staff/staff`}
+                className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold hover:bg-neutral-100/80 text-neutral-800 transition-colors min-h-[42px]"
+              >
+                <svg className="w-4 h-4 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <span>{dict.admin?.staff_management || (locale === 'ar' ? 'فريق الوكالة' : 'Branch Staff')}</span>
+              </Link>
+            )}
+
             <div className="pt-2 border-t border-black/[0.04]">
               <SignOutButton
                 locale={locale}

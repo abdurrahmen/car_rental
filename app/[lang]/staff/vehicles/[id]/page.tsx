@@ -63,7 +63,7 @@ export default async function StaffEditVehiclePage({
         </div>
       </div>
 
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.06] shadow-sm">
+      <div className="pt-2">
         <VehicleForm
           vehicle={vehicle as Vehicle}
           categories={categories}

@@ -114,6 +114,27 @@
   --font-mono: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
 
   /* ---------------------------------------------------------------
+     DZRENT WARM DESIGN TOKENS (Algeria Sand, Sun, Palm, Coral, Ink)
+     --------------------------------------------------------------- */
+  --color-sand-50: #FDFBF7;
+  --color-sand-100: #FBF7F0; /* Primary warm canvas */
+  --color-sand-200: #EFE3CF; /* Elevated surface / border tint */
+  --color-sand-300: #E2D1B3;
+  --color-sun: #F5A524;      /* Amber / Golden hour accent */
+  --color-palm: #1FA971;     /* Palm Green (Available / Success) */
+  --color-coral: #F0584A;    /* Alert / Overdue */
+  --color-ink: #0F1B2D;      /* Deep ink for text */
+  --color-ink-card: #142032; /* Dark mode card */
+  --color-ink-border: #1E2E46;
+
+  /* Consistent Vehicle & Fleet Status Colors */
+  --color-status-available: #1FA971;
+  --color-status-rented: #0071E3;
+  --color-status-reserved: #F5A524;
+  --color-status-maintenance: #64748B;
+  --color-status-overdue: #F0584A;
+
+  /* ---------------------------------------------------------------
      SEMANTIC APPLICATION ALIASES
      --------------------------------------------------------------- */
   --color-background: var(--color-neutral-50);
@@ -125,10 +146,13 @@
   --color-card: #FFFFFF;
   --color-card-foreground: var(--color-neutral-900);
 
-  /* Admin Dashboard Design System (Donezo Reference) */
-  --color-admin-canvas: #F6F7F9;
-  --shadow-admin-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.04);
-  --shadow-admin-card-hover: 0 2px 4px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.08);
+  /* DZRent Admin Dashboard Warm Control Room */
+  --color-admin-canvas: #FBF7F0;
+  --color-admin-surface: #FFFFFF;
+  --color-admin-surface-subtle: #F6EFE3;
+  --color-admin-border: rgba(15, 27, 45, 0.07);
+  --shadow-admin-card: 0 1px 3px rgba(15, 27, 45, 0.04), 0 8px 24px -4px rgba(15, 27, 45, 0.04);
+  --shadow-admin-card-hover: 0 4px 6px -1px rgba(15, 27, 45, 0.06), 0 16px 36px -4px rgba(15, 27, 45, 0.08);
 }
 
 /* ===================================================================
@@ -247,22 +271,60 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ===================================================================
-   ADMIN DASHBOARD DESIGN SYSTEM UTILITIES (Donezo Reference)
+   DZRENT CONTROL ROOM — ADMIN DASHBOARD UTILITIES
    =================================================================== */
 
 .admin-card {
   background-color: #FFFFFF;
-  border-radius: 1rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.04);
-  border: 0;
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 3px rgba(15, 27, 45, 0.04), 0 8px 24px -4px rgba(15, 27, 45, 0.04);
+  border: 1px solid rgba(15, 27, 45, 0.06);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .admin-card {
+  background-color: #142032;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
 }
 
 .admin-card-hover {
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
 }
 .admin-card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px -2px rgba(15, 27, 45, 0.08), 0 16px 32px -4px rgba(15, 27, 45, 0.08);
+  border-color: rgba(0, 113, 227, 0.2);
+}
+.dark .admin-card-hover:hover {
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.6);
+}
+
+/* Pulsing live dot for vehicles on the road */
+@keyframes pulseLive {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(31, 169, 113, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(31, 169, 113, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(31, 169, 113, 0);
+  }
+}
+
+.live-dot-pulse {
+  animation: pulseLive 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot-pulse {
+    animation: none;
+  }
 }
 
 /* ===================================================================

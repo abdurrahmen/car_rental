@@ -131,12 +131,7 @@ export function AlgeriaMap({
     return projectCoord(36.75, 3.05) // fallback to Algiers
   }
 
-  // Find corridors related to active hub
   const activeCity = (activeHub?.city || '').toLowerCase().trim()
-  const activeCorridors = TRANSIT_CORRIDORS.filter(
-    (c) => c.from === activeCity || c.to === activeCity
-  )
-
   const activeBadge = activeHub ? getBadge(activeHub) : null
 
   return (
@@ -279,8 +274,6 @@ export function AlgeriaMap({
             const { x, y } = getBranchCoords(b)
             const isSelected = b.id === selectedHubId
             const isHovered = b.id === hoveredHubId
-            const badge = getBadge(b)
-            const name = isArabic ? b.name_ar : isFrench ? b.name_fr : b.name_en
 
             return (
               <g

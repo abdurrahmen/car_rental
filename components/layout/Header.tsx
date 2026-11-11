@@ -1,8 +1,4 @@
 import React from 'react'
-import Link from 'next/link'
-import { LanguageSwitcher } from './LanguageSwitcher'
-import { SignOutButton } from './SignOutButton'
-import { MobileNav } from './MobileNav'
 import { Logo } from '@/components/ui/Logo'
 import { HeaderNavClient } from './HeaderNavClient'
 import { getAuthUser } from '@/lib/auth'

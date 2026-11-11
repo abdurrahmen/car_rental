@@ -4,9 +4,10 @@ import { notFound } from 'next/navigation';
 import { ReservationActions } from '@/components/dashboard/ReservationActions';
 import { ReservationStatusBadge } from '@/components/reservations/ReservationStatusBadge';
 import { ReservationTimeline } from '@/components/reservations/ReservationTimeline';
+import { HandoverPvCard } from '@/components/reservations/HandoverPvCard';
 import { formatDZD, formatDate } from '@/lib/utils/constants';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
-import type { Language, Reservation } from '@/types';
+import type { Language, Reservation, VehicleConditionReport } from '@/types';
 
 interface StaffReservationDetailPageProps {
   params: Promise<{ lang: string; id: string }>;
@@ -29,6 +30,12 @@ export default async function StaffReservationDetailPage({
     .single();
 
   if (!reservation) notFound();
+
+  const { data: reports } = await supabase
+    .from('vehicle_condition_reports')
+    .select('*, staff:profiles!staff_id(full_name)')
+    .eq('reservation_id', id)
+    .order('created_at', { ascending: true });
 
   return (
     <div className="space-y-8">
@@ -134,7 +141,18 @@ export default async function StaffReservationDetailPage({
         </div>
       </div>
 
-      {/* Staff Actions: Confirm / Reject */}
+      {/* Digital Handover & Return Inspection PV (Condition Report) */}
+      {reports && reports.length > 0 && (
+        <HandoverPvCard
+          reports={reports as unknown as (VehicleConditionReport & { staff?: { full_name?: string | null } | null })[]}
+          locale={locale}
+          dictionary={dict}
+          vehiclePlate={reservation.vehicle?.plate_number}
+          vehicleName={`${reservation.vehicle?.make} ${reservation.vehicle?.model}`}
+        />
+      )}
+
+      {/* Staff Actions: Confirm / Reject / Handover PV / Return PV */}
       <ReservationActions
         reservation={reservation as unknown as Reservation & { customer?: { id: string; full_name: string | null; phone: string | null; license_document_url: string | null; license_verified: boolean; } }}
         locale={locale}

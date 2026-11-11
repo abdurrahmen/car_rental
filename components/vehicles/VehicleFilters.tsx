@@ -87,9 +87,22 @@ export function VehicleFilters({
     },
   ]
 
+  const cities = Array.from(
+    new Set(branches.map((b) => b.city).filter(Boolean))
+  ) as string[]
+
+  const cityOptions = [
+    {
+      value: '',
+      label: effectiveLocale === 'ar' ? 'جميع الولايات / المدن' : 'All Wilayas / Cities',
+    },
+    ...cities.map((city) => ({ value: city, label: city })),
+  ]
+
   const hasActiveFilters =
     Boolean(searchParams.get('category')) ||
     Boolean(searchParams.get('branch')) ||
+    Boolean(searchParams.get('city')) ||
     Boolean(searchParams.get('transmission'))
 
   return (
@@ -109,6 +122,13 @@ export function VehicleFilters({
           options={categoryOptions}
           value={searchParams.get('category') || ''}
           onChange={(e) => handleFilterChange('category', e.target.value)}
+        />
+
+        <Select
+          label={effectiveLocale === 'ar' ? 'الولاية / المدينة' : effectiveLocale === 'fr' ? 'Wilaya / Ville' : 'Wilaya / City'}
+          options={cityOptions}
+          value={searchParams.get('city') || ''}
+          onChange={(e) => handleFilterChange('city', e.target.value)}
         />
 
         <Select

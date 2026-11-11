@@ -6,18 +6,17 @@ import { NavigationProgress } from '@/components/ui/NavigationProgress';
 import type { Language } from '@/types';
 
 const cairo = Cairo({
-  subsets: ['arabic', 'latin'],
-  weight: ['400', '500', '600', '700'],
+  subsets: ['arabic'],
   variable: '--font-cairo',
   display: 'swap',
 });
 
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
   variable: '--font-inter',
   display: 'swap',
 });
+
 
 export async function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));

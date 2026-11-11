@@ -20,11 +20,14 @@ export default async function DashboardOverview({
   const supabase = await createClient()
 
   const user = await getAuthUser()
+  if (!user) {
+    return null
+  }
 
   const { data: reservations } = await supabase
     .from('reservations')
     .select('*, vehicle:vehicles(*), branch:branches(*)')
-    .eq('customer_id', user?.id || 'd0000000-0000-0000-0000-000000000001')
+    .eq('customer_id', user.id)
     .order('created_at', { ascending: false })
     .limit(5)
 

@@ -81,18 +81,78 @@ export const DEFAULT_DEPOSIT_DEADLINE_HOURS = 48;
 /** Deposit amount in DZD if not set per vehicle */
 export const DEFAULT_DEPOSIT_AMOUNT = 5000;
 
-/** Currency formatting for DZD */
+/** Currency formatting for DZD with non-breaking space and consistent presentation */
 export function formatDZD(amount: number, locale: Language = 'ar'): string {
-  const formatted = new Intl.NumberFormat(
-    locale === 'ar' ? 'ar-DZ' : locale === 'fr' ? 'fr-DZ' : 'en-DZ',
-    {
-      style: 'currency',
-      currency: 'DZD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    },
-  ).format(amount);
-  return formatted;
+  // Use French/Algerian standard grouping with Latin numerals as common in Algerian banking
+  const formattedNumber = new Intl.NumberFormat('fr-DZ', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount).replace(/\s/g, '\u00A0');
+
+  if (locale === 'ar') {
+    return `${formattedNumber}\u00A0دج`;
+  } else if (locale === 'fr') {
+    return `${formattedNumber}\u00A0DZD`;
+  }
+  return `${formattedNumber}\u00A0DZD`;
+}
+
+/** Format pure numbers with locale */
+export function formatCompactNumber(amount: number): string {
+  return new Intl.NumberFormat('fr-DZ', {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(amount);
+}
+
+/** Get current time-of-day segment for the hero backdrop */
+export type TimeOfDay = 'dawn' | 'day' | 'golden' | 'night';
+export function getTimeOfDay(hour?: number): TimeOfDay {
+  const currentHour = hour !== undefined ? hour : new Date().getHours();
+  if (currentHour >= 5 && currentHour < 9) return 'dawn';
+  if (currentHour >= 9 && currentHour < 17) return 'day';
+  if (currentHour >= 17 && currentHour < 20) return 'golden';
+  return 'night';
+}
+
+/** Get greeting key based on current hour */
+export function getGreetingKey(hour?: number): 'greeting_morning' | 'greeting_afternoon' | 'greeting_evening' {
+  const currentHour = hour !== undefined ? hour : new Date().getHours();
+  if (currentHour >= 5 && currentHour < 12) return 'greeting_morning';
+  if (currentHour >= 12 && currentHour < 17) return 'greeting_afternoon';
+  return 'greeting_evening';
+}
+
+/** Format relative time from ISO string */
+export function formatRelativeTime(dateInput: string | Date, locale: Language = 'ar'): string {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  const now = new Date();
+  const diffSec = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffSec < 60) {
+    if (locale === 'ar') return 'الآن';
+    if (locale === 'fr') return "À l'instant";
+    return 'Just now';
+  }
+
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) {
+    if (locale === 'ar') return `منذ ${diffMin} دقيقة`;
+    if (locale === 'fr') return `il y a ${diffMin} min`;
+    return `${diffMin} min ago`;
+  }
+
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) {
+    if (locale === 'ar') return `منذ ${diffHours} ساعة`;
+    if (locale === 'fr') return `il y a ${diffHours} h`;
+    return `${diffHours}h ago`;
+  }
+
+  const diffDays = Math.floor(diffHours / 24);
+  if (locale === 'ar') return `منذ ${diffDays} يوم`;
+  if (locale === 'fr') return `il y a ${diffDays} j`;
+  return `${diffDays}d ago`;
 }
 
 /** Date formatting */
@@ -105,6 +165,16 @@ export function formatDate(date: string, locale: Language = 'ar'): string {
       day: 'numeric',
     },
   ).format(new Date(date));
+}
+
+/** Format short time HH:MM */
+export function formatTime(date: string | Date): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return new Intl.DateTimeFormat('fr-DZ', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(d);
 }
 
 /** Calculate rental days between two dates */
@@ -126,3 +196,4 @@ export function getPhotoUrl(photo?: { storage_path?: string; photo_url?: string 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   return `${supabaseUrl}/storage/v1/object/public/vehicle-photos/${photo.storage_path}`;
 }
+
