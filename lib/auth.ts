@@ -54,10 +54,13 @@ export const DEMO_PROFILES: Record<string, AppUser> = {
   },
 };
 
+import { cache } from 'react';
+
 /**
  * Returns the currently authenticated user, with full support for demo role bypass.
+ * Cached per-request to avoid redundant roundtrips in Layout, Page, and Header.
  */
-export async function getAuthUser(): Promise<AppUser | null> {
+export const getAuthUser = cache(async function getAuthUser(): Promise<AppUser | null> {
   const cookieStore = await cookies();
   const demoRole = process.env.NODE_ENV !== 'production'
     ? cookieStore.get('dzrent_demo_role')?.value
@@ -75,6 +78,29 @@ export async function getAuthUser(): Promise<AppUser | null> {
     }
   }
 
+  // Fast demo role return in non-production environments
+  if (demoRole && demoRole in DEMO_PROFILES) {
+    const fallback = DEMO_PROFILES[demoRole];
+    return {
+      id: demoUser?.id || fallback.id,
+      email: demoUser?.email || fallback.email,
+      role: fallback.role,
+      branch_id: demoUser?.branch_id !== undefined ? demoUser.branch_id : fallback.branch_id,
+      full_name: demoUser?.full_name || fallback.full_name,
+      isDemo: true,
+    };
+  }
+
+  // Check if any Supabase session cookies exist before making network calls
+  const allCookies = cookieStore.getAll();
+  const hasAuthToken = allCookies.some(
+    (c) => c.name.startsWith('sb-') && c.name.includes('-auth-token')
+  );
+
+  if (!hasAuthToken) {
+    return null;
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -88,8 +114,7 @@ export async function getAuthUser(): Promise<AppUser | null> {
       .eq('id', user.id)
       .single();
 
-    // If demoRole cookie is explicitly set, prioritize that demo role, otherwise check email / profile role
-    let role = (demoRole && demoRole in DEMO_PROFILES ? demoRole : profile?.role || 'customer') as Role;
+    let role = (profile?.role || 'customer') as Role;
     if (user.email === 'admin@dzrent.dz') {
       role = 'admin';
     } else if (user.email === 'manager.algiers@dzrent.dz') {
@@ -102,27 +127,14 @@ export async function getAuthUser(): Promise<AppUser | null> {
       id: user.id,
       email: user.email,
       role,
-      branch_id: profile?.branch_id || demoUser?.branch_id || null,
-      full_name: profile?.full_name || demoUser?.full_name || user.email,
-      isDemo: Boolean(demoRole),
-    };
-  }
-
-  // If no Supabase user, but demoRole is set
-  if (demoRole && demoRole in DEMO_PROFILES) {
-    const fallback = DEMO_PROFILES[demoRole];
-    return {
-      id: demoUser?.id || fallback.id,
-      email: demoUser?.email || fallback.email,
-      role: fallback.role,
-      branch_id: demoUser?.branch_id !== undefined ? demoUser.branch_id : fallback.branch_id,
-      full_name: demoUser?.full_name || fallback.full_name,
-      isDemo: true,
+      branch_id: profile?.branch_id || null,
+      full_name: profile?.full_name || user.email,
+      isDemo: false,
     };
   }
 
   return null;
-}
+});
 
 /**
  * Asserts the current user has one of the allowed roles.
