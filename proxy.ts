@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { resilientFetch } from '@/lib/supabase/resilient-fetch';
 
 const LOCALES = ['ar', 'fr', 'en'];
 const DEFAULT_LOCALE = 'ar';
@@ -127,7 +128,6 @@ export async function proxy(request: NextRequest) {
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
-
   // Protected route with auth cookies: verify with Supabase
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -143,6 +143,9 @@ export async function proxy(request: NextRequest) {
             response.cookies.set(name, value, options);
           });
         },
+      },
+      global: {
+        fetch: resilientFetch,
       },
     },
   );
