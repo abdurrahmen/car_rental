@@ -16,23 +16,26 @@ export default async function AdminEditVehiclePage({
 }: AdminEditVehiclePageProps) {
   const { lang, id } = await params
   const locale = lang as Language
-  const dict = await getDictionaryByLocale(lang)
-  const supabase = await createClient()
+  const [dict, supabase] = await Promise.all([
+    getDictionaryByLocale(lang),
+    createClient(),
+  ])
 
-  // Fetch vehicle by ID (or fallback)
-  const { data: dbVehicle } = await supabase
-    .from('vehicles')
-    .select('*')
-    .eq('id', id)
-    .single()
+  // Fetch vehicle by ID, categories, and branches concurrently
+  const [
+    { data: dbVehicle },
+    { data: dbCategories },
+    { data: dbBranches },
+  ] = await Promise.all([
+    supabase.from('vehicles').select('*').eq('id', id).single(),
+    supabase.from('vehicle_categories').select('*'),
+    supabase.from('branches').select('*').order('name_en', { ascending: true }),
+  ])
 
   const vehicle = dbVehicle || FALLBACK_VEHICLES.find((v) => v.id === id)
   if (!vehicle) notFound()
 
-  const { data: dbCategories } = await supabase.from('vehicle_categories').select('*')
   const categories = (dbCategories && dbCategories.length > 0 ? dbCategories : FALLBACK_CATEGORIES) as VehicleCategory[]
-
-  const { data: dbBranches } = await supabase.from('branches').select('*').order('name_en', { ascending: true })
   const branches = (dbBranches && dbBranches.length > 0 ? dbBranches : FALLBACK_BRANCHES) as Branch[]
 
   const isArabic = locale === 'ar'

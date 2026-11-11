@@ -24,17 +24,12 @@ export default async function AdminVehiclesPage({
   const { lang } = await params
   const resolvedSearchParams = await searchParams
   const locale = lang as Language
-  const dict = await getDictionaryByLocale(lang)
-  const supabase = await createClient()
+  const [dict, supabase] = await Promise.all([
+    getDictionaryByLocale(lang),
+    createClient(),
+  ])
 
-  // 1. Fetch Branches & Categories for Filter Controls
-  const { data: dbBranches } = await supabase.from('branches').select('*').order('name_en', { ascending: true })
-  const branches = (dbBranches && dbBranches.length > 0 ? dbBranches : FALLBACK_BRANCHES) as Branch[]
-
-  const { data: dbCategories } = await supabase.from('vehicle_categories').select('*')
-  const categories = (dbCategories && dbCategories.length > 0 ? dbCategories : FALLBACK_CATEGORIES) as VehicleCategory[]
-
-  // 2. Fetch Fleet
+  // Build Fleet query
   let query = supabase
     .from('vehicles')
     .select('*, branch:branches(*), category:vehicle_categories(*), photos:vehicle_photos(*)')
@@ -55,7 +50,19 @@ export default async function AdminVehiclesPage({
     query = query.eq('category_id', selectedCategory)
   }
 
-  const { data: dbVehicles } = await query
+  // Fetch Branches, Categories, and Fleet concurrently
+  const [
+    { data: dbBranches },
+    { data: dbCategories },
+    { data: dbVehicles },
+  ] = await Promise.all([
+    supabase.from('branches').select('*').order('name_en', { ascending: true }),
+    supabase.from('vehicle_categories').select('*'),
+    query,
+  ])
+
+  const branches = (dbBranches && dbBranches.length > 0 ? dbBranches : FALLBACK_BRANCHES) as Branch[]
+  const categories = (dbCategories && dbCategories.length > 0 ? dbCategories : FALLBACK_CATEGORIES) as VehicleCategory[]
   let vehicles = (dbVehicles && dbVehicles.length > 0 ? dbVehicles : FALLBACK_VEHICLES) as Vehicle[]
 
   // In-memory text filter for search query

@@ -18,24 +18,27 @@ export default async function StaffReservationDetailPage({
 }: StaffReservationDetailPageProps) {
   const { lang, id } = await params;
   const locale = lang as Language;
-  const dict = await getDictionaryByLocale(lang);
-  const supabase = await createClient();
+  const [dict, supabase] = await Promise.all([
+    getDictionaryByLocale(lang),
+    createClient(),
+  ]);
 
-  const { data: reservation } = await supabase
-    .from('reservations')
-    .select(
-      '*, vehicle:vehicles(*), customer:profiles!customer_id(*), pickup_branch:branches!pickup_branch_id(*)',
-    )
-    .eq('id', id)
-    .single();
+  const [{ data: reservation }, { data: reports }] = await Promise.all([
+    supabase
+      .from('reservations')
+      .select(
+        '*, vehicle:vehicles(*), customer:profiles!customer_id(*), pickup_branch:branches!pickup_branch_id(*)',
+      )
+      .eq('id', id)
+      .single(),
+    supabase
+      .from('vehicle_condition_reports')
+      .select('*, staff:profiles!staff_id(full_name)')
+      .eq('reservation_id', id)
+      .order('created_at', { ascending: true }),
+  ]);
 
   if (!reservation) notFound();
-
-  const { data: reports } = await supabase
-    .from('vehicle_condition_reports')
-    .select('*, staff:profiles!staff_id(full_name)')
-    .eq('reservation_id', id)
-    .order('created_at', { ascending: true });
 
   return (
     <div className="space-y-8">

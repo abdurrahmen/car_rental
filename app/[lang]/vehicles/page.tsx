@@ -25,9 +25,11 @@ export default async function VehiclesPage({
 }: VehiclesPageProps) {
   const { lang } = await params
 
-  const resolvedSearchParams = await searchParams
-  const dict = await getDictionaryByLocale(lang)
-  const supabase = await createClient()
+  const [resolvedSearchParams, dict, supabase] = await Promise.all([
+    searchParams,
+    getDictionaryByLocale(lang),
+    createClient(),
+  ])
 
   let query = supabase
     .from('vehicles')
@@ -49,11 +51,12 @@ export default async function VehiclesPage({
     query = query.eq('branch_id', resolvedSearchParams.branch as string)
   }
 
-  const { data: dbVehicles } = await query
-  const { data: dbBranches } = await supabase.from('branches').select('*')
-  const { data: dbCategories } = await supabase
-    .from('vehicle_categories')
-    .select('*')
+  const [{ data: dbVehicles }, { data: dbBranches }, { data: dbCategories }] =
+    await Promise.all([
+      query,
+      supabase.from('branches').select('*'),
+      supabase.from('vehicle_categories').select('*'),
+    ])
 
   // Use database data if populated; otherwise use fallback demo data with active filters applied
   let vehicles = (dbVehicles && dbVehicles.length > 0) ? (dbVehicles as unknown as FallbackVehicleWithRelations[]) : null

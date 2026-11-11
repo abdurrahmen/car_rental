@@ -112,18 +112,7 @@ export async function getDashboardData(branchId?: string | null) {
     vehicleQuery = vehicleQuery.eq('branch_id', branchId);
   }
 
-  const { data: dbVehicles } = await vehicleQuery;
-  const rawVehicles = (dbVehicles && dbVehicles.length > 0 ? dbVehicles : FALLBACK_VEHICLES) as (Vehicle & {
-    photos?: { storage_path?: string; is_primary?: boolean }[];
-    branch?: Branch;
-    category?: { name_ar: string; name_fr: string; name_en: string };
-  })[];
-
-  const vehicles = branchId
-    ? rawVehicles.filter((v) => v.branch_id === branchId)
-    : rawVehicles;
-
-  // 2. Fetch Reservations
+  // 2. Build Reservations Query
   let resQuery = supabase
     .from('reservations')
     .select(`
@@ -138,7 +127,22 @@ export async function getDashboardData(branchId?: string | null) {
     resQuery = resQuery.or(`pickup_branch_id.eq.${branchId},dropoff_branch_id.eq.${branchId}`);
   }
 
-  const { data: dbReservations } = await resQuery;
+  // Execute both queries concurrently
+  const [{ data: dbVehicles }, { data: dbReservations }] = await Promise.all([
+    vehicleQuery,
+    resQuery,
+  ]);
+
+  const rawVehicles = (dbVehicles && dbVehicles.length > 0 ? dbVehicles : FALLBACK_VEHICLES) as (Vehicle & {
+    photos?: { storage_path?: string; is_primary?: boolean }[];
+    branch?: Branch;
+    category?: { name_ar: string; name_fr: string; name_en: string };
+  })[];
+
+  const vehicles = branchId
+    ? rawVehicles.filter((v) => v.branch_id === branchId)
+    : rawVehicles;
+
   const rawReservations = (dbReservations && dbReservations.length > 0 ? dbReservations : FALLBACK_RESERVATIONS) as (Reservation & {
     customer?: { full_name?: string; phone?: string };
     vehicle?: { make: string; model: string; plate_number: string; daily_rate: number };

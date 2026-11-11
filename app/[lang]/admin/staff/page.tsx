@@ -12,16 +12,19 @@ interface AdminStaffPageProps {
 export default async function AdminStaffPage({ params }: AdminStaffPageProps) {
   const { lang } = await params
   const locale = lang as Language
-  const dict = await getDictionaryByLocale(lang)
-  const supabase = await createClient()
+  const [dict, supabase] = await Promise.all([
+    getDictionaryByLocale(lang),
+    createClient(),
+  ])
 
-  const { data: staff } = await supabase
-    .from('profiles')
-    .select('*, branch:branches(*)')
-    .in('role', ['staff', 'branch_manager', 'admin'])
-    .order('created_at', { ascending: false })
-
-  const { data: branches } = await supabase.from('branches').select('*')
+  const [{ data: staff }, { data: branches }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('*, branch:branches(*)')
+      .in('role', ['staff', 'branch_manager', 'admin'])
+      .order('created_at', { ascending: false }),
+    supabase.from('branches').select('*'),
+  ])
   const branchList = (branches as Branch[]) || []
 
   return (

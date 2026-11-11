@@ -15,13 +15,16 @@ export default async function AdminNewVehiclePage({
 }: AdminNewVehiclePageProps) {
   const { lang } = await params
   const locale = lang as Language
-  const dict = await getDictionaryByLocale(lang)
-  const supabase = await createClient()
+  const [dict, supabase] = await Promise.all([
+    getDictionaryByLocale(lang),
+    createClient(),
+  ])
 
-  const { data: dbCategories } = await supabase.from('vehicle_categories').select('*')
+  const [{ data: dbCategories }, { data: dbBranches }] = await Promise.all([
+    supabase.from('vehicle_categories').select('*'),
+    supabase.from('branches').select('*').order('name_en', { ascending: true }),
+  ])
   const categories = (dbCategories && dbCategories.length > 0 ? dbCategories : FALLBACK_CATEGORIES) as VehicleCategory[]
-
-  const { data: dbBranches } = await supabase.from('branches').select('*').order('name_en', { ascending: true })
   const branches = (dbBranches && dbBranches.length > 0 ? dbBranches : FALLBACK_BRANCHES) as Branch[]
 
   const isArabic = locale === 'ar'

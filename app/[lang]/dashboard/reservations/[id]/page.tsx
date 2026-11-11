@@ -19,30 +19,30 @@ export default async function ReservationDetailPage({
 }: ReservationDetailPageProps) {
   const { lang, id } = await params;
   const locale = lang as Language;
-  const dict = await getDictionaryByLocale(lang);
-  const supabase = await createClient();
+  const [dict, supabase, user] = await Promise.all([
+    getDictionaryByLocale(lang),
+    createClient(),
+    getAuthUser(),
+  ]);
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: reservation } = await supabase
-    .from('reservations')
-    .select(
-      '*, vehicle:vehicles(*), pickup_branch:branches!pickup_branch_id(*), dropoff_branch:branches!dropoff_branch_id(*)',
-    )
-    .eq('id', id)
-    .single();
+  const [{ data: reservation }, { data: reports }] = await Promise.all([
+    supabase
+      .from('reservations')
+      .select(
+        '*, vehicle:vehicles(*), pickup_branch:branches!pickup_branch_id(*), dropoff_branch:branches!dropoff_branch_id(*)',
+      )
+      .eq('id', id)
+      .single(),
+    supabase
+      .from('vehicle_condition_reports')
+      .select('*, staff:profiles!staff_id(full_name)')
+      .eq('reservation_id', id)
+      .order('created_at', { ascending: true }),
+  ]);
 
   if (!reservation || reservation.customer_id !== user?.id) {
     notFound();
   }
-
-  const { data: reports } = await supabase
-    .from('vehicle_condition_reports')
-    .select('*, staff:profiles!staff_id(full_name)')
-    .eq('reservation_id', id)
-    .order('created_at', { ascending: true });
 
   const canCancel =
     reservation.status === 'pending' || reservation.status === 'confirmed';

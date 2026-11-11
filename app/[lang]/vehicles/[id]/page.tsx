@@ -19,17 +19,34 @@ export default async function VehicleDetailPage({
   params,
 }: VehicleDetailPageProps) {
   const { lang, id } = await params
-  const dict = await getDictionaryByLocale(lang)
-  const supabase = await createClient()
-  const authUser = await getAuthUser()
+  const [dict, supabase, authUser] = await Promise.all([
+    getDictionaryByLocale(lang),
+    createClient(),
+    getAuthUser(),
+  ])
 
-  const { data: dbVehicle } = await supabase
-    .from('vehicles')
-    .select(
-      '*, branch:branches(*), category:vehicle_categories(*), photos:vehicle_photos(*)'
-    )
-    .eq('id', id)
-    .single()
+  const [
+    { data: dbVehicle },
+    { data: dbBranches },
+    { data: dbBookedRanges },
+  ] = await Promise.all([
+    supabase
+      .from('vehicles')
+      .select(
+        '*, branch:branches(*), category:vehicle_categories(*), photos:vehicle_photos(*)'
+      )
+      .eq('id', id)
+      .single(),
+    supabase
+      .from('branches')
+      .select('*')
+      .eq('is_active', true),
+    supabase
+      .from('reservations')
+      .select('start_date, end_date')
+      .eq('vehicle_id', id)
+      .in('status', ['confirmed', 'deposit_paid', 'active']),
+  ])
 
   let vehicle = dbVehicle as unknown as (Vehicle & {
     branch?: Branch
@@ -45,17 +62,6 @@ export default async function VehicleDetailPage({
       notFound()
     }
   }
-
-  const { data: dbBranches } = await supabase
-    .from('branches')
-    .select('*')
-    .eq('is_active', true)
-
-  const { data: dbBookedRanges } = await supabase
-    .from('reservations')
-    .select('start_date, end_date')
-    .eq('vehicle_id', id)
-    .in('status', ['confirmed', 'deposit_paid', 'active'])
 
   const bookedRanges = (dbBookedRanges || []) as { start_date: string; end_date: string }[]
   const branches = (dbBranches && dbBranches.length > 0) ? dbBranches : FALLBACK_BRANCHES

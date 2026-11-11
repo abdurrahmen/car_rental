@@ -22,27 +22,29 @@ export default async function HomePage({ params }: HomePageProps) {
   if (!hasLocale(lang)) notFound()
 
   const locale = lang as Language
-  const dict = await getDictionary(locale)
-  const supabase = await createClient()
+  const [dict, supabase] = await Promise.all([
+    getDictionary(locale),
+    createClient(),
+  ])
 
-  // Fetch up to 12 available vehicles for the interactive terrain/category showcase
-  const { data: vehiclesData } = await supabase
-    .from('vehicles')
-    .select(`
-      *,
-      branch:branches(*),
-      category:vehicle_categories(*),
-      photos:vehicle_photos(*)
-    `)
-    .eq('status', 'available')
-    .order('created_at', { ascending: false })
-    .limit(12)
-
-  // Fetch active branches for national hub explorer & quick-finder
-  const { data: branchesData } = await supabase
-    .from('branches')
-    .select('*')
-    .eq('is_active', true)
+  // Fetch up to 12 available vehicles and active branches concurrently
+  const [{ data: vehiclesData }, { data: branchesData }] = await Promise.all([
+    supabase
+      .from('vehicles')
+      .select(`
+        *,
+        branch:branches(*),
+        category:vehicle_categories(*),
+        photos:vehicle_photos(*)
+      `)
+      .eq('status', 'available')
+      .order('created_at', { ascending: false })
+      .limit(12),
+    supabase
+      .from('branches')
+      .select('*')
+      .eq('is_active', true),
+  ])
 
   const vehicles =
     vehiclesData && vehiclesData.length > 0
