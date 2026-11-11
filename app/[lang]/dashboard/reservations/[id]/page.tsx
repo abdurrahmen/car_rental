@@ -8,6 +8,7 @@ import { HandoverPvCard } from '@/components/reservations/HandoverPvCard';
 import { DepositPaymentCard } from '@/components/reservations/DepositPaymentCard';
 import { Button } from '@/components/ui/Button';
 import { cancelReservation } from '@/lib/actions/reservations';
+import { getAuthUser } from '@/lib/auth';
 import type { Language, Reservation, VehicleConditionReport } from '@/types';
 
 interface ReservationDetailPageProps {
