@@ -1,6 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { resilientFetch } from './resilient-fetch';
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -24,9 +23,10 @@ export async function createClient() {
           }
         },
       },
-      global: {
-        fetch: resilientFetch,
-      },
+      // Use native fetch instead of resilient-fetch to avoid ByteString encoding issues
+      // global: {
+      //   fetch: resilientFetch,
+      // },
     },
   );
 }
