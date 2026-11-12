@@ -21,9 +21,12 @@ export default async function DashboardLayout({
 }: DashboardLayoutProps) {
   const { lang } = await params
   const locale = lang as Language
-  const dict = await getDictionaryByLocale(lang)
-
-  const user = await getAuthUser()
+  
+  // Parallel data fetching for better performance
+  const [dict, user] = await Promise.all([
+    getDictionaryByLocale(lang),
+    getAuthUser(),
+  ])
 
   if (!user) {
     redirect(`/${lang}/login`)

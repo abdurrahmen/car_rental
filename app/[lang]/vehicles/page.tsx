@@ -6,6 +6,8 @@ import { VehicleCard } from '@/components/vehicles/VehicleCard'
 import { VehicleFilters } from '@/components/vehicles/VehicleFilters'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Suspense } from 'react'
+import { unstable_cache } from 'next/cache'
 import type { Language, Vehicle, Branch, VehicleCategory } from '@/types'
 import {
   FALLBACK_VEHICLES,
@@ -19,44 +21,70 @@ interface VehiclesPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
+// Cache vehicles data with 2-minute revalidation
+const getVehiclesData = unstable_cache(
+  async (filters: { category?: string; transmission?: string; branch?: string }, supabaseUrl: string, supabaseKey: string) => {
+    // Create client without using cookies() inside the cache
+    const { createClient: createBrowserClient } = await import('@supabase/supabase-js')
+    const supabase = createBrowserClient(supabaseUrl, supabaseKey)
+    
+    let query = supabase
+      .from('vehicles')
+      .select(
+        '*, branch:branches(*), category:vehicle_categories(*), photos:vehicle_photos(*)'
+      )
+      .eq('status', 'available')
+
+    if (filters.category) {
+      query = query.eq('category_id', filters.category)
+    }
+    if (filters.transmission) {
+      query = query.eq('transmission', filters.transmission)
+    }
+    if (filters.branch) {
+      query = query.eq('branch_id', filters.branch)
+    }
+
+    const [{ data: dbVehicles }, { data: dbBranches }, { data: dbCategories }] =
+      await Promise.all([
+        query,
+        supabase.from('branches').select('*'),
+        supabase.from('vehicle_categories').select('*'),
+      ])
+    
+    return { dbVehicles, dbBranches, dbCategories }
+  },
+  ['vehicles-catalog'],
+  {
+    revalidate: 120, // 2 minutes
+    tags: ['vehicles', 'branches', 'categories']
+  }
+)
+
+export const revalidate = 120 // Revalidate page every 2 minutes
+
 export default async function VehiclesPage({
   params,
   searchParams,
 }: VehiclesPageProps) {
   const { lang } = await params
 
-  const [resolvedSearchParams, dict, supabase] = await Promise.all([
+  const [resolvedSearchParams, dict] = await Promise.all([
     searchParams,
     getDictionaryByLocale(lang),
-    createClient(),
   ])
-
-  let query = supabase
-    .from('vehicles')
-    .select(
-      '*, branch:branches(*), category:vehicle_categories(*), photos:vehicle_photos(*)'
-    )
-    .eq('status', 'available')
-
-  if (resolvedSearchParams.category) {
-    query = query.eq('category_id', resolvedSearchParams.category as string)
+  
+  const filters = {
+    category: resolvedSearchParams.category as string | undefined,
+    transmission: resolvedSearchParams.transmission as string | undefined,
+    branch: resolvedSearchParams.branch as string | undefined,
   }
-  if (resolvedSearchParams.transmission) {
-    query = query.eq(
-      'transmission',
-      resolvedSearchParams.transmission as string
-    )
-  }
-  if (resolvedSearchParams.branch) {
-    query = query.eq('branch_id', resolvedSearchParams.branch as string)
-  }
-
-  const [{ data: dbVehicles }, { data: dbBranches }, { data: dbCategories }] =
-    await Promise.all([
-      query,
-      supabase.from('branches').select('*'),
-      supabase.from('vehicle_categories').select('*'),
-    ])
+  
+  const { dbVehicles, dbBranches, dbCategories } = await getVehiclesData(
+    filters,
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
 
   // Use database data if populated; otherwise use fallback demo data with active filters applied
   let vehicles = (dbVehicles && dbVehicles.length > 0) ? (dbVehicles as unknown as FallbackVehicleWithRelations[]) : null

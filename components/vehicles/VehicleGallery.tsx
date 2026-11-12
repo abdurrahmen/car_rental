@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 import type { VehiclePhoto } from '@/types'
 import { getPhotoUrl } from '@/lib/utils/constants'
 
@@ -31,11 +32,14 @@ export function VehicleGallery({ photos, vehicleName }: VehicleGalleryProps) {
       {/* Main Image Viewport */}
       <div className="w-full aspect-[16/10] bg-neutral-900 rounded-3xl overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-black/[0.06]">
         {currentUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={currentUrl}
             alt={`${vehicleName} - View ${currentIndex + 1}`}
-            className="w-full h-full object-cover transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+            className="object-cover transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            priority={currentIndex === 0}
+            quality={90}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-neutral-400">
@@ -124,11 +128,13 @@ export function VehicleGallery({ photos, vehicleName }: VehicleGalleryProps) {
                 `}
               >
                 {thumbUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={thumbUrl}
-                    alt=""
+                    alt={`Thumbnail ${index + 1}`}
+                    width={80}
+                    height={56}
                     className="w-full h-full object-cover"
+                    quality={70}
                   />
                 )}
               </button>

@@ -21,10 +21,13 @@ export default async function StaffLayout({
 }: StaffLayoutProps) {
   const { lang } = await params
   const locale = lang as Language
-  const dict = await getDictionaryByLocale(lang)
-  const supabase = await createClient()
-
-  const user = await getAuthUser()
+  
+  // Parallel data fetching for better performance  
+  const [dict, user] = await Promise.all([
+    getDictionaryByLocale(lang),
+    getAuthUser(),
+  ])
+  
   const isAuthorized = user && ['staff', 'branch_manager', 'admin'].includes(user.role)
 
   if (!isAuthorized) {
@@ -34,6 +37,7 @@ export default async function StaffLayout({
   let branch: Branch | null = null
 
   if (user.branch_id) {
+    const supabase = await createClient()
     const { data: dbBranch } = await supabase
       .from('branches')
       .select('*')

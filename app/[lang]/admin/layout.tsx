@@ -16,9 +16,12 @@ export default async function AdminLayout({
 }: AdminLayoutProps) {
   const { lang } = await params
   const locale = lang as Language
-  const dict = await getDictionaryByLocale(lang)
-
-  const user = await getAuthUser()
+  
+  // Parallel data fetching for better performance
+  const [dict, user] = await Promise.all([
+    getDictionaryByLocale(lang),
+    getAuthUser(),
+  ])
 
   if (!user || user.role !== 'admin') {
     redirect(`/${lang}/login`)

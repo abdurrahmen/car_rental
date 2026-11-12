@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Vehicle, Language, VehiclePhoto, Dictionary } from '@/types'
 import { formatDZD, getPhotoUrl } from '@/lib/utils/constants'
 
@@ -31,11 +32,14 @@ export function VehicleCard({ vehicle, locale, dictionary }: VehicleCardProps) {
       {/* Photo container with zoom */}
       <div className="relative aspect-[16/10] bg-neutral-100 overflow-hidden">
         {photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={photoUrl}
             alt={`${vehicle.make} ${vehicle.model}`}
-            className="w-full h-full object-cover transform-gpu transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transform-gpu transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+            priority={false}
+            quality={85}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-neutral-400">
