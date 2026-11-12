@@ -71,12 +71,27 @@ export async function resilientFetch(
     isOffline = false;
     return res;
   } catch (err: unknown) {
-    isOffline = true;
-    lastFailure = Date.now();
-    const message = err instanceof Error ? err.message : 'Host unreachable';
-    const abortErr = new Error(`Supabase request failed: ${message}`);
-    // PostgREST specifically skips retry loops when error name is AbortError
-    abortErr.name = 'AbortError';
-    throw abortErr;
+    // Don't set offline for auth errors or validation errors
+    const isAuthError = err instanceof Error && 
+      (err.message.includes('Invalid') || 
+       err.message.includes('Password') ||
+       err.message.includes('Email'));
+    
+    if (!isAuthError) {
+      isOffline = true;
+      lastFailure = Date.now();
+    }
+    
+    // If it's a regular fetch/network error, wrap it; otherwise rethrow as-is
+    if (err instanceof Error && !isAuthError) {
+      // Sanitize message to ASCII-safe characters only
+      const safeMessage = err.message.replace(/[^\x00-\x7F]/g, '?');
+      const abortErr = new Error(`Supabase request failed: ${safeMessage}`);
+      abortErr.name = 'AbortError';
+      throw abortErr;
+    }
+    
+    // Rethrow original error for auth/validation issues
+    throw err;
   }
 }
