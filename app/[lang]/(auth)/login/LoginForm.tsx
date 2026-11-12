@@ -27,9 +27,19 @@ export function LoginForm({ lang, redirectTo }: { lang: string; redirectTo?: str
     const roleVal = role === 'manager' ? 'branch_manager' : role
     document.cookie = `dzrent_demo_role=${roleVal}; path=/; max-age=86400; SameSite=Lax`
     startDemoTransition(async () => {
-      const res = await loginAsDemo(role, lang)
-      if (res.success && res.redirectPath) {
-        window.location.href = res.redirectPath
+      try {
+        const res = await loginAsDemo(role, lang)
+        console.log('Demo login response:', res)
+        if (res.success && res.redirectPath) {
+          console.log('Redirecting to:', res.redirectPath)
+          window.location.href = res.redirectPath
+        } else {
+          console.error('Demo login failed:', res)
+          alert(`Login failed. Check console for details.`)
+        }
+      } catch (error) {
+        console.error('Demo login error:', error)
+        alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`)
       }
     })
   }
