@@ -249,6 +249,10 @@
     "completed": "مكتمل",
     "scheduled": "مجدول",
     "in_progress": "قيد التنفيذ",
-    "sign_out": "تسجيل الخروج"
+    "sign_out": "تسجيل الخروج",
+    "role_superadmin": "مسؤول عام",
+    "role_branch_manager": "مدير فرع",
+    "role_staff": "موظف",
+    "role_customer": "زبون"
   }
 }

@@ -200,7 +200,13 @@ export function AdminTopbar({
                   {user.full_name || 'Admin'}
                 </span>
                 <span className="text-[10px] text-neutral-400">
-                  {user.role === 'admin' ? 'Superadmin' : user.role || 'Staff'}
+                  {user.role === 'admin' 
+                    ? (d?.role_superadmin || (isArabic ? 'مسؤول عام' : 'Superadmin'))
+                    : user.role === 'branch_manager'
+                    ? (d?.role_branch_manager || (isArabic ? 'مدير فرع' : 'Manager'))
+                    : user.role === 'staff'
+                    ? (d?.role_staff || (isArabic ? 'موظف' : 'Staff'))
+                    : (d?.role_customer || (isArabic ? 'زبون' : 'Client'))}
                 </span>
               </div>
             </button>

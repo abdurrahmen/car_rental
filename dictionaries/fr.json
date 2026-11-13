@@ -249,6 +249,10 @@
     "completed": "Terminé",
     "scheduled": "Planifié",
     "in_progress": "En cours",
-    "sign_out": "Déconnexion"
+    "sign_out": "Déconnexion",
+    "role_superadmin": "Superadmin",
+    "role_branch_manager": "Responsable d'agence",
+    "role_staff": "Personnel",
+    "role_customer": "Client"
   }
 }

@@ -249,6 +249,10 @@
     "completed": "Completed",
     "scheduled": "Scheduled",
     "in_progress": "In progress",
-    "sign_out": "Sign out"
+    "sign_out": "Sign out",
+    "role_superadmin": "Superadmin",
+    "role_branch_manager": "Branch Manager",
+    "role_staff": "Staff",
+    "role_customer": "Customer"
   }
 }
