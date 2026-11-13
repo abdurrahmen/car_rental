@@ -13,3 +13,6 @@ export * from './SparkLine'
 export * from './SegmentedBar'
 export * from './AreaChart'
 export * from './DashboardMotion'
+export * from './DashboardOverviewSkeleton'
+export * from './DashboardOverviewSkeleton'
+

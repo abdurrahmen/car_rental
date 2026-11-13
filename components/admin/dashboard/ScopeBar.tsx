@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useTransition } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { MapPin } from 'lucide-react'
 
@@ -18,6 +18,7 @@ export interface ScopeBarProps {
  * Scope Bar:
  * Allows filtering by branch (All Algeria or per branch) and time scope.
  * Superadmins can switch across branches; branch managers are locked to theirs.
+ * Shows loading skeleton when switching branches.
  */
 export function ScopeBar({
   locale,
@@ -27,19 +28,22 @@ export function ScopeBar({
 }: ScopeBarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [isPending, startTransition] = useTransition()
   const isArabic = locale === 'ar'
   const d = dictionary?.admin_dashboard
 
   const isSuperadmin = userRole === 'admin'
 
   const handleBranchChange = (branchId: string) => {
-    const params = new URLSearchParams(searchParams?.toString() || '')
-    if (branchId === 'all') {
-      params.delete('branch')
-    } else {
-      params.set('branch', branchId)
-    }
-    router.push(`/${locale}/admin?${params.toString()}`)
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams?.toString() || '')
+      if (branchId === 'all') {
+        params.delete('branch')
+      } else {
+        params.set('branch', branchId)
+      }
+      router.push(`/${locale}/admin?${params.toString()}`)
+    })
   }
 
   return (
@@ -52,20 +56,30 @@ export function ScopeBar({
         </span>
 
         {isSuperadmin ? (
-          <select
-            value={selectedBranchId || 'all'}
-            onChange={(e) => handleBranchChange(e.target.value)}
-            className="text-xs font-bold text-neutral-900 dark:text-white bg-neutral-100 dark:bg-white/10 hover:bg-neutral-200/60 dark:hover:bg-white/15 px-3 py-1.5 rounded-xl border-0 outline-none cursor-pointer transition-colors"
-          >
-            <option value="all">
-              {d?.scope_all || (isArabic ? 'كل الجزائر (جميع الفروع)' : 'Toute l’Algérie (Toutes les agences)')}
-            </option>
-            {FALLBACK_BRANCHES.map((b) => (
-              <option key={b.id} value={b.id}>
-                {isArabic ? b.name_ar : b.name_fr}
+          <div className="relative">
+            <select
+              value={selectedBranchId || 'all'}
+              onChange={(e) => handleBranchChange(e.target.value)}
+              disabled={isPending}
+              className={`text-xs font-bold text-neutral-900 dark:text-white bg-neutral-100 dark:bg-white/10 hover:bg-neutral-200/60 dark:hover:bg-white/15 px-3 py-1.5 rounded-xl border-0 outline-none transition-colors ${
+                isPending ? 'opacity-50 cursor-wait pe-8' : 'cursor-pointer'
+              }`}
+            >
+              <option value="all">
+                {d?.scope_all || (isArabic ? 'كل الجزائر (جميع الفروع)' : "Toute l'Algérie (Toutes les agences)")}
               </option>
-            ))}
-          </select>
+              {FALLBACK_BRANCHES.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {isArabic ? b.name_ar : b.name_fr}
+                </option>
+              ))}
+            </select>
+            {isPending && (
+              <div className="absolute inset-y-0 end-2 flex items-center pointer-events-none">
+                <div className="w-3 h-3 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
+          </div>
         ) : (
           <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200 px-2 py-1 rounded-lg bg-neutral-100 dark:bg-white/10">
             {isArabic ? 'فرعك المعيّن' : 'Votre agence'}
