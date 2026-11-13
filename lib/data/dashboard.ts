@@ -2,46 +2,18 @@ import { createClient } from '@/lib/supabase/server';
 import type { Vehicle, Reservation, Branch } from '@/types';
 import { calculateOverviewMetrics } from '@/lib/hooks/useOverviewMetrics';
 
-import {
-  FALLBACK_VEHICLES,
-  FALLBACK_RESERVATIONS,
-  FALLBACK_BRANCHES,
-} from '@/lib/data/fallback';
+// ─── Types exported to dashboard components ───────────────────────────────
 
 export interface PulseStats {
-  handoversToday: {
-    completed: number;
-    total: number;
-  };
-  returnsToday: {
-    completed: number;
-    total: number;
-    overdue: number;
-  };
+  handoversToday: { completed: number; total: number };
+  returnsToday:   { completed: number; total: number; overdue: number };
   fleetAvailability: {
-    available: number;
-    rented: number;
-    maintenance: number;
-    retired: number;
-    total: number;
-    utilizationRate: number;
+    available: number; rented: number; maintenance: number;
+    retired: number;   total: number;  utilizationRate: number;
   };
-  revenueMonth: {
-    total: number;
-    deltaPercent: number | null;
-    sparkline: number[];
-  };
-  moneyStrip: {
-    collected: number;
-    toCollectToday: number;
-    depositsHeld: number;
-  };
-  paymentSplit: {
-    cash: number;
-    baridimob: number;
-    ccp: number;
-    edahabia: number;
-  };
+  revenueMonth: { total: number; deltaPercent: number | null; sparkline: number[] };
+  moneyStrip:   { collected: number; toCollectToday: number; depositsHeld: number };
+  paymentSplit: { cash: number; baridimob: number; ccp: number; edahabia: number };
 }
 
 export interface ActionItem {
@@ -81,88 +53,85 @@ export interface GarageVehicle {
   branchName: string;
   categoryName: string;
   photoUrl: string;
-  nextEventText: {
-    ar: string;
-    fr: string;
-    en: string;
-  };
+  nextEventText: { ar: string; fr: string; en: string };
   urgencyScore: number;
 }
 
 export type { RevenueDataPoint } from '@/lib/utils/revenue-series';
 
-/**
- * Fetch all dashboard metrics with optional branch filtering.
- * Uses centralized calculateOverviewMetrics to ensure data consistency.
- * Respects RLS and branch manager scope.
- */
+// ─── Vehicle select fragment ───────────────────────────────────────────────
+const VEHICLE_SELECT = `
+  id, branch_id, category_id, make, model, year, plate_number,
+  transmission, seats, fuel_type, daily_rate, deposit_amount,
+  mileage_limit_km, status, created_at, updated_at,
+  branch:branches(id, name_ar, name_fr, name_en, address, city, lat, lng, phone, is_active, created_at, updated_at),
+  category:vehicle_categories(id, name_ar, name_fr, name_en, description_ar, description_fr, description_en, created_at, updated_at),
+  photos:vehicle_photos(id, vehicle_id, storage_path, is_primary, sort_order, created_at)
+` as const;
+
+// ─── Reservation select fragment ──────────────────────────────────────────
+const RESERVATION_SELECT = `
+  id, customer_id, vehicle_id, pickup_branch_id, dropoff_branch_id,
+  start_date, end_date, status, total_price, deposit_amount,
+  deposit_paid_at, deposit_deadline, confirmed_by, confirmed_at,
+  cancelled_by, cancelled_reason, cancelled_at, notes, staff_notes,
+  created_at, updated_at,
+  customer:profiles(id, full_name, phone, role, branch_id, preferred_language,
+    license_number, license_document_url, license_verified,
+    is_blacklisted, no_show_count, created_at, updated_at)
+` as const;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Main data-fetch function
+// ─────────────────────────────────────────────────────────────────────────────
 export async function getDashboardData(branchId?: string | null) {
   const supabase = await createClient();
 
-  // 1. Fetch Vehicles
+  // Build queries (branch-scoped when branchId provided)
   let vehicleQuery = supabase
     .from('vehicles')
-    .select(`
-      id, branch_id, category_id, make, model, year, plate_number,
-      daily_rate, deposit_amount, status,
-      branch:branches(id, name_ar, name_fr, name_en, city),
-      category:vehicle_categories(id, name_ar, name_fr, name_en),
-      photos:vehicle_photos(storage_path, is_primary)
-    `);
+    .select(VEHICLE_SELECT)
+    .eq('is_active' as never, true)         // only active vehicles
+    .order('status');                        // available first
+
+  let resQuery = supabase
+    .from('reservations')
+    .select(RESERVATION_SELECT)
+    .order('created_at', { ascending: false });
 
   if (branchId) {
     vehicleQuery = vehicleQuery.eq('branch_id', branchId);
+    resQuery     = resQuery.or(`pickup_branch_id.eq.${branchId},dropoff_branch_id.eq.${branchId}`);
   }
 
-  // 2. Build Reservations Query
-  let resQuery = supabase
-    .from('reservations')
-    .select(`
-      id, customer_id, vehicle_id, pickup_branch_id, dropoff_branch_id,
-      start_date, end_date, status, total_price, deposit_amount,
-      notes, staff_notes, created_at,
-      vehicle:vehicles(id, make, model, plate_number, daily_rate),
-      customer:profiles(id, full_name, phone)
-    `);
-
-  if (branchId) {
-    resQuery = resQuery.or(`pickup_branch_id.eq.${branchId},dropoff_branch_id.eq.${branchId}`);
-  }
-
-  // Execute both queries concurrently
-  const [{ data: dbVehicles }, { data: dbReservations }] = await Promise.all([
+  // Execute in parallel
+  const [vehicleRes, resRes, branchRes] = await Promise.all([
     vehicleQuery,
     resQuery,
+    supabase.from('branches').select('id').eq('is_active', true),
   ]);
 
-  const rawVehicles = (dbVehicles && dbVehicles.length > 0 ? dbVehicles : FALLBACK_VEHICLES) as (Vehicle & {
-    photos?: { storage_path?: string; is_primary?: boolean }[];
-    branch?: Branch;
-    category?: { name_ar: string; name_fr: string; name_en: string };
+  // Log errors but don't throw — dashboard should degrade gracefully
+  if (vehicleRes.error) console.error('[getDashboardData] vehicles:', vehicleRes.error.message);
+  if (resRes.error)     console.error('[getDashboardData] reservations:', resRes.error.message);
+
+  const vehicles     = (vehicleRes.data ?? []) as unknown as (Vehicle & {
+    branch?:   Branch;
+    category?: { name_ar: string; name_fr: string; name_en: string; description_ar: string | null; description_fr: string | null; description_en: string | null; created_at: string; updated_at: string };
+    photos?:   { id: string; vehicle_id: string; storage_path: string; is_primary: boolean; sort_order: number; created_at: string }[];
   })[];
 
-  const vehicles = branchId
-    ? rawVehicles.filter((v) => v.branch_id === branchId)
-    : rawVehicles;
-
-  const rawReservations = (dbReservations && dbReservations.length > 0 ? dbReservations : FALLBACK_RESERVATIONS) as (Reservation & {
+  const reservations = (resRes.data ?? []) as unknown as (Reservation & {
     customer?: { full_name?: string; phone?: string };
-    vehicle?: { make: string; model: string; plate_number: string; daily_rate: number };
   })[];
 
-  const reservations = branchId
-    ? rawReservations.filter((r) => r.pickup_branch_id === branchId || r.dropoff_branch_id === branchId)
-    : rawReservations;
+  const activeBranchCount = branchRes.data?.length ?? 0;
 
-  // 3. Calculate all metrics from centralized source (enforces invariants)
-  const metrics = calculateOverviewMetrics({
-    vehicles,
-    reservations,
-    branchId,
-  });
+  // Delegate all metric calculation to centralised hook (enforces invariants)
+  const metrics = calculateOverviewMetrics({ vehicles, reservations, branchId });
 
   return {
     ...metrics,
-    activeBranchCount: FALLBACK_BRANCHES.length,
+    activeBranchCount,
   };
 }

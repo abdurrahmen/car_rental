@@ -139,7 +139,7 @@ export function calculateOverviewMetrics(input: OverviewMetricsInput): OverviewM
       priority,
       title: `${vName} — ${plate}`,
       subtitle: delayText,
-      phone: '+213 550 12 34 56', // TODO: Get from customer profile
+      phone: (r as unknown as { customer?: { phone?: string } }).customer?.phone ?? undefined,
       referenceId: r.id,
       timestamp: r.end_date,
     });
@@ -175,7 +175,7 @@ export function calculateOverviewMetrics(input: OverviewMetricsInput): OverviewM
       priority,
       title: `${vName} • ${Number(r.total_price || 0).toLocaleString()} DZD`,
       subtitle: waitText,
-      phone: '+213 555 98 76 54', // TODO: Get from customer profile
+      phone: (r as unknown as { customer?: { phone?: string } }).customer?.phone ?? undefined,
       amount: r.total_price,
       referenceId: r.id,
       timestamp: r.created_at,
