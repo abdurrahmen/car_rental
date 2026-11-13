@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import { resilientFetch } from '@/lib/supabase/resilient-fetch';
 
 const LOCALES = ['ar', 'fr', 'en'];
 const DEFAULT_LOCALE = 'ar';
@@ -143,9 +142,6 @@ export async function proxy(request: NextRequest) {
             response.cookies.set(name, value, options);
           });
         },
-      },
-      global: {
-        fetch: resilientFetch,
       },
     },
   );
