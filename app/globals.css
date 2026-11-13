@@ -5,19 +5,51 @@
 /* ===================================================================
    ALGERIA CAR RENTAL — Apple-Inspired Design System (Tailwind v4)
    ===================================================================
-   Cohesive Apple aesthetic:
-   - Off-white canvas (#FBFBFD) with crisp elevated white surfaces
+   Cohesive Apple aesthetic with Algerian UX considerations:
+   - Off-white canvas (#F6F7F9) with crisp elevated white surfaces
    - Sub-pixel borders (rgba(0,0,0,0.06))
-   - Deep obsidian typography (#1D1D1F) with subtle secondary gray (#86868B)
-   - Apple Blue (#0071E3) + warm amber accents (#E08A00)
+   - Deep obsidian typography (#1D1D1F) with subtle secondary gray
+   - Apple Blue (#0071E3) for actions/links/focus ONLY
+   - Semantic status colors with WCAG AA contrast
    - Translucent status pills & multi-layer Apple shadows
-   - Deceleration motion curve: cubic-bezier(0.16, 1, 0.3, 1)
+   - Arabic body text: ≥13px with line-height 1.6
+   - Tabular numerals for figures
+   - Deceleration motion: cubic-bezier(0.16, 1, 0.3, 1)
+   =================================================================== */
+
+/* ===================================================================
+   ALGERIA CAR RENTAL — Apple-Inspired Design System (Tailwind v4)
+   ===================================================================
+   Cohesive Apple aesthetic with Algerian UX considerations:
+   - Off-white canvas (#F6F7F9) with crisp elevated white surfaces
+   - Sub-pixel borders (rgba(0,0,0,0.06))
+   - Deep obsidian typography (#1D1D1F) with subtle secondary gray
+   - Apple Blue (#0071E3) for actions/links/focus ONLY
+   - Semantic status colors with WCAG AA contrast
+   - Translucent status pills & multi-layer Apple shadows
+   - Arabic body text: ≥13px with line-height 1.6
+   - Tabular numerals for figures
+   - Deceleration motion: cubic-bezier(0.16, 1, 0.3, 1)
    =================================================================== */
 
 @theme inline {
   /* ---------------------------------------------------------------
-     APPLE BRAND & ACCENT COLORS
+     TYPE SCALE (Arabic-optimized: ≥13px for body text)
      --------------------------------------------------------------- */
+  --font-size-xs: 0.75rem; /* 12px - minimum */
+  --font-size-sm: 0.8125rem; /* 13px - preferred Arabic body */
+  --font-size-base: 0.875rem; /* 14px */
+  --font-size-lg: 1rem; /* 16px */
+  --font-size-xl: 1.125rem; /* 18px */
+  --font-size-2xl: 1.25rem; /* 20px */
+  --font-size-3xl: 1.5rem; /* 24px */
+  --font-size-4xl: 1.875rem; /* 30px - KPI numbers */
+  --font-size-5xl: 2.25rem; /* 36px */
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-arabic: 1.6; /* Arabic body text */
+  --line-height-relaxed: 1.75;
   --color-brand-50: #F5F9FF;
   --color-brand-100: #E6F0FE;
   --color-brand-200: #C7DEFD;
