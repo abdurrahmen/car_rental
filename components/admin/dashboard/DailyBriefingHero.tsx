@@ -1,13 +1,9 @@
 'use client'
 
 import React from 'react'
-import Link from 'next/link'
 import {
-  Plus,
   Calendar,
-  Wrench,
   Clock,
-  ArrowUpRight,
   CheckCircle2,
 } from 'lucide-react'
 import { getTimeOfDay, formatDate, TimeOfDay } from '@/lib/utils/constants'
@@ -25,12 +21,12 @@ export interface DailyBriefingHeroProps {
 }
 
 /**
- * T1 — Daily Briefing Hero:
+ * T1 — Daily Briefing Hero (Slimmed):
  * - Time-aware personalized greeting with Algerian calendar
  * - Real data summary sentence
- * - Day operational progress bar (handovers & returns done vs scheduled)
- * - 4 direct quick action buttons
+ * - Compact stats display (no progress bar)
  * - Hour-based dynamic atmosphere gradient (dawn, day, golden hour, night)
+ * 50% of previous height, cleaner design
  */
 export function DailyBriefingHero({
   locale,
@@ -48,7 +44,6 @@ export function DailyBriefingHero({
   const timeOfDay = explicitTimeOfDay || getTimeOfDay()
   const currentDateStr = dateStr || formatDate(new Date().toISOString(), locale)
 
-
   // Extract first name
   const firstName = userName ? userName.trim().split(' ')[0] : (isArabic ? 'مدير الوكالة' : 'Manager')
 
@@ -59,13 +54,6 @@ export function DailyBriefingHero({
       : timeOfDay === 'golden'
       ? d?.greeting_afternoon || (isArabic ? 'مساء الخير' : 'Bon après-midi')
       : d?.greeting_evening || (isArabic ? 'مساء الخير' : 'Bonsoir')
-
-  // Calculate day operational progress
-  const totalOperations = handoversToday.total + returnsToday.total
-  const completedOperations = handoversToday.completed + returnsToday.completed
-  const progressPercent = totalOperations > 0
-    ? Math.round((completedOperations / totalOperations) * 100)
-    : 0
 
   // Build real data briefing sentence
   const summaryPart1 = isArabic
@@ -91,7 +79,7 @@ export function DailyBriefingHero({
 
   return (
     <div
-      className={`rounded-3xl p-6 sm:p-8 bg-gradient-to-br ${atmosphereGradients[timeOfDay]} text-white shadow-[0_8px_30px_rgba(0,113,227,0.18)] relative overflow-hidden transition-all duration-700`}
+      className={`rounded-3xl p-5 sm:p-6 bg-gradient-to-br ${atmosphereGradients[timeOfDay]} text-white shadow-[0_8px_30px_rgba(0,113,227,0.18)] relative overflow-hidden transition-all duration-700`}
     >
       {/* Subtle Algerian geometric pattern overlay */}
       <div
@@ -109,98 +97,48 @@ export function DailyBriefingHero({
         </svg>
       </div>
 
-      <div className="relative z-10 space-y-6">
-        {/* Top: Date Pill & Time of Day badge */}
-        <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white font-medium">
-            <Clock className="w-3.5 h-3.5 opacity-80" />
-            <span>{currentDateStr || (isArabic ? 'السبت، بداية الأسبوع' : 'Aujourd’hui')}</span>
-          </div>
-
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/25 border border-emerald-400/30 text-emerald-100 font-semibold text-[11px]">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
-            <span>{isArabic ? 'الأسطول متصل ومباشر' : 'Flotte synchronisée'}</span>
-          </div>
-        </div>
-
-        {/* Hero Greeting & Real Data Story */}
-        <div className="space-y-2 max-w-2xl">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
+      <div className="relative z-10 flex items-center justify-between gap-4">
+        {/* Left: Greeting & Summary */}
+        <div className="space-y-1.5 max-w-xl">
+          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white leading-tight">
             {greetingText}، {firstName}
           </h1>
-          <p className="text-sm sm:text-base text-white/90 font-medium leading-relaxed">
+          <p className="text-xs sm:text-sm text-white/90 font-medium leading-relaxed">
             {summarySentence}
           </p>
-        </div>
-
-        {/* Day Operational Progress Strip */}
-        <div className="bg-black/20 backdrop-blur-md rounded-2xl p-4 border border-white/10 max-w-2xl space-y-2.5">
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2 text-white/90 font-semibold">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>{d?.day_progress || (isArabic ? 'تقدم عمليات اليوم' : 'Progression des opérations')}</span>
-            </div>
-            <div className="text-white/80 font-mono font-medium text-[11px] tabular-nums">
-              <bdi>{completedOperations} / {totalOperations}</bdi>{' '}
-              ({progressPercent}%)
-            </div>
-          </div>
-
-          {/* Progress track */}
-          <div className="w-full h-2.5 rounded-full bg-white/20 overflow-hidden flex">
-            <div
-              className="h-full bg-emerald-400 rounded-full transition-all duration-700 ease-out"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between text-[11px] text-white/70 pt-0.5">
-            <span>
-              {isArabic ? `${handoversToday.completed} من ${handoversToday.total} تسليم تم` : `${handoversToday.completed}/${handoversToday.total} remises effectuées`}
-            </span>
-            <span>
-              {isArabic ? `${returnsToday.completed} من ${returnsToday.total} إرجاع تم` : `${returnsToday.completed}/${returnsToday.total} retours effectués`}
-            </span>
+          
+          {/* Date pill inline with greeting */}
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white font-medium text-[11px] mt-2">
+            <Clock className="w-3 h-3 opacity-80" />
+            <span>{currentDateStr || (isArabic ? 'السبت، بداية الأسبوع' : "Aujourd'hui")}</span>
           </div>
         </div>
 
-        {/* Quick Actions Row */}
-        <div className="pt-1 flex flex-wrap items-center gap-2.5">
-          {/* 1. Walk-in / New Booking */}
-          <Link
-            href={`/${locale}/admin/reservations`}
-            className="apple-press inline-flex items-center gap-2 px-4.5 py-2.5 rounded-full text-xs font-bold bg-white text-brand-700 hover:bg-neutral-50 shadow-md transition-all min-h-[40px]"
-          >
-            <Calendar className="w-4 h-4 text-brand-600" />
-            <span>{d?.new_booking || (isArabic ? 'حجز جديد' : 'Nouvelle réservation')}</span>
-          </Link>
+        {/* Right: Compact Day Stats */}
+        <div className="hidden md:flex items-center gap-4 text-xs">
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/15">
+            <Calendar className="w-4 h-4 text-emerald-300" />
+            <div className="text-start">
+              <div className="text-white/70 text-[10px] font-medium">
+                {isArabic ? 'التسليمات' : 'Remises'}
+              </div>
+              <div className="text-white font-bold tabular-nums">
+                <bdi>{handoversToday.completed}/{handoversToday.total}</bdi>
+              </div>
+            </div>
+          </div>
 
-          {/* 2. Add Car */}
-          <Link
-            href={`/${locale}/admin/vehicles/new`}
-            className="apple-press inline-flex items-center gap-2 px-4.5 py-2.5 rounded-full text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/25 text-white backdrop-blur-md shadow-2xs transition-all min-h-[40px]"
-          >
-            <Plus className="w-4 h-4" />
-            <span>{d?.add_car || (isArabic ? 'إضافة مركبة' : 'Ajouter véhicule')}</span>
-          </Link>
-
-          {/* 3. Send to Maintenance */}
-          <Link
-            href={`/${locale}/admin/vehicles`}
-            className="apple-press inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-medium bg-white/10 hover:bg-white/20 border border-white/15 text-white/95 backdrop-blur-md transition-all min-h-[40px]"
-          >
-            <Wrench className="w-3.5 h-3.5 text-amber-300" />
-            <span>{d?.send_maintenance || (isArabic ? 'حجز صيانة' : 'Maintenance')}</span>
-          </Link>
-
-          {/* 4. All Bookings */}
-          <Link
-            href={`/${locale}/admin/reservations`}
-            className="apple-press inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full text-xs font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors ms-auto"
-          >
-            <span>{d?.all_bookings || (isArabic ? 'كل الحجوزات' : 'Toutes les réservations')}</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
-          </Link>
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/15">
+            <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+            <div className="text-start">
+              <div className="text-white/70 text-[10px] font-medium">
+                {isArabic ? 'الإرجاعات' : 'Retours'}
+              </div>
+              <div className="text-white font-bold tabular-nums">
+                <bdi>{returnsToday.completed}/{returnsToday.total}</bdi>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

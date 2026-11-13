@@ -62,12 +62,31 @@ export default async function AdminOverviewPage({
       />
 
       {/* ───────────────────────────────────────────────────────────── */}
-      {/* 12-Column Asymmetric Bento Grid                              */}
+      {/* 12-Column Bento Grid — Reordered by Urgency                  */}
       {/* ───────────────────────────────────────────────────────────── */}
       <DashboardMotion>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 items-start">
-        {/* Row 1 & 2: Daily Briefing Hero (8 cols) + Action Center (4 cols, 2 rows) */}
-        <div className="lg:col-span-8 order-1">
+        
+        {/* PRIORITY 1: Action Center — "Needs attention" (4 cols, tall) */}
+        <div className="lg:col-span-4 lg:row-span-2 order-1">
+          <ActionCenter
+            locale={locale}
+            dictionary={dict}
+            items={data.actionItems}
+          />
+        </div>
+
+        {/* PRIORITY 2: Today's Timeline — "What's happening now" (5 cols) */}
+        <div className="lg:col-span-5 order-2">
+          <TodayTimeline
+            locale={locale}
+            dictionary={dict}
+            events={data.timelineEvents}
+          />
+        </div>
+
+        {/* PRIORITY 3: Slimmed Hero — Context & greeting (3 cols) */}
+        <div className="lg:col-span-3 order-3">
           <DailyBriefingHero
             locale={locale}
             dictionary={dict}
@@ -78,17 +97,8 @@ export default async function AdminOverviewPage({
           />
         </div>
 
-        {/* T3: Action Center ("Needs you") — Priority 1 on mobile, 4-cols sidebar on desktop */}
-        <div className="lg:col-span-4 lg:row-span-2 order-2 lg:order-2 h-full">
-          <ActionCenter
-            locale={locale}
-            dictionary={dict}
-            items={data.actionItems}
-          />
-        </div>
-
-        {/* T2: Pulse KPIs (8 cols) */}
-        <div className="lg:col-span-8 order-4 lg:order-3">
+        {/* PRIORITY 4: Pulse KPIs — At-a-glance metrics (8 cols) */}
+        <div className="lg:col-span-8 order-4">
           <PulseKPIs
             locale={locale}
             dictionary={dict}
@@ -96,16 +106,8 @@ export default async function AdminOverviewPage({
           />
         </div>
 
-        {/* Row 3: Today's Movements Timeline (5 cols) + Garage Wall (7 cols) */}
-        <div className="lg:col-span-5 order-3 lg:order-4 h-full">
-          <TodayTimeline
-            locale={locale}
-            dictionary={dict}
-            events={data.timelineEvents}
-          />
-        </div>
-
-        <div className="lg:col-span-7 order-5 lg:order-5">
+        {/* Row 3: Fleet Garage Wall (7 cols) */}
+        <div className="lg:col-span-7 order-5">
           <FleetGarageWall
             locale={locale}
             dictionary={dict}
@@ -113,8 +115,16 @@ export default async function AdminOverviewPage({
           />
         </div>
 
-        {/* Row 4: Revenue & Financials (7 cols) + Algeria Branch Map (5 cols) */}
-        <div className="lg:col-span-7 order-6 lg:order-6">
+        {/* Row 3: Algeria Branch Map (5 cols) */}
+        <div className="lg:col-span-5 order-6">
+          <BranchMap
+            locale={locale}
+            dictionary={dict}
+          />
+        </div>
+
+        {/* Row 4: Revenue & Financials (7 cols) */}
+        <div className="lg:col-span-7 order-7">
           <RevenuePanel
             locale={locale}
             dictionary={dict}
@@ -122,15 +132,8 @@ export default async function AdminOverviewPage({
           />
         </div>
 
-        <div className="lg:col-span-5 order-7 lg:order-7 h-full">
-          <BranchMap
-            locale={locale}
-            dictionary={dict}
-          />
-        </div>
-
-        {/* Row 5: 14-Day Availability Matrix (12 cols full width) */}
-        <div className="col-span-1 lg:col-span-12 order-8">
+        {/* Row 4: 14-Day Availability Matrix (5 cols) */}
+        <div className="lg:col-span-5 order-8">
           <AvailabilityLanes
             locale={locale}
             dictionary={dict}
@@ -138,7 +141,7 @@ export default async function AdminOverviewPage({
           />
         </div>
 
-        {/* Row 6: Supporting Modules (Sleeping Cars & Live Activity Feed) */}
+        {/* Row 5: Idle/Sleeping Cars (6 cols) */}
         <div className="lg:col-span-6 order-9">
           <SleepingCars
             locale={locale}
@@ -147,6 +150,7 @@ export default async function AdminOverviewPage({
           />
         </div>
 
+        {/* Row 5: Live Activity Feed (6 cols) */}
         <div className="lg:col-span-6 order-10">
           <ActivityFeed
             locale={locale}
