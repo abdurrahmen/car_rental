@@ -70,13 +70,15 @@ const VEHICLE_SELECT = `
 ` as const;
 
 // ─── Reservation select fragment ──────────────────────────────────────────
+// Use explicit FK hint "customer_id" to disambiguate the profiles join
+// (reservations has 3 FKs to profiles: customer_id, confirmed_by, cancelled_by)
 const RESERVATION_SELECT = `
   id, customer_id, vehicle_id, pickup_branch_id, dropoff_branch_id,
   start_date, end_date, status, total_price, deposit_amount,
   deposit_paid_at, deposit_deadline, confirmed_by, confirmed_at,
   cancelled_by, cancelled_reason, cancelled_at, notes, staff_notes,
   created_at, updated_at,
-  customer:profiles(id, full_name, phone, role, branch_id, preferred_language,
+  customer:profiles!customer_id(id, full_name, phone, role, branch_id, preferred_language,
     license_number, license_document_url, license_verified,
     is_blacklisted, no_show_count, created_at, updated_at)
 ` as const;
