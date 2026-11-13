@@ -91,8 +91,8 @@ export async function getDashboardData(branchId?: string | null) {
   let vehicleQuery = supabase
     .from('vehicles')
     .select(VEHICLE_SELECT)
-    .eq('is_active' as never, true)         // only active vehicles
-    .order('status');                        // available first
+    .eq('is_active' as never, true)
+    .order('status');
 
   let resQuery = supabase
     .from('reservations')
