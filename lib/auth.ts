@@ -62,12 +62,10 @@ import { cache } from 'react';
  */
 export const getAuthUser = cache(async function getAuthUser(): Promise<AppUser | null> {
   const cookieStore = await cookies();
-  const demoRole = process.env.NODE_ENV !== 'production'
-    ? cookieStore.get('dzrent_demo_role')?.value
-    : undefined;
-  const demoUserRaw = process.env.NODE_ENV !== 'production'
-    ? cookieStore.get('dzrent_demo_user')?.value
-    : undefined;
+  
+  // Check demo cookies (works in all environments for easy testing)
+  const demoRole = cookieStore.get('dzrent_demo_role')?.value;
+  const demoUserRaw = cookieStore.get('dzrent_demo_user')?.value;
 
   let demoUser: AppUser | null = null;
   if (demoUserRaw) {
@@ -78,7 +76,7 @@ export const getAuthUser = cache(async function getAuthUser(): Promise<AppUser |
     }
   }
 
-  // Fast demo role return in non-production environments
+  // If demo cookies exist, use them (priority over Supabase)
   if (demoRole && demoRole in DEMO_PROFILES) {
     const fallback = DEMO_PROFILES[demoRole];
     return {

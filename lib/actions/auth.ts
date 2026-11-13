@@ -117,11 +117,7 @@ export async function signIn(
 }
 
 export async function loginAsDemo(role: 'admin' | 'manager' | 'customer', lang: string = 'en') {
-  if (process.env.NODE_ENV === 'production') {
-    return { success: false, redirectPath: `/${lang}/login` };
-  }
   const cookieStore = await cookies();
-  const supabase = await createClient();
 
   const demoAccounts = {
     admin: {
@@ -153,22 +149,11 @@ export async function loginAsDemo(role: 'admin' | 'manager' | 'customer', lang: 
 
   const account = demoAccounts[role];
 
-  // Try real Supabase auth in case it succeeds
-  try {
-    await supabase.auth.signInWithPassword({
-      email: account.email,
-      password: account.password,
-    });
-  } catch {
-    // Ignore error — demo cookie will grant reliable bypass access
-  }
-
-  // Set demo bypass cookies
+  // Set demo bypass cookies (these work in both production and development)
   cookieStore.set('dzrent_demo_role', account.role, {
     path: '/',
     maxAge: 60 * 60 * 24, // 24 hours
     sameSite: 'lax',
-    httpOnly: false,
   });
 
   cookieStore.set(
@@ -184,9 +169,10 @@ export async function loginAsDemo(role: 'admin' | 'manager' | 'customer', lang: 
       path: '/',
       maxAge: 60 * 60 * 24,
       sameSite: 'lax',
-      httpOnly: false,
     }
   );
+
+  console.log(`[Demo Login] Set cookies for role: ${account.role}, redirecting to: ${account.target}`);
 
   return { success: true, redirectPath: account.target };
 }

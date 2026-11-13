@@ -23,19 +23,25 @@ export function LoginForm({ lang, redirectTo }: { lang: string; redirectTo?: str
     }
   }, [state, lang, redirectTo])
 
-  const handleDemoClick = (role: 'admin' | 'manager' | 'customer') => {
+  const handleDemoClick = async (role: 'admin' | 'manager' | 'customer') => {
     const roleVal = role === 'manager' ? 'branch_manager' : role
+    
+    // Set client-side cookie immediately for faster access
     document.cookie = `dzrent_demo_role=${roleVal}; path=/; max-age=86400; SameSite=Lax`
+    
     startDemoTransition(async () => {
       try {
         const res = await loginAsDemo(role, lang)
         console.log('Demo login response:', res)
+        
         if (res.success && res.redirectPath) {
           console.log('Redirecting to:', res.redirectPath)
+          // Small delay to ensure cookies are set
+          await new Promise(resolve => setTimeout(resolve, 100))
           window.location.href = res.redirectPath
         } else {
           console.error('Demo login failed:', res)
-          alert(`Login failed. Check console for details.`)
+          alert(`Login failed: ${JSON.stringify(res)}`)
         }
       } catch (error) {
         console.error('Demo login error:', error)
