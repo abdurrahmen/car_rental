@@ -13,9 +13,9 @@ import {
   AvailabilityLanes,
   SleepingCars,
   ActivityFeed,
-  ScopeBar,
   DashboardMotion,
 } from '@/components/admin/dashboard'
+import { AdminOverviewWrapper } from '@/components/admin/AdminOverviewWrapper'
 import type { Language } from '@/types'
 
 interface AdminPageProps {
@@ -50,17 +50,12 @@ export default async function AdminOverviewPage({
   const data = await getDashboardData(effectiveBranchId)
 
   return (
-    <div className="space-y-5 md:space-y-6">
-      {/* ───────────────────────────────────────────────────────────── */}
-      {/* 0. Scope Bar (Branch filter + time scope)                    */}
-      {/* ───────────────────────────────────────────────────────────── */}
-      <ScopeBar
-        locale={locale}
-        dictionary={dict}
-        selectedBranchId={effectiveBranchId}
-        userRole={userRole}
-      />
-
+    <AdminOverviewWrapper
+      locale={locale}
+      dictionary={dict}
+      selectedBranchId={effectiveBranchId}
+      userRole={userRole}
+    >
       {/* ───────────────────────────────────────────────────────────── */}
       {/* 12-Column Bento Grid — Reordered by Urgency                  */}
       {/* ───────────────────────────────────────────────────────────── */}
@@ -159,7 +154,7 @@ export default async function AdminOverviewPage({
         </div>
       </div>
       </DashboardMotion>
-    </div>
+    </AdminOverviewWrapper>
   )
 }
 

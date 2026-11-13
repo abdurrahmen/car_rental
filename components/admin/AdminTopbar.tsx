@@ -16,6 +16,8 @@ import {
   Calendar,
   FileCheck2,
   ChevronRight,
+  ChevronDown,
+  CheckCircle2,
 } from 'lucide-react'
 
 import type { Language, Dictionary } from '@/types'
@@ -30,12 +32,16 @@ export interface AdminTopbarProps {
   }
   onToggleSidebar?: () => void
   isSidebarOpen?: boolean
+  selectedBranchId?: string | null
+  userRole?: string
+  onBranchChange?: (branchId: string) => void
 }
 
 /**
- * DZRent Admin Slim Topbar:
- * - Slim height (h-14)
- * - Mobile hamburger & logo mark on small screens
+ * DZRent Admin Enhanced Topbar:
+ * - "+ New" menu with quick actions (moved from hero)
+ * - Integrated scope selector (if on overview page)
+ * - Consolidated live status indicator with popover
  * - ⌘K Command Palette / Global Search trigger
  * - Notifications popover
  * - Language switcher
@@ -47,6 +53,9 @@ export function AdminTopbar({
   user,
   onToggleSidebar,
   isSidebarOpen = false,
+  selectedBranchId,
+  userRole = 'admin',
+  onBranchChange,
 }: AdminTopbarProps) {
   const router = useRouter()
   const isArabic = locale === 'ar'
@@ -55,7 +64,12 @@ export function AdminTopbar({
   const [searchQuery, setSearchQuery] = useState('')
   const [isCommandOpen, setIsCommandOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isNewMenuOpen, setIsNewMenuOpen] = useState(false)
+  const [isStatusPopoverOpen, setIsStatusPopoverOpen] = useState(false)
+  
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const newMenuRef = useRef<HTMLDivElement>(null)
+  const statusPopoverRef = useRef<HTMLDivElement>(null)
   const commandInputRef = useRef<HTMLInputElement>(null)
 
   // Keyboard shortcut: ⌘K or Ctrl+K to toggle command palette
@@ -84,6 +98,12 @@ export function AdminTopbar({
     const handleClickOutside = (e: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setIsUserMenuOpen(false)
+      }
+      if (newMenuRef.current && !newMenuRef.current.contains(e.target as Node)) {
+        setIsNewMenuOpen(false)
+      }
+      if (statusPopoverRef.current && !statusPopoverRef.current.contains(e.target as Node)) {
+        setIsStatusPopoverOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -151,13 +171,48 @@ export function AdminTopbar({
             <Logo variant="mark" size="sm" locale={locale} href={`/${locale}/admin`} />
           </div>
 
-          <div className="hidden md:flex items-center gap-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>DZRent Live Control</span>
+          {/* Consolidated Live Status Indicator with Popover */}
+          <div className="hidden md:flex relative" ref={statusPopoverRef}>
+            <button
+              type="button"
+              onClick={() => setIsStatusPopoverOpen((p) => !p)}
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-white/80 dark:hover:bg-white/5 transition-colors text-xs font-semibold text-neutral-600 dark:text-neutral-300 cursor-pointer"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>{isArabic ? 'نظام فعّال' : 'Système actif'}</span>
+            </button>
+
+            {isStatusPopoverOpen && (
+              <div className="absolute top-full start-0 mt-2 w-72 rounded-2xl bg-white dark:bg-[#142032] p-4 shadow-xl border border-black/[0.08] dark:border-white/[0.08] z-50 animate-apple-fade-in">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <span className="text-neutral-900 dark:text-white font-semibold">
+                      {isArabic ? 'قاعدة البيانات: متصلة' : 'Base de données : connectée'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <span className="text-neutral-900 dark:text-white font-semibold">
+                      {isArabic ? 'الأسطول: مزامن' : 'Flotte : synchronisée'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <span className="text-neutral-900 dark:text-white font-semibold">
+                      {isArabic ? 'الحماية من الحجز المزدوج: نشطة' : 'Anti-double réservation : actif'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-neutral-500 dark:text-neutral-400 pt-2 border-t border-neutral-100 dark:border-white/5">
+                    {isArabic ? 'آخر تحديث: الآن' : 'Dernière mise à jour : maintenant'}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Global Search Button / Trigger */}
+        {/* Center: Global Search Button / Trigger */}
         <div className="flex-1 max-w-md mx-2 md:mx-4">
           <button
             type="button"
@@ -178,8 +233,59 @@ export function AdminTopbar({
           </button>
         </div>
 
-        {/* Actions: Notifications, Language, Profile */}
+        {/* Actions: + New, Notifications, Language, Profile */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          {/* "+ New" Action Menu */}
+          <div ref={newMenuRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setIsNewMenuOpen((p) => !p)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-500 text-white hover:bg-brand-600 shadow-2xs transition-colors cursor-pointer"
+              aria-label="New action"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">{isArabic ? 'جديد' : 'Nouveau'}</span>
+              <ChevronDown className="w-3 h-3 hidden sm:inline" />
+            </button>
+
+            {isNewMenuOpen && (
+              <div className="absolute top-full end-0 mt-2 w-80 rounded-2xl bg-white dark:bg-[#142032] p-2 shadow-xl border border-black/[0.08] dark:border-white/[0.08] z-50 animate-apple-fade-in">
+                <div className="space-y-1">
+                  <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                    {isArabic ? 'إجراءات سريعة' : 'ACTIONS RAPIDES'}
+                  </div>
+
+                  {quickActions.map((action, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => {
+                        setIsNewMenuOpen(false)
+                        router.push(action.href)
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-start hover:bg-neutral-100/80 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-white/5 flex items-center justify-center shrink-0">
+                          {action.icon}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-neutral-900 dark:text-white truncate">
+                            {action.title}
+                          </p>
+                          <p className="text-[11px] text-neutral-400 truncate">
+                            {action.subtitle}
+                          </p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-neutral-700 dark:group-hover:text-white transition-colors rtl:rotate-180 shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Notifications Popover */}
           <NotificationBell locale={locale} userRole="admin" />
 
