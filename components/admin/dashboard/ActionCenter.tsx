@@ -91,8 +91,8 @@ export function ActionCenter({
                     : 'bg-neutral-50/90 dark:bg-white/5 border-neutral-200 dark:border-white/10'
                 }`}
               >
-                {/* Title & Timing */}
-                <div className="flex items-start justify-between gap-2">
+                {/* Title, Severity Badge & Timing */}
+                <div className="flex items-start justify-between gap-2 mb-1">
                   <div className="flex items-center gap-2 min-w-0">
                     {item.type === 'overdue_return' && (
                       <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
@@ -109,9 +109,22 @@ export function ActionCenter({
                     </h3>
                   </div>
 
-                  <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0">
-                    {formatRelativeTime(item.timestamp, locale)}
-                  </span>
+                  {/* Severity Badge */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {item.priority === 'urgent' && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-600 text-white">
+                        {isArabic ? 'عاجل' : 'URGENT'}
+                      </span>
+                    )}
+                    {item.priority === 'high' && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-600 text-white">
+                        {isArabic ? 'عالية' : 'HAUTE'}
+                      </span>
+                    )}
+                    <span className="text-[10px] text-neutral-400 dark:text-neutral-500">
+                      {formatRelativeTime(item.timestamp, locale)}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Subtitle / context */}

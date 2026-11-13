@@ -6,6 +6,7 @@ import {
   DailyBriefingHero,
   PulseKPIs,
   ActionCenter,
+  PendingRequests,
   TodayTimeline,
   FleetGarageWall,
   RevenuePanel,
@@ -71,8 +72,17 @@ export default async function AdminOverviewPage({
           />
         </div>
 
-        {/* PRIORITY 2: Today's Timeline — "What's happening now" (5 cols) */}
-        <div className="lg:col-span-5 order-2">
+        {/* PRIORITY 2: Pending Booking Requests (4 cols, tall) */}
+        <div className="lg:col-span-4 lg:row-span-2 order-2">
+          <PendingRequests
+            locale={locale}
+            dictionary={dict}
+            items={data.actionItems}
+          />
+        </div>
+
+        {/* PRIORITY 3: Today's Timeline — "What's happening now" (4 cols) */}
+        <div className="lg:col-span-4 order-3">
           <TodayTimeline
             locale={locale}
             dictionary={dict}
@@ -80,8 +90,8 @@ export default async function AdminOverviewPage({
           />
         </div>
 
-        {/* PRIORITY 3: Slimmed Hero — Context & greeting (3 cols) */}
-        <div className="lg:col-span-3 order-3">
+        {/* PRIORITY 4: Slimmed Hero — Context & greeting (4 cols) */}
+        <div className="lg:col-span-4 order-4">
           <DailyBriefingHero
             locale={locale}
             dictionary={dict}
@@ -92,8 +102,8 @@ export default async function AdminOverviewPage({
           />
         </div>
 
-        {/* PRIORITY 4: Pulse KPIs — At-a-glance metrics (8 cols) */}
-        <div className="lg:col-span-8 order-4">
+        {/* PRIORITY 5: Pulse KPIs — At-a-glance metrics (12 cols full width) */}
+        <div className="lg:col-span-12 order-5">
           <PulseKPIs
             locale={locale}
             dictionary={dict}
@@ -102,7 +112,7 @@ export default async function AdminOverviewPage({
         </div>
 
         {/* Row 3: Fleet Garage Wall (7 cols) */}
-        <div className="lg:col-span-7 order-5">
+        <div className="lg:col-span-7 order-6">
           <FleetGarageWall
             locale={locale}
             dictionary={dict}
@@ -111,7 +121,7 @@ export default async function AdminOverviewPage({
         </div>
 
         {/* Row 3: Algeria Branch Map (5 cols) */}
-        <div className="lg:col-span-5 order-6">
+        <div className="lg:col-span-5 order-7">
           <BranchMap
             locale={locale}
             dictionary={dict}
@@ -119,7 +129,7 @@ export default async function AdminOverviewPage({
         </div>
 
         {/* Row 4: Revenue & Financials (7 cols) */}
-        <div className="lg:col-span-7 order-7">
+        <div className="lg:col-span-7 order-8">
           <RevenuePanel
             locale={locale}
             dictionary={dict}
@@ -128,7 +138,7 @@ export default async function AdminOverviewPage({
         </div>
 
         {/* Row 4: 14-Day Availability Matrix (5 cols) */}
-        <div className="lg:col-span-5 order-8">
+        <div className="lg:col-span-5 order-9">
           <AvailabilityLanes
             locale={locale}
             dictionary={dict}
@@ -137,7 +147,7 @@ export default async function AdminOverviewPage({
         </div>
 
         {/* Row 5: Idle/Sleeping Cars (6 cols) */}
-        <div className="lg:col-span-6 order-9">
+        <div className="lg:col-span-6 order-10">
           <SleepingCars
             locale={locale}
             dictionary={dict}
@@ -146,7 +156,7 @@ export default async function AdminOverviewPage({
         </div>
 
         {/* Row 5: Live Activity Feed (6 cols) */}
-        <div className="lg:col-span-6 order-10">
+        <div className="lg:col-span-6 order-11">
           <ActivityFeed
             locale={locale}
             dictionary={dict}

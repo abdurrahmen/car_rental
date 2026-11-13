@@ -1,6 +1,7 @@
 export * from './DailyBriefingHero'
 export * from './PulseKPIs'
 export * from './ActionCenter'
+export * from './PendingRequests'
 export * from './TodayTimeline'
 export * from './FleetGarageWall'
 export * from './RevenuePanel'
@@ -14,5 +15,3 @@ export * from './SegmentedBar'
 export * from './AreaChart'
 export * from './DashboardMotion'
 export * from './DashboardOverviewSkeleton'
-export * from './DashboardOverviewSkeleton'
-

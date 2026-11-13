@@ -107,40 +107,74 @@ export function calculateOverviewMetrics(input: OverviewMetricsInput): OverviewM
   ];
 
   // ====================================================================
-  // 4. ACTION CENTER ITEMS (sorted by priority/urgency)
+  // 4. ACTION CENTER ITEMS (sorted by priority/urgency with severity tiers)
+  // Severity tiers: urgent (>7d or >24h), high (>24h or >2h), medium (<2h)
   // ====================================================================
   const actionItems: ActionItem[] = [];
 
-  // Overdue returns (Urgent)
+  // Overdue returns (severity based on delay duration)
   overdueList.forEach((r) => {
     const vehicle = vehicles.find((v) => v.id === r.vehicle_id);
     const vName = vehicle ? `${vehicle.make} ${vehicle.model}` : 'Véhicule';
     const plate = vehicle?.plate_number || '—';
+    
+    const hoursOverdue = Math.round((now.getTime() - new Date(r.end_date).getTime()) / (1000 * 60 * 60));
+    const daysOverdue = Math.floor(hoursOverdue / 24);
+    
+    // Severity: >7d = urgent, >24h = high, else medium
+    let priority: 'urgent' | 'high' | 'medium' = 'medium';
+    if (daysOverdue >= 7) {
+      priority = 'urgent';
+    } else if (hoursOverdue >= 24) {
+      priority = 'high';
+    }
+    
+    const delayText = daysOverdue >= 1 
+      ? `En retard depuis ${daysOverdue} jour${daysOverdue > 1 ? 's' : ''}`
+      : `En retard depuis ${hoursOverdue} heure${hoursOverdue > 1 ? 's' : ''}`;
 
     actionItems.push({
       id: `overdue-${r.id}`,
       type: 'overdue_return',
-      priority: 'urgent',
+      priority,
       title: `${vName} — ${plate}`,
-      subtitle: `En retard depuis ${Math.round((now.getTime() - new Date(r.end_date).getTime()) / (1000 * 60 * 60))} heures`,
+      subtitle: delayText,
       phone: '+213 550 12 34 56', // TODO: Get from customer profile
       referenceId: r.id,
       timestamp: r.end_date,
     });
   });
 
-  // Pending booking requests (High priority)
+  // Pending booking requests (severity based on wait time)
   const pendingReservations = reservations.filter((r) => r.status === 'pending');
   pendingReservations.forEach((r) => {
     const vehicle = vehicles.find((v) => v.id === r.vehicle_id);
     const vName = vehicle ? `${vehicle.make} ${vehicle.model}` : 'Véhicule';
+    
+    const hoursWaiting = Math.round((now.getTime() - new Date(r.created_at).getTime()) / (1000 * 60 * 60));
+    
+    // Severity: >24h = high, >2h = medium, else medium
+    let priority: 'urgent' | 'high' | 'medium' = 'medium';
+    if (hoursWaiting >= 24) {
+      priority = 'high';
+    } else if (hoursWaiting >= 2) {
+      priority = 'medium';
+    } else {
+      priority = 'medium';
+    }
+    
+    const waitText = hoursWaiting >= 24
+      ? `En attente depuis ${Math.floor(hoursWaiting / 24)} jour${Math.floor(hoursWaiting / 24) > 1 ? 's' : ''}`
+      : hoursWaiting >= 1
+      ? `En attente depuis ${hoursWaiting} heure${hoursWaiting > 1 ? 's' : ''}`
+      : 'Nouvelle demande';
 
     actionItems.push({
       id: `pending-${r.id}`,
       type: 'pending_booking',
-      priority: 'high',
+      priority,
       title: `${vName} • ${Number(r.total_price || 0).toLocaleString()} DZD`,
-      subtitle: `En attente depuis ${Math.round((now.getTime() - new Date(r.created_at).getTime()) / (1000 * 60 * 60))} heures`,
+      subtitle: waitText,
       phone: '+213 555 98 76 54', // TODO: Get from customer profile
       amount: r.total_price,
       referenceId: r.id,
@@ -161,9 +195,14 @@ export function calculateOverviewMetrics(input: OverviewMetricsInput): OverviewM
     });
   }
 
-  // Sort by priority: urgent → high → medium
+  // Sort by priority first, then by timestamp (oldest first within each priority)
   const priorityOrder = { urgent: 1, high: 2, medium: 3 };
-  actionItems.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+  actionItems.sort((a, b) => {
+    const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+    if (priorityDiff !== 0) return priorityDiff;
+    // Within same priority, older items first
+    return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+  });
 
   // ====================================================================
   // 5. TODAY'S TIMELINE (from real reservations with status logic)
