@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 
 import { SegmentedBar } from './SegmentedBar'
+import { Plate } from '@/components/ui/Plate'
 import { formatDZD } from '@/lib/utils/constants'
 import type { Language, Dictionary } from '@/types'
 import type { GarageVehicle } from '@/lib/data/dashboard'
@@ -218,11 +219,15 @@ export function FleetGarageWall({
 
                 <div className="flex items-center justify-between gap-1 text-[11px]">
                   {/* Plate number always LTR safe */}
-                  <span dir="ltr" className="font-mono font-bold text-neutral-800 dark:text-neutral-200 px-1.5 py-0.5 rounded bg-neutral-200/70 dark:bg-white/10 text-[10px]">
-                    {car.plateNumber}
+                  <span className="font-bold text-neutral-800 dark:text-neutral-200 px-1.5 py-0.5 rounded bg-neutral-200/70 dark:bg-white/10 text-[10px]">
+                    <Plate number={car.plateNumber} />
                   </span>
 
-                  <span className="text-neutral-400 dark:text-neutral-500 text-[10px] truncate max-w-[120px]">
+                  <span 
+                    dir="auto"
+                    className="text-neutral-400 dark:text-neutral-500 text-[10px] truncate max-w-[120px]" 
+                    title={car.branchName}
+                  >
                     {car.branchName}
                   </span>
                 </div>

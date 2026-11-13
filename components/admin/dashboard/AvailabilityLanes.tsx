@@ -7,6 +7,7 @@ import {
   Plus,
 } from 'lucide-react'
 
+import { Plate } from '@/components/ui/Plate'
 import type { Language, Dictionary } from '@/types'
 import type { GarageVehicle } from '@/lib/data/dashboard'
 
@@ -168,8 +169,8 @@ export function AvailabilityLanes({
                   <div className="text-xs font-bold text-neutral-900 dark:text-white truncate">
                     {veh.make} {veh.model}
                   </div>
-                  <div dir="ltr" className="text-[10px] font-mono text-neutral-400 truncate">
-                    {veh.plateNumber}
+                  <div className="text-[10px] text-neutral-400 truncate">
+                    <Plate number={veh.plateNumber} />
                   </div>
                 </div>
 

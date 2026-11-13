@@ -196,11 +196,15 @@ export function BranchMap({
         {/* Floating Detail Card for Selected Hub */}
         {activePin && (
           <div className="absolute bottom-2 inset-x-2 sm:inset-x-4 p-3 rounded-xl bg-white/95 dark:bg-[#121E30]/95 backdrop-blur-md shadow-lg border border-black/[0.08] dark:border-white/10 text-xs animate-apple-fade-in space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-neutral-900 dark:text-white truncate">
+            <div className="flex items-center justify-between gap-2">
+              <span 
+                dir="auto"
+                className="font-bold text-neutral-900 dark:text-white truncate"
+                title={isArabic ? activePin.nameAr : activePin.nameFr}
+              >
                 {isArabic ? activePin.nameAr : activePin.nameFr}
               </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 shrink-0">
                 {activePin.utilization}% {isArabic ? 'تشغيل' : 'actif'}
               </span>
             </div>
@@ -242,13 +246,17 @@ export function BranchMap({
             key={hub.id}
             className="flex items-center justify-between p-2.5 rounded-xl bg-neutral-50 dark:bg-white/5 text-xs"
           >
-            <div className="flex items-center gap-2">
-              <MapPin className="w-3.5 h-3.5 text-brand-500" />
-              <span className="font-semibold text-neutral-800 dark:text-neutral-200 truncate">
+            <div className="flex items-center gap-2 min-w-0">
+              <MapPin className="w-3.5 h-3.5 text-brand-500 shrink-0" />
+              <span 
+                dir="auto"
+                className="font-semibold text-neutral-800 dark:text-neutral-200 truncate"
+                title={hub.city}
+              >
                 {hub.city}
               </span>
             </div>
-            <span className="text-neutral-500 font-mono text-[11px]">
+            <span className="text-neutral-500 font-mono text-[11px] shrink-0">
               {hub.activeFleet} {isArabic ? 'سيارات' : 'véhicules'}
             </span>
           </div>

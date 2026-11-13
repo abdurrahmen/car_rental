@@ -27,6 +27,7 @@ export function AreaChart({
   className = '',
 }: AreaChartProps) {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null)
+  const isArabic = locale === 'ar'
 
   if (!data || data.length < 2) return null
 
@@ -48,8 +49,11 @@ export function AreaChart({
   const chartWidth = svgWidth - padLeft - padRight
   const chartHeight = svgHeight - padTop - padBottom
 
-  // Points computation
-  const getX = (index: number) => padLeft + (index / (data.length - 1)) * chartWidth
+  // Points computation - Reverse X-axis for RTL languages
+  const getX = (index: number) => {
+    const position = padLeft + (index / (data.length - 1)) * chartWidth
+    return isArabic ? (svgWidth - padRight - position + padLeft) : position
+  }
   const getY = (val: number) => padTop + chartHeight - (val / ceiling) * chartHeight
 
   const currentPoints = data.map((d, i) => ({ x: getX(i), y: getY(d.current) }))

@@ -11,6 +11,7 @@ import {
   Play,
 } from 'lucide-react'
 
+import { Plate } from '@/components/ui/Plate'
 import type { Language, Dictionary } from '@/types'
 import type { TimelineEvent } from '@/lib/data/dashboard'
 
@@ -130,13 +131,13 @@ export function TodayTimeline({
                     <span className="text-xs font-bold text-neutral-900 dark:text-white truncate">
                       {evt.vehicleName}
                     </span>
-                    <span dir="ltr" className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-neutral-200/70 dark:bg-white/10 text-neutral-700 dark:text-neutral-300">
-                      {evt.vehiclePlate}
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-200/70 dark:bg-white/10 text-neutral-700 dark:text-neutral-300">
+                      <Plate number={evt.vehiclePlate} />
                     </span>
                   </div>
 
                   <p className="text-[11px] text-neutral-500 dark:text-neutral-400 ps-5.5 truncate">
-                    {evt.customerName} • {evt.branchName}
+                    <span dir="auto">{evt.customerName}</span> • <span dir="auto">{evt.branchName}</span>
                   </p>
                 </div>
 
