@@ -1,6 +1,7 @@
 import React from 'react'
+import { SEMANTIC_COLORS } from '@/lib/utils/design-tokens'
 
-export type StatusBadgeColor = 'green' | 'blue' | 'amber' | 'gray'
+export type StatusBadgeColor = 'success' | 'rented' | 'warning' | 'danger' | 'neutral' | 'green' | 'blue' | 'amber' | 'gray'
 
 export interface StatusBadgeProps {
   color?: StatusBadgeColor
@@ -11,39 +12,53 @@ export interface StatusBadgeProps {
 }
 
 export function resolveStatusColor(status?: string): StatusBadgeColor {
-  if (!status) return 'gray'
+  if (!status) return 'neutral'
   const normalized = status.toLowerCase().trim()
 
   switch (normalized) {
     case 'available':
     case 'completed':
+      return 'success'
     case 'confirmed':
-      return 'green'
+    case 'deposit_paid':
+      return 'neutral'
     case 'rented':
     case 'on road':
     case 'on_road':
     case 'in progress':
     case 'in_progress':
     case 'active':
-    case 'deposit_paid':
-      return 'blue'
+      return 'rented' // Violet, not blue
     case 'maintenance':
     case 'pending':
-      return 'amber'
+      return 'warning'
+    case 'no_show':
+      return 'danger'
     case 'retired':
     case 'cancelled':
-    case 'no_show':
     default:
-      return 'gray'
+      return 'neutral'
+  }
+}
+
+// Map legacy color names to semantic tokens
+function mapLegacyColor(color: StatusBadgeColor): keyof typeof SEMANTIC_COLORS.status {
+  switch (color) {
+    case 'green': return 'success'
+    case 'blue': return 'rented'
+    case 'amber': return 'warning'
+    case 'gray': return 'neutral'
+    default: return color as keyof typeof SEMANTIC_COLORS.status
   }
 }
 
 /**
- * Standard StatusBadge rounded-full pill component:
- * - green: bg-green-50 text-green-700 (Available, Completed)
- * - blue: bg-blue-50 text-blue-700 (Rented, On Road, In Progress, Active)
- * - amber: bg-amber-50 text-amber-700 (Maintenance, Pending)
- * - gray: bg-gray-100 text-gray-600 (Retired, Cancelled)
+ * StatusBadge with semantic design tokens
+ * - success (green): Available, Completed
+ * - rented (violet): Rented, On Road, Active  
+ * - warning (amber): Maintenance, Pending
+ * - danger (red): No Show
+ * - neutral (gray): Retired, Cancelled, Confirmed
  */
 export function StatusBadge({
   color,
@@ -53,33 +68,24 @@ export function StatusBadge({
   className = '',
 }: StatusBadgeProps) {
   const effectiveColor = color || resolveStatusColor(status)
-
-  const colorStyles: Record<StatusBadgeColor, { pill: string; dot: string }> = {
-    green: {
-      pill: 'bg-green-50 text-green-700',
-      dot: 'bg-green-600',
-    },
-    blue: {
-      pill: 'bg-blue-50 text-blue-700',
-      dot: 'bg-blue-600',
-    },
-    amber: {
-      pill: 'bg-amber-50 text-amber-700',
-      dot: 'bg-amber-600',
-    },
-    gray: {
-      pill: 'bg-gray-100 text-gray-600',
-      dot: 'bg-gray-500',
-    },
-  }
-
-  const { pill, dot } = colorStyles[effectiveColor]
+  const semanticColor = mapLegacyColor(effectiveColor)
+  const colors = SEMANTIC_COLORS.status[semanticColor]
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold select-none leading-none ${pill} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold select-none leading-none ${className}`}
+      style={{
+        backgroundColor: colors.bg,
+        color: colors.text,
+        border: `1px solid ${colors.border}`,
+      }}
     >
-      {showDot && <span className={`w-1.5 h-1.5 rounded-full ${dot} shrink-0`} />}
+      {showDot && (
+        <span 
+          className="w-1.5 h-1.5 rounded-full shrink-0"
+          style={{ backgroundColor: colors.DEFAULT }}
+        />
+      )}
       <span>{children || status}</span>
     </span>
   )
