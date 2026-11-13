@@ -55,7 +55,12 @@ export function PulseKPIs({
     ? Math.round((returnsToday.completed / returnsToday.total) * 100)
     : 0
 
-  // 3. Segmented Fleet status
+  // 3. Utilization vs target (75% target)
+  const utilizationTarget = 75
+  const utilizationDiff = fleetAvailability.utilizationRate - utilizationTarget
+  const utilizationStatus = utilizationDiff >= 0 ? 'on-target' : 'below-target'
+
+  // 4. Segmented Fleet status
   const fleetSegments = [
     {
       key: 'available',
@@ -67,7 +72,7 @@ export function PulseKPIs({
       key: 'rented',
       label: d?.filter_rented || (isArabic ? 'مؤجرة' : 'Louées'),
       count: fleetAvailability.rented,
-      color: '#0071E3', // Brand Blue
+      color: '#8B5CF6', // Violet (not blue per spec)
     },
     {
       key: 'maintenance',
@@ -200,9 +205,18 @@ export function PulseKPIs({
               / {fleetAvailability.total}
             </span>
           </div>
-          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300">
-            {fleetAvailability.utilizationRate}% {isArabic ? 'تشغيل' : 'actif'}
-          </span>
+          <div className="flex flex-col items-end gap-0.5">
+            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+              utilizationStatus === 'on-target'
+                ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300'
+                : 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300'
+            }`}>
+              {fleetAvailability.utilizationRate}%
+            </span>
+            <span className="text-[10px] text-neutral-400">
+              {isArabic ? 'الهدف: 75%' : 'Obj: 75%'}
+            </span>
+          </div>
         </div>
 
         {/* Segmented fleet distribution */}
@@ -246,10 +260,17 @@ export function PulseKPIs({
           </div>
 
           <div className="mt-1 flex items-center gap-1.5 text-[11px]">
-            {revenueMonth.deltaPercent !== null ? (
-              <span className="inline-flex items-center gap-1 font-semibold text-emerald-600">
-                <CheckCircle2 className="w-3 h-3" />
-                <span>+{revenueMonth.deltaPercent}%</span>
+            {revenueMonth.deltaPercent !== null && revenueMonth.deltaPercent !== 0 ? (
+              <span className={`inline-flex items-center gap-1 font-bold ${
+                revenueMonth.deltaPercent > 0
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-rose-600 dark:text-rose-400'
+              }`}>
+                <TrendingUp className={`w-3 h-3 ${revenueMonth.deltaPercent < 0 ? 'rotate-180' : ''}`} />
+                <span>{revenueMonth.deltaPercent > 0 ? '+' : ''}{revenueMonth.deltaPercent}%</span>
+                <span className="text-neutral-400 font-medium">
+                  {d?.vs_last_month || (isArabic ? 'مقارنة بالشهر الماضي' : 'vs. mois dernier')}
+                </span>
               </span>
             ) : (
               <span className="text-neutral-400 font-medium">
