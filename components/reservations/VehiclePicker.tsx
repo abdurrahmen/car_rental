@@ -43,19 +43,7 @@ export function VehiclePicker({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Load recent vehicles on mount
-  useEffect(() => {
-    loadRecentVehicles()
-  }, [branchId])
-
-  // Reload vehicles when dates change (to check availability)
-  useEffect(() => {
-    if (startDate && endDate && vehicles.length > 0) {
-      loadRecentVehicles()
-    }
-  }, [startDate, endDate])
-
-  const loadRecentVehicles = async () => {
+  const loadRecentVehicles = useCallback(async () => {
     setIsLoading(true)
     setError(null)
 
@@ -93,7 +81,19 @@ export function VehiclePicker({
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [branchId, startDate, endDate, userRole])
+
+  // Load recent vehicles on mount
+  useEffect(() => {
+    void loadRecentVehicles()
+  }, [loadRecentVehicles])
+
+  // Reload vehicles when dates change (to check availability)
+  useEffect(() => {
+    if (startDate && endDate && vehicles.length > 0) {
+      void loadRecentVehicles()
+    }
+  }, [startDate, endDate, vehicles.length, loadRecentVehicles])
 
   const handleSearch = useCallback(
     async (query: string) => {

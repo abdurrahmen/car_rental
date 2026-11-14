@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Loader2, AlertCircle, User as UserIcon } from 'lucide-react'
 import { createGuestClient } from '@/lib/actions/guest-clients'
-import { formatPhoneDisplay } from '@/lib/utils/phone'
 import type { Language } from '@/types'
 
 export interface AddClientModalProps {
@@ -48,12 +47,15 @@ export function AddClientModal({
   // Prefill when modal opens
   useEffect(() => {
     if (open) {
-      setFullName(prefillName)
-      setPhone(prefillPhone)
-      setErrors({})
-      setServerError(null)
-      setIsDirty(false)
-      setDuplicateClient(null)
+      // Use a microtask to avoid setState during render
+      Promise.resolve().then(() => {
+        setFullName(prefillName)
+        setPhone(prefillPhone)
+        setErrors({})
+        setServerError(null)
+        setIsDirty(false)
+        setDuplicateClient(null)
+      })
       
       // Focus name input after modal animation
       setTimeout(() => {

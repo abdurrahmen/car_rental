@@ -34,12 +34,7 @@ export function ClientPicker({
     type: 'profile' | 'guest'
   } | null>(null)
 
-  // Load recent clients on mount
-  useEffect(() => {
-    loadRecentClients()
-  }, [])
-
-  const loadRecentClients = async () => {
+  const loadRecentClients = useCallback(async () => {
     setLoading(true)
     const result = await getRecentClients(10)
     if (result.success && result.clients) {
@@ -53,7 +48,12 @@ export function ClientPicker({
       )
     }
     setLoading(false)
-  }
+  }, [])
+
+  // Load recent clients on mount
+  useEffect(() => {
+    void loadRecentClients()
+  }, [loadRecentClients])
 
   const handleSearch = useCallback(async (query: string) => {
     if (!query.trim()) {
