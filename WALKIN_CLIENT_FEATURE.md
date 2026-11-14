@@ -119,14 +119,32 @@ Without the migration:
 - Creating guest clients will fail
 - Creating walk-in reservations with guest clients will fail
 
+### Stage 3B: Vehicle Picker with Availability ✅
+**Commit:** `0b27c0a` - feat(reservation): add vehicle picker with availability check
+
+- `VehiclePicker` component with searchable combobox
+- Real-time availability checking based on selected dates
+- `searchVehicles()` and `checkVehicleAvailability()` server actions
+- Visual indicators (green "Dispo" / red "Occupé") for each vehicle
+- Disabled state for unavailable vehicles
+- Queries overlapping reservations in pending/confirmed/in_progress status
+- Automatic filtering by staff's branch (unless admin)
+- Shows warning when dates not selected
+- Vehicle details card shows availability status
+- Replaces native `<select>` with rich searchable UI
+
+**Files Added:**
+- `lib/validations/vehicle-search.ts` - Search and availability schemas
+- `lib/actions/vehicle-search.ts` - Vehicle search with date-based availability
+- `components/reservations/VehiclePicker.tsx` - Vehicle combobox with availability
+
+**Files Modified:**
+- `components/reservations/WalkInReservationForm.tsx` - Replaced select with VehiclePicker
+- `components/ui/Combobox.tsx` - Extended to support `disabled` and `renderOption` per item
+
 ## What's Not Done (Out of Scope)
 
 The following were planned but not implemented due to time constraints:
-
-### Stage 3B: Vehicle Picker Enhancements (P1)
-- Searchable vehicle combobox (currently native select)
-- Availability check based on selected dates
-- Visual indicators for unavailable vehicles with reasons
 
 ### Stage 4: Submit UX & Polish (P1)
 - Validation feedback list ("Missing: Client, Vehicle") next to submit button
@@ -219,7 +237,7 @@ Currently hard-coded (should be moved to dictionaries):
 
 1. **Date input displays mm/dd/yyyy** in non-US browsers but form submits yyyy-mm-dd correctly. This is a browser-native behavior; fixing requires a custom date picker component.
 
-2. **No availability check:** Vehicle picker doesn't disable already-reserved vehicles. Double-booking protection exists server-side but UX would be better with visual indicators.
+2. **No availability check:** ~~Vehicle picker doesn't disable already-reserved vehicles.~~ **Fixed in Stage 3B:** VehiclePicker now shows real-time availability with visual indicators and disables unavailable vehicles.
 
 3. **Toast implementation:** Uses DOM manipulation instead of a proper toast library. Works but not ideal for accessibility.
 
@@ -228,7 +246,8 @@ Currently hard-coded (should be moved to dictionaries):
 ## Git Log
 
 ```
-d69f8b0 (HEAD -> feat/walkin-add-client) feat(reservation): integrate client picker and add smart defaults
+0b27c0a (HEAD -> feat/walkin-add-client) feat(reservation): add vehicle picker with availability check
+d69f8b0 feat(reservation): integrate client picker and add smart defaults
 af291cc feat(reservation): add searchable client picker with quick-add modal
 9d98c5a feat(clients): add guest client creation with phone normalization
 ```
@@ -259,23 +278,27 @@ af291cc feat(reservation): add searchable client picker with quick-add modal
 
 ## Files Changed
 
-**New files (11):**
+**New files (14):**
 - lib/utils/phone.ts
 - lib/utils/phone.test.ts
 - lib/validations/guest-client.ts
+- lib/validations/vehicle-search.ts
 - lib/actions/guest-clients.ts
+- lib/actions/vehicle-search.ts
 - components/ui/Combobox.tsx
 - components/reservations/ClientPicker.tsx
 - components/reservations/AddClientModal.tsx
+- components/reservations/VehiclePicker.tsx
 - supabase/migrations/004_add_guest_clients.sql
 - supabase/migrations/004_add_guest_clients_rollback.sql
 - supabase/migrations/004_verify.sql
 - types/database.ts (added GuestClient interface)
 
-**Modified files (4):**
+**Modified files (5):**
 - components/reservations/WalkInReservationForm.tsx
+- components/ui/Combobox.tsx (extended to support disabled + renderOption)
 - app/[lang]/admin/reservations/new/page.tsx
 - app/[lang]/staff/reservations/new/page.tsx
 - lib/actions/reservations.ts
 
-**Total:** 15 files, ~2000 lines of code
+**Total:** 19 files, ~2500 lines of code
