@@ -811,3 +811,172 @@ export async function completeRental(prevState: unknown, formData: FormData) {
   revalidatePath('/vehicles');
   return { success: true };
 }
+
+/**
+ * 9. CREATE WALK-IN RESERVATION (Staff / Admin)
+ * Staff creates reservation on behalf of customer (walk-in at branch)
+ * Can optionally auto-confirm and mark deposit as paid in one step
+ */
+export async function createWalkInReservation(
+  prevState: unknown,
+  formData: FormData,
+) {
+  const data = Object.fromEntries(formData.entries());
+  
+  const customerId = data.customer_id as string;
+  const vehicleId = data.vehicle_id as string;
+  const startDate = data.start_date as string;
+  const endDate = data.end_date as string;
+  const pickupBranchId = data.pickup_branch_id as string;
+  const dropoffBranchId = data.dropoff_branch_id as string;
+  const notes = (data.notes as string) || null;
+  const staffNotes = (data.staff_notes as string) || null;
+  const autoConfirm = data.auto_confirm === 'true';
+  const depositPaidCash = data.deposit_paid_cash === 'true';
+  const paymentMethod = (data.payment_method as string) || 'cash';
+
+  if (!customerId || !vehicleId || !startDate || !endDate || !pickupBranchId || !dropoffBranchId) {
+    return { error: 'Missing required fields' };
+  }
+
+  const appUser = await getAuthUser();
+  if (!appUser || !['staff', 'branch_manager', 'admin'].includes(appUser.role)) {
+    return { error: 'Unauthorized: only staff can create walk-in reservations' };
+  }
+
+  const supabase = await createClient();
+
+  // 1. Get vehicle details for pricing
+  const { data: vehicle, error: vErr } = await supabase
+    .from('vehicles')
+    .select('daily_rate, deposit_amount, make, model, branch_id')
+    .eq('id', vehicleId)
+    .single();
+
+  if (vErr || !vehicle) return { error: 'Vehicle not found' };
+
+  // 2. Check branch authorization
+  if (appUser.role !== 'admin' && appUser.branch_id) {
+    if (vehicle.branch_id !== appUser.branch_id) {
+      return { error: 'Unauthorized: vehicle belongs to another branch' };
+    }
+  }
+
+  // 3. Calculate pricing
+  const startMs = new Date(startDate).getTime();
+  const endMs = new Date(endDate).getTime();
+  const days = Math.max(1, Math.ceil((endMs - startMs) / (1000 * 60 * 60 * 24)));
+  const total_price = (vehicle.daily_rate || 0) * days;
+  const deposit_amount = vehicle.deposit_amount || 5000;
+
+  // 4. Create reservation
+  const initialStatus = autoConfirm ? 'confirmed' : 'pending';
+  
+  const reservationData: Record<string, unknown> = {
+    customer_id: customerId,
+    vehicle_id: vehicleId,
+    pickup_branch_id: pickupBranchId,
+    dropoff_branch_id: dropoffBranchId,
+    start_date: startDate,
+    end_date: endDate,
+    notes,
+    staff_notes: staffNotes,
+    status: initialStatus,
+    total_price,
+    deposit_amount,
+  };
+
+  if (autoConfirm) {
+    const deadline = new Date();
+    deadline.setHours(deadline.getHours() + 48);
+    reservationData.deposit_deadline = deadline.toISOString();
+    reservationData.confirmed_by = appUser.id;
+    reservationData.confirmed_at = new Date().toISOString();
+  }
+
+  if (depositPaidCash && autoConfirm) {
+    reservationData.status = 'deposit_paid';
+    reservationData.deposit_paid_at = new Date().toISOString();
+  }
+
+  const { data: reservation, error } = await supabase
+    .from('reservations')
+    .insert(reservationData)
+    .select()
+    .single();
+
+  if (error) {
+    if (error.code === '23P01' || error.message?.includes('prevent_double_booking')) {
+      return { error: 'This vehicle is already reserved for the selected dates.' };
+    }
+    return { error: error.message };
+  }
+
+  // 5. Record cash payment if collected immediately
+  if (depositPaidCash && autoConfirm) {
+    await supabase.from('payments').insert({
+      reservation_id: reservation.id,
+      amount: deposit_amount,
+      type: 'deposit',
+      method: paymentMethod,
+      status: 'completed',
+      reference: 'Walk-in cash payment at branch',
+      recorded_by: appUser.id,
+    });
+  }
+
+  await writeAuditLog(
+    supabase,
+    'reservation.walk_in_created',
+    'reservation',
+    reservation.id,
+    null,
+    reservation as unknown as Record<string, unknown>,
+    appUser.id,
+  );
+
+  // 6. Notify customer
+  if (autoConfirm && depositPaidCash) {
+    await sendNotification({
+      profile_id: customerId,
+      type: 'reservation_confirmed',
+      title_ar: 'تم تأكيد حجزك في الوكالة',
+      title_fr: 'Réservation confirmée en agence',
+      title_en: 'Reservation Confirmed at Branch',
+      message_ar: `تم تأكيد حجزك للمركبة ${vehicle.make} ${vehicle.model} من ${startDate} إلى ${endDate}. مرحباً بكم في DZRent!`,
+      message_fr: `Votre réservation pour ${vehicle.make} ${vehicle.model} du ${startDate} au ${endDate} est confirmée. Bienvenue chez DZRent !`,
+      message_en: `Your booking for ${vehicle.make} ${vehicle.model} from ${startDate} to ${endDate} is confirmed. Welcome to DZRent!`,
+      metadata: { reservation_id: reservation.id },
+    });
+  } else if (autoConfirm) {
+    await sendNotification({
+      profile_id: customerId,
+      type: 'reservation_confirmed',
+      title_ar: 'تم تأكيد حجزك! يرجى دفع العربون',
+      title_fr: 'Réservation confirmée ! Acompte requis',
+      title_en: 'Reservation Confirmed! Deposit Required',
+      message_ar: `تم تأكيد حجزك للمركبة ${vehicle.make} ${vehicle.model}. يرجى دفع مبلغ الضمان (${deposit_amount} دج) خلال 48 ساعة.`,
+      message_fr: `Réservation confirmée pour ${vehicle.make} ${vehicle.model}. Merci de régler l'acompte (${deposit_amount} DZD) sous 48h.`,
+      message_en: `Booking confirmed for ${vehicle.make} ${vehicle.model}. Please pay deposit (${deposit_amount} DZD) within 48 hours.`,
+      metadata: { reservation_id: reservation.id },
+    });
+  } else {
+    await sendNotification({
+      profile_id: customerId,
+      type: 'reservation_created',
+      title_ar: 'تم إنشاء حجز جديد لك',
+      title_fr: 'Nouvelle réservation créée',
+      title_en: 'New Reservation Created',
+      message_ar: `تم إنشاء حجز للمركبة ${vehicle.make} ${vehicle.model} من ${startDate} إلى ${endDate}.`,
+      message_fr: `Réservation créée pour ${vehicle.make} ${vehicle.model} du ${startDate} au ${endDate}.`,
+      message_en: `Reservation created for ${vehicle.make} ${vehicle.model} from ${startDate} to ${endDate}.`,
+      metadata: { reservation_id: reservation.id },
+    });
+  }
+
+  revalidatePath('/staff');
+  revalidatePath('/staff/reservations');
+  revalidatePath('/admin/reservations');
+  revalidatePath('/dashboard/reservations');
+  return { success: true, reservationId: reservation.id };
+}

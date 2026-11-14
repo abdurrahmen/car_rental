@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useTransition } from 'react'
 import Link from 'next/link'
 import {
   Clock,
@@ -12,8 +12,10 @@ import {
   AlertCircle,
   Calendar,
   MapPin,
+  Loader2,
 } from 'lucide-react'
 import { formatRelativeTime } from '@/lib/utils/constants'
+import { confirmReservation, rejectReservation } from '@/lib/actions/reservations'
 import type { Language, Dictionary } from '@/types'
 import type { ActionItem } from '@/lib/data/dashboard'
 
@@ -41,18 +43,98 @@ export function PendingRequests({
 
   const [approvedIds, setApprovedIds] = useState<string[]>([])
   const [declinedIds, setDeclinedIds] = useState<string[]>([])
+  const [isPending, startTransition] = useTransition()
+  const [loadingId, setLoadingId] = useState<string | null>(null)
 
   // Filter only pending_booking items
   const pendingItems = items.filter(
     (item) => item.type === 'pending_booking' && !approvedIds.includes(item.id) && !declinedIds.includes(item.id)
   )
 
-  const handleApprove = (id: string) => {
-    setApprovedIds((prev) => [...prev, id])
+  const handleApprove = async (actionItemId: string, reservationId: string) => {
+    setLoadingId(actionItemId)
+    startTransition(async () => {
+      try {
+        const formData = new FormData()
+        formData.append('id', reservationId)
+        
+        const result = await confirmReservation(null, formData)
+        
+        if (result.error) {
+          alert(
+            isArabic
+              ? `خطأ في تأكيد الحجز: ${result.error}`
+              : `Erreur de confirmation: ${result.error}`
+          )
+        } else {
+          setApprovedIds((prev) => [...prev, actionItemId])
+          // Simple success notification (can be replaced with toast library later)
+          if (window.confirm(
+            isArabic
+              ? 'تم تأكيد الحجز بنجاح! ✅\n\nسيتم إشعار الزبون بضرورة دفع العربون خلال 48 ساعة.'
+              : 'Réservation confirmée avec succès! ✅\n\nLe client sera notifié pour régler l\'acompte sous 48h.'
+          )) {
+            // User acknowledged
+          }
+        }
+      } catch (error) {
+        console.error('Error confirming reservation:', error)
+        alert(
+          isArabic
+            ? 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.'
+            : 'Une erreur inattendue s\'est produite. Veuillez réessayer.'
+        )
+      } finally {
+        setLoadingId(null)
+      }
+    })
   }
 
-  const handleDecline = (id: string) => {
-    setDeclinedIds((prev) => [...prev, id])
+  const handleDecline = async (actionItemId: string, reservationId: string) => {
+    const reason = prompt(
+      isArabic
+        ? 'يرجى إدخال سبب رفض الحجز (اختياري):'
+        : 'Motif du refus (optionnel):',
+      isArabic ? 'المركبة غير متوفرة' : 'Véhicule non disponible'
+    )
+    
+    // User cancelled the prompt
+    if (reason === null) return
+    
+    setLoadingId(actionItemId)
+    startTransition(async () => {
+      try {
+        const formData = new FormData()
+        formData.append('id', reservationId)
+        formData.append('reason', reason || (isArabic ? 'تم رفضه من قبل الوكالة' : 'Refusé par l\'agence'))
+        
+        const result = await rejectReservation(null, formData)
+        
+        if (result.error) {
+          alert(
+            isArabic
+              ? `خطأ في رفض الحجز: ${result.error}`
+              : `Erreur de refus: ${result.error}`
+          )
+        } else {
+          setDeclinedIds((prev) => [...prev, actionItemId])
+          alert(
+            isArabic
+              ? 'تم رفض الحجز وإشعار الزبون. ❌'
+              : 'Réservation refusée. Le client sera notifié. ❌'
+          )
+        }
+      } catch (error) {
+        console.error('Error rejecting reservation:', error)
+        alert(
+          isArabic
+            ? 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.'
+            : 'Une erreur inattendue s\'est produite. Veuillez réessayer.'
+        )
+      } finally {
+        setLoadingId(null)
+      }
+    })
   }
 
   // Clean Algerian phone number for wa.me / tel links
@@ -136,20 +218,30 @@ export function PendingRequests({
                   {/* Approve */}
                   <button
                     type="button"
-                    onClick={() => handleApprove(item.id)}
-                    className="apple-press inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-brand-500 text-white hover:bg-brand-600 shadow-2xs transition-colors cursor-pointer"
+                    onClick={() => handleApprove(item.id, item.referenceId || item.id)}
+                    disabled={isPending && loadingId === item.id}
+                    className="apple-press inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-brand-500 text-white hover:bg-brand-600 shadow-2xs transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Check className="w-3.5 h-3.5" />
+                    {isPending && loadingId === item.id ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Check className="w-3.5 h-3.5" />
+                    )}
                     <span>{d?.accept || (isArabic ? 'تأكيد الحجز' : 'Accepter')}</span>
                   </button>
 
                   {/* Decline */}
                   <button
                     type="button"
-                    onClick={() => handleDecline(item.id)}
-                    className="apple-press inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                    onClick={() => handleDecline(item.id, item.referenceId || item.id)}
+                    disabled={isPending && loadingId === item.id}
+                    className="apple-press inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-white/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    {isPending && loadingId === item.id ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <X className="w-3.5 h-3.5" />
+                    )}
                     <span>{d?.decline || (isArabic ? 'رفض' : 'Refuser')}</span>
                   </button>
 
