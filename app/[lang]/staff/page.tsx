@@ -64,10 +64,22 @@ export default async function StaffOverviewPage({
           </p>
         </div>
 
-        <span className="inline-flex items-center gap-1.5 bg-brand-50 text-brand-700 border border-brand-200/60 text-xs font-semibold px-3 py-1.5 rounded-full self-start sm:self-auto">
-          <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
-          <span>{reservations?.length || 0} {isArabic ? 'حجوزات' : 'Reservations'}</span>
-        </span>
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          <Link
+            href={`/${lang}/staff/reservations/new`}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-brand-600 text-white hover:bg-brand-700 shadow-lg transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span>{isArabic ? 'حجز جديد' : 'Nouveau'}</span>
+          </Link>
+
+          <span className="inline-flex items-center gap-1.5 bg-brand-50 text-brand-700 border border-brand-200/60 text-xs font-semibold px-3 py-1.5 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
+            <span>{reservations?.length || 0} {isArabic ? 'حجوزات' : 'Reservations'}</span>
+          </span>
+        </div>
       </div>
 
       {/* Status Filter Tabs */}

@@ -56,9 +56,21 @@ export default async function AdminReservationsPage({
           </p>
         </div>
 
-        <span className="inline-flex items-center gap-1.5 bg-neutral-900 text-white text-xs font-semibold px-3.5 py-1.5 rounded-full self-start sm:self-auto shadow-xs">
-          <span>{reservations?.length || 0} {isArabic ? 'حجوزات' : 'Reservations'}</span>
-        </span>
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          <Link
+            href={`/${lang}/admin/reservations/new`}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-brand-600 text-white hover:bg-brand-700 shadow-lg transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span>{isArabic ? 'حجز جديد' : 'Nouveau'}</span>
+          </Link>
+
+          <span className="inline-flex items-center gap-1.5 bg-neutral-900 text-white text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-xs">
+            <span>{reservations?.length || 0} {isArabic ? 'حجوزات' : 'Reservations'}</span>
+          </span>
+        </div>
       </div>
 
       {/* Filter Pills */}

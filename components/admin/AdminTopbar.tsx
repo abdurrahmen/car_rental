@@ -122,7 +122,7 @@ export function AdminTopbar({
       title: d?.new_booking || (isArabic ? 'حجز جديد (حضوري)' : 'Nouvelle réservation'),
       subtitle: isArabic ? 'تسجيل حجز مباشر لزبون بالوكالة' : 'Créer un dossier client sur place',
       icon: <Calendar className="w-4 h-4 text-brand-500" />,
-      href: `/${locale}/admin/reservations`,
+      href: `/${locale}/admin/reservations/new`,
     },
     {
       title: d?.add_car || (isArabic ? 'إضافة مركبة للأسطول' : 'Ajouter un véhicule'),
