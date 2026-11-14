@@ -1,17 +1,11 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Calendar, User, Car, MapPin, DollarSign, CheckCircle2, Loader2 } from 'lucide-react'
+import { ClientPicker } from '@/components/reservations/ClientPicker'
 import { createWalkInReservation } from '@/lib/actions/reservations'
 import type { Language } from '@/types'
-
-interface Customer {
-  id: string
-  full_name: string | null
-  phone: string | null
-  email?: string
-}
 
 interface Vehicle {
   id: string
@@ -34,7 +28,6 @@ interface Branch {
 
 interface WalkInReservationFormProps {
   locale: Language
-  customers: Customer[]
   vehicles: Vehicle[]
   branches: Branch[]
   userRole: string
@@ -43,7 +36,6 @@ interface WalkInReservationFormProps {
 
 export function WalkInReservationForm({
   locale,
-  customers,
   vehicles,
   branches,
   userRole,
@@ -55,16 +47,31 @@ export function WalkInReservationForm({
   
   // Form state
   const [customerId, setCustomerId] = useState('')
+  const [customerType, setCustomerType] = useState<'profile' | 'guest'>('profile')
   const [vehicleId, setVehicleId] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [pickupBranchId, setPickupBranchId] = useState(userBranchId || '')
   const [dropoffBranchId, setDropoffBranchId] = useState(userBranchId || '')
+  const [sameAgency, setSameAgency] = useState(true)
   const [notes, setNotes] = useState('')
   const [staffNotes, setStaffNotes] = useState('')
   const [autoConfirm, setAutoConfirm] = useState(true)
   const [depositPaidCash, setDepositPaidCash] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('cash')
+
+  // Set today as default start date
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0]
+    setStartDate(today)
+  }, [])
+
+  // Sync dropoff with pickup when sameAgency is true
+  useEffect(() => {
+    if (sameAgency) {
+      setDropoffBranchId(pickupBranchId)
+    }
+  }, [sameAgency, pickupBranchId])
 
   // Calculated pricing
   const selectedVehicle = vehicles.find(v => v.id === vehicleId)
@@ -90,6 +97,7 @@ export function WalkInReservationForm({
     startTransition(async () => {
       const formData = new FormData()
       formData.append('customer_id', customerId)
+      formData.append('customer_type', customerType)
       formData.append('vehicle_id', vehicleId)
       formData.append('start_date', startDate)
       formData.append('end_date', endDate)
@@ -111,7 +119,6 @@ export function WalkInReservationForm({
             ? '✅ تم إنشاء الحجز بنجاح!'
             : '✅ Réservation créée avec succès!'
         )
-        // Navigate to the new reservation detail page
         router.push(`/${locale}/${userRole === 'admin' ? 'admin' : 'staff'}/reservations`)
       }
     })
@@ -141,25 +148,14 @@ export function WalkInReservationForm({
           </h2>
         </div>
         
-        <select
+        <ClientPicker
           value={customerId}
-          onChange={(e) => setCustomerId(e.target.value)}
-          required
-          className="w-full px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-        >
-          <option value="">{isArabic ? '-- اختر زبوناً --' : '-- Choisir un client --'}</option>
-          {customers.map((customer) => (
-            <option key={customer.id} value={customer.id}>
-              {customer.full_name || 'Sans nom'} {customer.phone ? `(${customer.phone})` : ''}
-            </option>
-          ))}
-        </select>
-
-        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
-          {isArabic
-            ? 'إذا كان الزبون غير موجود، أضفه أولاً من قائمة الزبائن'
-            : 'Si le client n\'existe pas, créez-le d\'abord dans la liste des clients'}
-        </p>
+          onChange={(id, type) => {
+            setCustomerId(id)
+            setCustomerType(type)
+          }}
+          locale={locale}
+        />
       </div>
 
       {/* Vehicle Selection */}
@@ -211,6 +207,7 @@ export function WalkInReservationForm({
           <div>
             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
               {isArabic ? 'تاريخ الاستلام' : 'Date de début'}
+              <span className="text-red-500 ms-1">*</span>
             </label>
             <input
               type="date"
@@ -225,6 +222,7 @@ export function WalkInReservationForm({
           <div>
             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
               {isArabic ? 'تاريخ الإرجاع' : 'Date de fin'}
+              <span className="text-red-500 ms-1">*</span>
             </label>
             <input
               type="date"
@@ -239,6 +237,7 @@ export function WalkInReservationForm({
           <div>
             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
               {isArabic ? 'فرع الاستلام' : 'Agence de retrait'}
+              <span className="text-red-500 ms-1">*</span>
             </label>
             <select
               value={pickupBranchId}
@@ -259,12 +258,13 @@ export function WalkInReservationForm({
           <div>
             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
               {isArabic ? 'فرع الإرجاع' : 'Agence de restitution'}
+              <span className="text-red-500 ms-1">*</span>
             </label>
             <select
               value={dropoffBranchId}
               onChange={(e) => setDropoffBranchId(e.target.value)}
               required
-              disabled={userRole !== 'admin'}
+              disabled={sameAgency || userRole !== 'admin'}
               className="w-full px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent disabled:opacity-50"
             >
               <option value="">{isArabic ? '-- اختر فرعاً --' : '-- Choisir une agence --'}</option>
@@ -275,6 +275,28 @@ export function WalkInReservationForm({
               ))}
             </select>
           </div>
+        </div>
+
+        {/* Same agency checkbox */}
+        <div className="mt-4">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={sameAgency}
+              onChange={(e) => setSameAgency(e.target.checked)}
+              className="mt-1 w-4 h-4 text-brand-600 rounded border-neutral-300 focus:ring-brand-500"
+            />
+            <div>
+              <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                {isArabic ? 'الإرجاع في نفس الوكالة' : 'Restitution dans la même agence'}
+              </span>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                {isArabic
+                  ? 'سيتم إرجاع المركبة في نفس مكان الاستلام'
+                  : 'Le véhicule sera restitué au même endroit'}
+              </p>
+            </div>
+          </label>
         </div>
 
         {/* Price calculation */}

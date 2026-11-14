@@ -824,6 +824,7 @@ export async function createWalkInReservation(
   const data = Object.fromEntries(formData.entries());
   
   const customerId = data.customer_id as string;
+  const customerType = data.customer_type as string; // 'profile' or 'guest'
   const vehicleId = data.vehicle_id as string;
   const startDate = data.start_date as string;
   const endDate = data.end_date as string;
@@ -873,7 +874,8 @@ export async function createWalkInReservation(
   const initialStatus = autoConfirm ? 'confirmed' : 'pending';
   
   const reservationData: Record<string, unknown> = {
-    customer_id: customerId,
+    customer_id: customerType === 'profile' ? customerId : null,
+    guest_client_id: customerType === 'guest' ? customerId : null,
     vehicle_id: vehicleId,
     pickup_branch_id: pickupBranchId,
     dropoff_branch_id: dropoffBranchId,
@@ -935,44 +937,47 @@ export async function createWalkInReservation(
     appUser.id,
   );
 
-  // 6. Notify customer
-  if (autoConfirm && depositPaidCash) {
-    await sendNotification({
-      profile_id: customerId,
-      type: 'reservation_confirmed',
-      title_ar: 'تم تأكيد حجزك في الوكالة',
-      title_fr: 'Réservation confirmée en agence',
-      title_en: 'Reservation Confirmed at Branch',
-      message_ar: `تم تأكيد حجزك للمركبة ${vehicle.make} ${vehicle.model} من ${startDate} إلى ${endDate}. مرحباً بكم في DZRent!`,
-      message_fr: `Votre réservation pour ${vehicle.make} ${vehicle.model} du ${startDate} au ${endDate} est confirmée. Bienvenue chez DZRent !`,
-      message_en: `Your booking for ${vehicle.make} ${vehicle.model} from ${startDate} to ${endDate} is confirmed. Welcome to DZRent!`,
-      metadata: { reservation_id: reservation.id },
-    });
-  } else if (autoConfirm) {
-    await sendNotification({
-      profile_id: customerId,
-      type: 'reservation_confirmed',
-      title_ar: 'تم تأكيد حجزك! يرجى دفع العربون',
-      title_fr: 'Réservation confirmée ! Acompte requis',
-      title_en: 'Reservation Confirmed! Deposit Required',
-      message_ar: `تم تأكيد حجزك للمركبة ${vehicle.make} ${vehicle.model}. يرجى دفع مبلغ الضمان (${deposit_amount} دج) خلال 48 ساعة.`,
-      message_fr: `Réservation confirmée pour ${vehicle.make} ${vehicle.model}. Merci de régler l'acompte (${deposit_amount} DZD) sous 48h.`,
-      message_en: `Booking confirmed for ${vehicle.make} ${vehicle.model}. Please pay deposit (${deposit_amount} DZD) within 48 hours.`,
-      metadata: { reservation_id: reservation.id },
-    });
-  } else {
-    await sendNotification({
-      profile_id: customerId,
-      type: 'reservation_created',
-      title_ar: 'تم إنشاء حجز جديد لك',
-      title_fr: 'Nouvelle réservation créée',
-      title_en: 'New Reservation Created',
-      message_ar: `تم إنشاء حجز للمركبة ${vehicle.make} ${vehicle.model} من ${startDate} إلى ${endDate}.`,
-      message_fr: `Réservation créée pour ${vehicle.make} ${vehicle.model} du ${startDate} au ${endDate}.`,
-      message_en: `Reservation created for ${vehicle.make} ${vehicle.model} from ${startDate} to ${endDate}.`,
-      metadata: { reservation_id: reservation.id },
-    });
+  // 6. Notify customer (only if they have a profile/auth account)
+  if (customerType === 'profile') {
+    if (autoConfirm && depositPaidCash) {
+      await sendNotification({
+        profile_id: customerId,
+        type: 'reservation_confirmed',
+        title_ar: 'تم تأكيد حجزك في الوكالة',
+        title_fr: 'Réservation confirmée en agence',
+        title_en: 'Reservation Confirmed at Branch',
+        message_ar: `تم تأكيد حجزك للمركبة ${vehicle.make} ${vehicle.model} من ${startDate} إلى ${endDate}. مرحباً بكم في DZRent!`,
+        message_fr: `Votre réservation pour ${vehicle.make} ${vehicle.model} du ${startDate} au ${endDate} est confirmée. Bienvenue chez DZRent !`,
+        message_en: `Your booking for ${vehicle.make} ${vehicle.model} from ${startDate} to ${endDate} is confirmed. Welcome to DZRent!`,
+        metadata: { reservation_id: reservation.id },
+      });
+    } else if (autoConfirm) {
+      await sendNotification({
+        profile_id: customerId,
+        type: 'reservation_confirmed',
+        title_ar: 'تم تأكيد حجزك! يرجى دفع العربون',
+        title_fr: 'Réservation confirmée ! Acompte requis',
+        title_en: 'Reservation Confirmed! Deposit Required',
+        message_ar: `تم تأكيد حجزك للمركبة ${vehicle.make} ${vehicle.model}. يرجى دفع مبلغ الضمان (${deposit_amount} دج) خلال 48 ساعة.`,
+        message_fr: `Réservation confirmée pour ${vehicle.make} ${vehicle.model}. Merci de régler l'acompte (${deposit_amount} DZD) sous 48h.`,
+        message_en: `Booking confirmed for ${vehicle.make} ${vehicle.model}. Please pay deposit (${deposit_amount} DZD) within 48 hours.`,
+        metadata: { reservation_id: reservation.id },
+      });
+    } else {
+      await sendNotification({
+        profile_id: customerId,
+        type: 'reservation_created',
+        title_ar: 'تم إنشاء حجز جديد لك',
+        title_fr: 'Nouvelle réservation créée',
+        title_en: 'New Reservation Created',
+        message_ar: `تم إنشاء حجز للمركبة ${vehicle.make} ${vehicle.model} من ${startDate} إلى ${endDate}.`,
+        message_fr: `Réservation créée pour ${vehicle.make} ${vehicle.model} du ${startDate} au ${endDate}.`,
+        message_en: `Reservation created for ${vehicle.make} ${vehicle.model} from ${startDate} to ${endDate}.`,
+        metadata: { reservation_id: reservation.id },
+      });
+    }
   }
+  // Guest clients don't receive notifications (no auth account)
 
   revalidatePath('/staff');
   revalidatePath('/staff/reservations');

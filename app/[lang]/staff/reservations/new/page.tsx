@@ -23,13 +23,6 @@ export default async function StaffNewReservationPage({
 
   const supabase = await createClient()
 
-  // Fetch customers
-  const { data: customers } = await supabase
-    .from('profiles')
-    .select('id, full_name, phone, email:id')
-    .eq('role', 'customer')
-    .order('full_name')
-
   // Fetch vehicles (staff only see their branch)
   const { data: vehicles } = await supabase
     .from('vehicles')
@@ -59,7 +52,6 @@ export default async function StaffNewReservationPage({
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 py-8 px-4">
       <WalkInReservationForm
         locale={locale}
-        customers={customers || []}
         vehicles={vehicles || []}
         branches={branches || []}
         userRole={user.role}
