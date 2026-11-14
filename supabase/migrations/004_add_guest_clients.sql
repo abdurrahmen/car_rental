@@ -53,12 +53,21 @@ ALTER TABLE reservations
   ADD COLUMN IF NOT EXISTS guest_client_id UUID REFERENCES guest_clients(id) ON DELETE RESTRICT;
 
 -- Add constraint: must have either customer_id OR guest_client_id (but not both)
-ALTER TABLE reservations 
-  ADD CONSTRAINT IF NOT EXISTS reservations_customer_xor_guest 
-  CHECK (
-    (customer_id IS NOT NULL AND guest_client_id IS NULL) OR
-    (customer_id IS NULL AND guest_client_id IS NOT NULL)
-  );
+-- Note: IF NOT EXISTS not supported on ADD CONSTRAINT, use DO block
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'reservations_customer_xor_guest'
+  ) THEN
+    ALTER TABLE reservations 
+      ADD CONSTRAINT reservations_customer_xor_guest 
+      CHECK (
+        (customer_id IS NOT NULL AND guest_client_id IS NULL) OR
+        (customer_id IS NULL AND guest_client_id IS NOT NULL)
+      );
+  END IF;
+END $$;
 
 -- Index for guest_client_id lookups
 CREATE INDEX IF NOT EXISTS idx_reservations_guest_client_id ON reservations(guest_client_id);
