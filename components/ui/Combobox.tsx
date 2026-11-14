@@ -8,6 +8,8 @@ export interface ComboboxOption {
   label: string
   subtitle?: string
   metadata?: Record<string, unknown>
+  disabled?: boolean
+  renderOption?: () => React.ReactNode
 }
 
 export interface ComboboxProps {
@@ -108,7 +110,7 @@ export function Combobox({
         e.preventDefault()
         if (isOpen && options.length > 0) {
           const selected = options[highlightedIndex]
-          if (selected) {
+          if (selected && !selected.disabled) {
             onChange(selected.id, selected)
             setIsOpen(false)
             setQuery('')
@@ -156,6 +158,7 @@ export function Combobox({
   }
 
   const handleSelect = (option: ComboboxOption) => {
+    if (option.disabled) return
     onChange(option.id, option)
     setIsOpen(false)
     setQuery('')
@@ -266,32 +269,48 @@ export function Combobox({
               id={`option-${index}`}
               role="option"
               aria-selected={option.id === value}
-              onClick={() => handleSelect(option)}
+              aria-disabled={option.disabled}
+              onClick={() => !option.disabled && handleSelect(option)}
               onMouseEnter={() => setHighlightedIndex(index)}
               className={`
-                px-4 py-2.5 cursor-pointer transition-colors
-                ${highlightedIndex === index 
+                px-4 py-2.5 transition-colors
+                ${option.disabled 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : 'cursor-pointer'
+                }
+                ${highlightedIndex === index && !option.disabled
                   ? 'bg-brand-50 dark:bg-brand-950/30' 
                   : 'hover:bg-neutral-50 dark:hover:bg-neutral-700/50'
                 }
                 ${option.id === value ? 'font-semibold' : ''}
               `}
             >
-              <div className="flex items-center justify-between">
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm text-neutral-900 dark:text-white truncate">
-                    {option.label}
+              {option.renderOption ? (
+                <div className="flex items-center justify-between">
+                  <div className="min-w-0 flex-1">
+                    {option.renderOption()}
                   </div>
-                  {option.subtitle && (
-                    <div className="text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5" dir="ltr">
-                      {option.subtitle}
-                    </div>
+                  {option.id === value && (
+                    <Check className="w-4 h-4 text-brand-600 dark:text-brand-400 shrink-0 ms-2" />
                   )}
                 </div>
-                {option.id === value && (
-                  <Check className="w-4 h-4 text-brand-600 dark:text-brand-400 shrink-0 ms-2" />
-                )}
-              </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm text-neutral-900 dark:text-white truncate">
+                      {option.label}
+                    </div>
+                    {option.subtitle && (
+                      <div className="text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5" dir="ltr">
+                        {option.subtitle}
+                      </div>
+                    )}
+                  </div>
+                  {option.id === value && (
+                    <Check className="w-4 h-4 text-brand-600 dark:text-brand-400 shrink-0 ms-2" />
+                  )}
+                </div>
+              )}
             </li>
           ))}
         </ul>

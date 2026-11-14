@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Calendar, User, Car, MapPin, DollarSign, CheckCircle2, Loader2 } from 'lucide-react'
 import { ClientPicker } from '@/components/reservations/ClientPicker'
+import { VehiclePicker } from '@/components/reservations/VehiclePicker'
 import { createWalkInReservation } from '@/lib/actions/reservations'
 import type { Language } from '@/types'
 
@@ -49,6 +50,7 @@ export function WalkInReservationForm({
   const [customerId, setCustomerId] = useState('')
   const [customerType, setCustomerType] = useState<'profile' | 'guest'>('profile')
   const [vehicleId, setVehicleId] = useState('')
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [pickupBranchId, setPickupBranchId] = useState(userBranchId || '')
@@ -73,18 +75,22 @@ export function WalkInReservationForm({
     }
   }, [sameAgency, pickupBranchId])
 
+  // Update selected vehicle when vehicleId changes
+  useEffect(() => {
+    if (vehicleId) {
+      const vehicle = vehicles.find(v => v.id === vehicleId)
+      setSelectedVehicle(vehicle || null)
+    } else {
+      setSelectedVehicle(null)
+    }
+  }, [vehicleId, vehicles])
+
   // Calculated pricing
-  const selectedVehicle = vehicles.find(v => v.id === vehicleId)
   const days = startDate && endDate 
     ? Math.max(1, Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)))
     : 0
   const totalPrice = selectedVehicle ? (selectedVehicle.daily_rate * days) : 0
   const depositAmount = selectedVehicle?.deposit_amount || 0
-
-  // Filter available vehicles by branch
-  const availableVehicles = userRole === 'admin'
-    ? vehicles.filter(v => v.status === 'available')
-    : vehicles.filter(v => v.status === 'available' && v.branch_id === userBranchId)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -167,31 +173,15 @@ export function WalkInReservationForm({
           </h2>
         </div>
         
-        <select
+        <VehiclePicker
           value={vehicleId}
-          onChange={(e) => setVehicleId(e.target.value)}
-          required
-          className="w-full px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-        >
-          <option value="">{isArabic ? '-- اختر مركبة --' : '-- Choisir un véhicule --'}</option>
-          {availableVehicles.map((vehicle) => (
-            <option key={vehicle.id} value={vehicle.id}>
-              {vehicle.make} {vehicle.model} ({vehicle.year}) - {vehicle.plate_number} - {vehicle.daily_rate.toLocaleString()} DZD/jour
-            </option>
-          ))}
-        </select>
-
-        {selectedVehicle && (
-          <div className="mt-4 p-4 bg-brand-50 dark:bg-brand-950/30 rounded-xl">
-            <p className="text-sm font-semibold text-brand-900 dark:text-brand-100">
-              {isArabic ? 'تفاصيل المركبة' : 'Détails du véhicule'}
-            </p>
-            <div className="mt-2 text-sm text-brand-700 dark:text-brand-300 space-y-1">
-              <p>{isArabic ? 'التعريفة اليومية:' : 'Tarif journalier:'} {selectedVehicle.daily_rate.toLocaleString()} DZD</p>
-              <p>{isArabic ? 'العربون المطلوب:' : 'Caution requise:'} {selectedVehicle.deposit_amount.toLocaleString()} DZD</p>
-            </div>
-          </div>
-        )}
+          onChange={setVehicleId}
+          locale={locale}
+          branchId={pickupBranchId}
+          startDate={startDate}
+          endDate={endDate}
+          userRole={userRole}
+        />
       </div>
 
       {/* Dates & Branches */}
