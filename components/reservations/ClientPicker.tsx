@@ -9,7 +9,7 @@ import type { Language } from '@/types'
 
 export interface ClientPickerProps {
   value: string
-  onChange: (clientId: string, clientType: 'profile' | 'guest') => void
+  onChange: (clientId: string, clientType: 'profile' | 'guest', clientName?: string) => void
   locale: Language
   className?: string
 }
@@ -90,7 +90,7 @@ export function ClientPicker({
       phone_display: option.subtitle || '',
       type: clientType,
     })
-    onChange(clientId, clientType)
+    onChange(clientId, clientType, option.label)
   }
 
   const handleOpenModal = (searchQuery?: string) => {
@@ -125,7 +125,7 @@ export function ClientPicker({
       phone_display: client.phone_display,
       type: 'guest',
     })
-    onChange(client.id, 'guest')
+    onChange(client.id, 'guest', client.full_name)
     
     // Show success toast (simple alert for now)
     setTimeout(() => {
