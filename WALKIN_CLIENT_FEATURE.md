@@ -142,20 +142,56 @@ Without the migration:
 - `components/reservations/WalkInReservationForm.tsx` - Replaced select with VehiclePicker
 - `components/ui/Combobox.tsx` - Extended to support `disabled` and `renderOption` per item
 
+### Stage 4: Submit UX & Polish ✅
+**Commit:** `8ce2fbe` - feat(reservation): add validation feedback, summary sidebar & sticky action bar
+
+- **ValidationSummary** component shows missing required fields before submit
+- **ReservationSummary** sidebar (desktop only) with live pricing
+- Sticky action bar at bottom on mobile with total price
+- Auto-scroll to first invalid field on submit attempt
+- Collapsed "Notes" section (HTML `<details>`) with "Optionnel" badge
+- Two-column layout: form + sidebar on desktop (≥1024px)
+- Date formatting with `toLocaleDateString()` (dd/MM/yyyy in FR, ٠١/٠٢/٢٠٢٤ in AR)
+- Real-time validation state tracking (`attemptedSubmit` flag)
+- Focus management with `useRef` for sections
+- Submit button disabled when validation fails
+- Mobile-optimized sticky bar with compressed layout
+
+**Files Added:**
+- `components/reservations/ValidationSummary.tsx` - Lists missing fields with icons
+- `components/reservations/ReservationSummary.tsx` - Live pricing card with all details
+
+**Files Modified:**
+- `components/reservations/WalkInReservationForm.tsx` - Grid layout, validation, sticky bar
+- `components/reservations/ClientPicker.tsx` - Now passes customer name to parent
+
+**Stage 1: Data & Server** ✅
+- Guest clients table, phone normalization, server actions, RLS policies
+- Commit: `9d98c5a`
+
+**Stage 2: Client Picker + Modal** ✅
+- Searchable combobox, add client modal, duplicate detection
+- Commit: `af291cc`
+
+**Stage 3A: Integration & Defaults** ✅
+- Replaced select with ClientPicker, today default, smart branch defaults
+- Commit: `d69f8b0`
+
+**Stage 3B: Vehicle Picker with Availability** ✅
+- Searchable vehicle combobox, real-time availability checking, visual indicators
+- Commit: `0b27c0a`
+
+**Stage 4: Submit UX & Polish** ✅
+- Validation feedback list, live summary sidebar, sticky action bar, collapsed notes
+- Commit: `8ce2fbe`
+
+**Total:** 5 feature commits + 3 SQL migration fixes
+
 ## What's Not Done (Out of Scope)
 
 The following were planned but not implemented due to time constraints:
 
-### Stage 4: Submit UX & Polish (P1)
-- Validation feedback list ("Missing: Client, Vehicle") next to submit button
-- Focus first invalid field on submit
-- Sticky action bar
-- Date presets (1 jour, 3 jours, 1 semaine)
-- dd/MM/yyyy date display (currently browser-default mm/dd/yyyy in US locale)
-- Live summary card (client, vehicle, dates, total)
-- Collapse "Notes" section by default with "Optionnel" tag
-
-### Stage 5: QA Testing
+### Stage 5: QA Testing (P2)
 - No browser testing performed
 - No dev-badge console errors checked
 
@@ -235,18 +271,25 @@ Currently hard-coded (should be moved to dictionaries):
 
 ## Known Issues
 
-1. **Date input displays mm/dd/yyyy** in non-US browsers but form submits yyyy-mm-dd correctly. This is a browser-native behavior; fixing requires a custom date picker component.
+1. **Date input format:** Browser-native `<input type="date">` displays mm/dd/yyyy in some locales but we format it correctly in the summary with `toLocaleDateString()`.
 
-2. **No availability check:** ~~Vehicle picker doesn't disable already-reserved vehicles.~~ **Fixed in Stage 3B:** VehiclePicker now shows real-time availability with visual indicators and disables unavailable vehicles.
+2. ~~**No availability check:** Vehicle picker doesn't disable already-reserved vehicles.~~ **Fixed in Stage 3B**
 
 3. **Toast implementation:** Uses DOM manipulation instead of a proper toast library. Works but not ideal for accessibility.
 
-4. **No field focus on error:** Submit button shows alert but doesn't focus the first invalid field.
+4. ~~**No field focus on error:** Submit button shows alert but doesn't focus the first invalid field.~~ **Fixed in Stage 4**
+
+5. ~~**No validation summary:** User must discover missing fields by trial.~~ **Fixed in Stage 4**
 
 ## Git Log
 
 ```
-0b27c0a (HEAD -> feat/walkin-add-client) feat(reservation): add vehicle picker with availability check
+8ce2fbe (HEAD -> feat/walkin-add-client) feat(reservation): add validation feedback, summary sidebar & sticky action bar
+85df448 fix: enable pg_trgm extension for gin_trgm_ops index
+133d631 fix: remove IF NOT EXISTS from CREATE POLICY statements
+62bcb3d fix: use DO block for constraint creation (IF NOT EXISTS unsupported)
+63fb1d4 docs: update feature report with Stage 3B completion
+0b27c0a feat(reservation): add vehicle picker with availability check
 d69f8b0 feat(reservation): integrate client picker and add smart defaults
 af291cc feat(reservation): add searchable client picker with quick-add modal
 9d98c5a feat(clients): add guest client creation with phone normalization
@@ -278,7 +321,7 @@ af291cc feat(reservation): add searchable client picker with quick-add modal
 
 ## Files Changed
 
-**New files (14):**
+**New files (16):**
 - lib/utils/phone.ts
 - lib/utils/phone.test.ts
 - lib/validations/guest-client.ts
@@ -289,6 +332,8 @@ af291cc feat(reservation): add searchable client picker with quick-add modal
 - components/reservations/ClientPicker.tsx
 - components/reservations/AddClientModal.tsx
 - components/reservations/VehiclePicker.tsx
+- components/reservations/ValidationSummary.tsx
+- components/reservations/ReservationSummary.tsx
 - supabase/migrations/004_add_guest_clients.sql
 - supabase/migrations/004_add_guest_clients_rollback.sql
 - supabase/migrations/004_verify.sql
@@ -301,4 +346,4 @@ af291cc feat(reservation): add searchable client picker with quick-add modal
 - app/[lang]/staff/reservations/new/page.tsx
 - lib/actions/reservations.ts
 
-**Total:** 19 files, ~2500 lines of code
+**Total:** 21 files, ~3200 lines of code
