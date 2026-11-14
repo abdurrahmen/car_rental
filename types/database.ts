@@ -139,6 +139,16 @@ export interface Payment {
   updated_at: string;
 }
 
+export interface GuestClient {
+  id: string;
+  full_name: string;
+  phone: string;
+  source: 'walk_in' | 'phone' | 'online';
+  created_by: string;
+  created_at: string;
+  notes: string | null;
+}
+
 export interface VehicleConditionReport {
   id: string;
   reservation_id: string;
