@@ -7,6 +7,7 @@ import { ClientPicker } from '@/components/reservations/ClientPicker'
 import { VehiclePicker } from '@/components/reservations/VehiclePicker'
 import { ValidationSummary } from '@/components/reservations/ValidationSummary'
 import { ReservationSummary } from '@/components/reservations/ReservationSummary'
+import { StepBadge, StepStatus } from '@/components/reservations/StepBadge'
 import { createWalkInReservation } from '@/lib/actions/reservations'
 import type { Language } from '@/types'
 
@@ -148,6 +149,24 @@ export function WalkInReservationForm({
   const pickupBranchName = pickupBranch ? (locale === 'ar' ? pickupBranch.name_ar : pickupBranch.name_fr) : ''
   const dropoffBranchName = dropoffBranch ? (locale === 'ar' ? dropoffBranch.name_ar : dropoffBranch.name_fr) : ''
 
+  // Step status calculation
+  const getStepStatus = (stepNumber: number): StepStatus => {
+    switch (stepNumber) {
+      case 1: // Client
+        return customerId ? 'done' : 'active'
+      case 2: // Vehicle
+        return vehicleId ? 'done' : customerId ? 'active' : 'todo'
+      case 3: // Dates
+        return startDate && endDate ? 'done' : (customerId && vehicleId) ? 'active' : 'todo'
+      case 4: // Notes (always optional)
+        return 'done'
+      case 5: // Payment
+        return 'done'
+      default:
+        return 'todo'
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setAttemptedSubmit(true)
@@ -195,34 +214,44 @@ export function WalkInReservationForm({
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <form onSubmit={handleSubmit} className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8">
+    <div className="w-full max-w-[1180px] mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Page Header - No card */}
+      <div className="mb-6 lg:mb-8">
+        <nav className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 mb-3">
+          <a href={`/${locale}/${userRole === 'admin' ? 'admin' : 'staff'}/reservations`} className="hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors">
+            {isArabic ? 'الحجوزات' : 'Réservations'}
+          </a>
+          <span>›</span>
+          <span className="text-neutral-900 dark:text-neutral-100">
+            {isArabic ? 'حجز جديد' : 'Nouvelle réservation'}
+          </span>
+        </nav>
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 leading-tight">
+          {isArabic ? 'حجز جديد في الوكالة' : 'Nouvelle réservation walk-in'}
+        </h1>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+          {isArabic 
+            ? 'إنشاء حجز جديد لزبون حاضر في الوكالة'
+            : 'Créer une réservation pour un client présent en agence'
+          }
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="lg:grid lg:grid-cols-[1fr_360px] lg:gap-6">
         {/* Main form column */}
-        <div className="space-y-8 pb-32 lg:pb-8">
-          {/* Header */}
-          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
-            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
-              {isArabic ? 'حجز جديد في الوكالة' : 'Nouvelle Réservation Walk-in'}
-            </h1>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              {isArabic 
-                ? 'إنشاء حجز جديد لزبون حاضر في الوكالة'
-                : 'Créer une réservation pour un client présent en agence'
-              }
-            </p>
-          </div>
+        <div className="space-y-4 lg:space-y-5 pb-32 lg:pb-8">
 
           {/* Validation Summary */}
           {attemptedSubmit && validationIssues.length > 0 && (
             <ValidationSummary issues={validationIssues} locale={locale} />
           )}
 
-          {/* Customer Selection */}
+          {/* Client Selection */}
           <div ref={clientSectionRef} className="bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
-            <div className="flex items-center gap-2 mb-4">
-              <User className="w-5 h-5 text-brand-600" />
-              <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
-                {isArabic ? '1. اختر الزبون' : '1. Sélectionner le Client'}
+            <div className="flex items-center gap-3 mb-4">
+              <StepBadge number={1} status={getStepStatus(1)} />
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+                {isArabic ? 'زبون' : 'Client'}
               </h2>
             </div>
             
@@ -239,10 +268,10 @@ export function WalkInReservationForm({
 
           {/* Vehicle Selection */}
           <div ref={vehicleSectionRef} className="bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
-            <div className="flex items-center gap-2 mb-4">
-              <Car className="w-5 h-5 text-brand-600" />
-              <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
-                {isArabic ? '2. اختر المركبة' : '2. Sélectionner le Véhicule'}
+            <div className="flex items-center gap-3 mb-4">
+              <StepBadge number={2} status={getStepStatus(2)} />
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+                {isArabic ? 'مركبة' : 'Véhicule'}
               </h2>
             </div>
             
@@ -259,10 +288,10 @@ export function WalkInReservationForm({
 
           {/* Dates & Branches */}
           <div ref={datesSectionRef} className="bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
-            <div className="flex items-center gap-2 mb-4">
-              <Calendar className="w-5 h-5 text-brand-600" />
-              <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
-                {isArabic ? '3. التواريخ و المكان' : '3. Dates et Lieux'}
+            <div className="flex items-center gap-3 mb-4">
+              <StepBadge number={3} status={getStepStatus(3)} />
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+                {isArabic ? 'تواريخ و أماكن' : 'Dates et lieux'}
               </h2>
             </div>
 
@@ -366,13 +395,14 @@ export function WalkInReservationForm({
           {/* Notes */}
           <details className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 overflow-hidden">
             <summary className="px-6 py-4 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-bold text-neutral-900 dark:text-white inline-flex items-center gap-2">
-                  {isArabic ? '4. ملاحظات' : '4. Notes'}
-                  <span className="text-xs font-normal text-neutral-500 px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800">
-                    {isArabic ? 'اختياري' : 'Optionnel'}
-                  </span>
+              <div className="flex items-center gap-3">
+                <StepBadge number={4} status={getStepStatus(4)} />
+                <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+                  {isArabic ? 'ملاحظات' : 'Notes'}
                 </h2>
+                <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400">
+                  {isArabic ? 'اختياري' : 'Optionnel'}
+                </span>
               </div>
             </summary>
             <div className="px-6 pb-6 pt-2 space-y-4">
@@ -406,10 +436,10 @@ export function WalkInReservationForm({
 
           {/* Payment Options */}
           <div className="bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
-            <div className="flex items-center gap-2 mb-4">
-              <DollarSign className="w-5 h-5 text-brand-600" />
-              <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
-                {isArabic ? '5. خيارات الدفع' : '5. Options de Paiement'}
+            <div className="flex items-center gap-3 mb-4">
+              <StepBadge number={5} status={getStepStatus(5)} />
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+                {isArabic ? 'دفع' : 'Paiement'}
               </h2>
             </div>
 

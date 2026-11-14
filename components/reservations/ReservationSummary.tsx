@@ -46,8 +46,7 @@ export function ReservationSummary({
 
   const hasContent = clientName || vehicleLabel || (startDate && endDate)
 
-  if (!hasContent) return null
-
+  // Always render to maintain layout, show placeholders when empty
   return (
     <div
       className={`rounded-2xl border-2 border-brand-200 dark:border-brand-800 bg-gradient-to-br from-brand-50 to-brand-100 dark:from-brand-950/30 dark:to-brand-900/20 p-6 ${className}`}
@@ -57,7 +56,7 @@ export function ReservationSummary({
       </h3>
 
       <div className="space-y-3">
-        {clientName && (
+        {clientName ? (
           <div className="flex items-center gap-3">
             <User className="w-4 h-4 text-brand-600 dark:text-brand-400 flex-shrink-0" />
             <div>
@@ -69,9 +68,21 @@ export function ReservationSummary({
               </p>
             </div>
           </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <User className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+            <div>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                {isArabic ? 'الزبون' : 'Client'}
+              </p>
+              <p className="text-sm text-neutral-400 italic">
+                {isArabic ? 'لم يتم اختياره' : 'Aucun client sélectionné'}
+              </p>
+            </div>
+          </div>
         )}
 
-        {vehicleLabel && (
+        {vehicleLabel ? (
           <div className="flex items-center gap-3">
             <Car className="w-4 h-4 text-brand-600 dark:text-brand-400 flex-shrink-0" />
             <div>
@@ -80,6 +91,18 @@ export function ReservationSummary({
               </p>
               <p className="text-sm font-semibold text-brand-900 dark:text-brand-100">
                 {vehicleLabel}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <Car className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+            <div>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                {isArabic ? 'المركبة' : 'Véhicule'}
+              </p>
+              <p className="text-sm text-neutral-400 italic">
+                {isArabic ? 'لم يتم اختيارها' : 'Aucun véhicule sélectionné'}
               </p>
             </div>
           </div>
