@@ -8,6 +8,9 @@ import { VehiclePicker } from '@/components/reservations/VehiclePicker'
 import { ValidationSummary } from '@/components/reservations/ValidationSummary'
 import { ReservationSummary } from '@/components/reservations/ReservationSummary'
 import { StepBadge, StepStatus } from '@/components/reservations/StepBadge'
+import { DateRangePicker } from '@/components/ui/DateRangePicker'
+import { Checkbox } from '@/components/ui/Checkbox'
+import { Select } from '@/components/ui/Select'
 import { createWalkInReservation } from '@/lib/actions/reservations'
 import type { Language } from '@/types'
 
@@ -154,13 +157,13 @@ export function WalkInReservationForm({
     switch (stepNumber) {
       case 1: // Client
         return customerId ? 'done' : 'active'
-      case 2: // Vehicle
-        return vehicleId ? 'done' : customerId ? 'active' : 'todo'
-      case 3: // Dates
-        return startDate && endDate ? 'done' : (customerId && vehicleId) ? 'active' : 'todo'
-      case 4: // Notes (always optional)
+      case 2: // Dates
+        return startDate && endDate ? 'done' : customerId ? 'active' : 'todo'
+      case 3: // Vehicle
+        return vehicleId ? 'done' : (customerId && startDate && endDate) ? 'active' : 'todo'
+      case 4: // Notes (always optional/done)
         return 'done'
-      case 5: // Payment
+      case 5: // Payment (always done)
         return 'done'
       default:
         return 'todo'
@@ -266,10 +269,74 @@ export function WalkInReservationForm({
             />
           </div>
 
-          {/* Vehicle Selection */}
-          <div ref={vehicleSectionRef} className="bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
+          {/* Dates & Locations - NOW STEP 2 */}
+          <div ref={datesSectionRef} className="bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
             <div className="flex items-center gap-3 mb-4">
               <StepBadge number={2} status={getStepStatus(2)} />
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+                {isArabic ? 'تواريخ و أماكن' : 'Dates et lieux'}
+              </h2>
+            </div>
+
+            <div className="space-y-4">
+              {/* Date Range Picker */}
+              <DateRangePicker
+                startDate={startDate}
+                endDate={endDate}
+                onStartChange={setStartDate}
+                onEndChange={setEndDate}
+                locale={locale}
+                label={isArabic ? 'فترة الإيجار' : 'Période de location'}
+              />
+
+              {/* Pickup Agency */}
+              <Select
+                label={isArabic ? 'فرع الاستلام' : 'Agence de retrait'}
+                value={pickupBranchId}
+                onChange={(e) => setPickupBranchId(e.target.value)}
+                options={branches.map(branch => ({
+                  value: branch.id,
+                  label: locale === 'ar' ? branch.name_ar : branch.name_fr
+                }))}
+                placeholder={isArabic ? 'Choisir une agence' : 'Choisir une agence'}
+                disabled={userRole !== 'admin'}
+                required
+              />
+
+              {/* Same Agency Checkbox */}
+              <Checkbox
+                checked={sameAgency}
+                onChange={(e) => setSameAgency(e.target.checked)}
+                label={isArabic ? 'الإرجاع في نفس الوكالة' : 'Restitution dans la même agence'}
+                description={isArabic
+                  ? 'سيتم إرجاع المركبة في نفس مكان الاستلام'
+                  : 'Le véhicule sera restitué au même endroit'}
+              />
+
+              {/* Dropoff Agency - Hidden when sameAgency is true */}
+              {!sameAgency && (
+                <div className="animate-apple-fade-in">
+                  <Select
+                    label={isArabic ? 'فرع الإرجاع' : 'Agence de restitution'}
+                    value={dropoffBranchId}
+                    onChange={(e) => setDropoffBranchId(e.target.value)}
+                    options={branches.map(branch => ({
+                      value: branch.id,
+                      label: locale === 'ar' ? branch.name_ar : branch.name_fr
+                    }))}
+                    placeholder={isArabic ? 'Choisir une agence' : 'Choisir une agence'}
+                    disabled={userRole !== 'admin'}
+                    required
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Vehicle Selection - NOW STEP 3 */}
+          <div ref={vehicleSectionRef} className="bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
+            <div className="flex items-center gap-3 mb-4">
+              <StepBadge number={3} status={getStepStatus(3)} />
               <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
                 {isArabic ? 'مركبة' : 'Véhicule'}
               </h2>
@@ -284,112 +351,6 @@ export function WalkInReservationForm({
               endDate={endDate}
               userRole={userRole}
             />
-          </div>
-
-          {/* Dates & Branches */}
-          <div ref={datesSectionRef} className="bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-neutral-200 dark:border-neutral-800">
-            <div className="flex items-center gap-3 mb-4">
-              <StepBadge number={3} status={getStepStatus(3)} />
-              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
-                {isArabic ? 'تواريخ و أماكن' : 'Dates et lieux'}
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                  {isArabic ? 'تاريخ الاستلام' : 'Date de début'}
-                  <span className="text-red-500 ms-1">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  required
-                  min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                  {isArabic ? 'تاريخ الإرجاع' : 'Date de fin'}
-                  <span className="text-red-500 ms-1">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  required
-                  min={startDate || new Date().toISOString().split('T')[0]}
-                  className="w-full px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                  {isArabic ? 'فرع الاستلام' : 'Agence de retrait'}
-                  <span className="text-red-500 ms-1">*</span>
-                </label>
-                <select
-                  value={pickupBranchId}
-                  onChange={(e) => setPickupBranchId(e.target.value)}
-                  required
-                  disabled={userRole !== 'admin'}
-                  className="w-full px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent disabled:opacity-50"
-                >
-                  <option value="">{isArabic ? '-- اختر فرعاً --' : '-- Choisir une agence --'}</option>
-                  {branches.map((branch) => (
-                    <option key={branch.id} value={branch.id}>
-                      {locale === 'ar' ? branch.name_ar : branch.name_fr}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                  {isArabic ? 'فرع الإرجاع' : 'Agence de restitution'}
-                  <span className="text-red-500 ms-1">*</span>
-                </label>
-                <select
-                  value={dropoffBranchId}
-                  onChange={(e) => setDropoffBranchId(e.target.value)}
-                  required
-                  disabled={sameAgency || userRole !== 'admin'}
-                  className="w-full px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent disabled:opacity-50"
-                >
-                  <option value="">{isArabic ? '-- اختر فرعاً --' : '-- Choisir une agence --'}</option>
-                  {branches.map((branch) => (
-                    <option key={branch.id} value={branch.id}>
-                      {locale === 'ar' ? branch.name_ar : branch.name_fr}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Same agency checkbox */}
-            <div className="mt-4">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={sameAgency}
-                  onChange={(e) => setSameAgency(e.target.checked)}
-                  className="mt-1 w-4 h-4 text-brand-600 rounded border-neutral-300 focus:ring-brand-500"
-                />
-                <div>
-                  <span className="text-sm font-medium text-neutral-900 dark:text-white">
-                    {isArabic ? 'الإرجاع في نفس الوكالة' : 'Restitution dans la même agence'}
-                  </span>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-                    {isArabic
-                      ? 'سيتم إرجاع المركبة في نفس مكان الاستلام'
-                      : 'Le véhicule sera restitué au même endroit'}
-                  </p>
-                </div>
-              </label>
-            </div>
           </div>
 
           {/* Notes */}
