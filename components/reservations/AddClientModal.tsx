@@ -94,7 +94,7 @@ export function AddClientModal({
     setErrors((prev) => ({ ...prev, [field]: error }))
   }
 
-  const handleSubmit = async (e: React.FormEvent, forceCreate = false) => {
+  const handleSubmit = async (e: React.FormEvent | React.MouseEvent, forceCreate = false) => {
     e.preventDefault()
     
     // Validate all fields
@@ -261,7 +261,7 @@ export function AddClientModal({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-4">
         {/* Full Name */}
         <div>
           <label 
@@ -278,6 +278,12 @@ export function AddClientModal({
             value={fullName}
             onChange={(e) => handleChange('full_name', e.target.value)}
             onBlur={() => handleBlur('full_name')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                handleSubmit(e)
+              }
+            }}
             disabled={isSubmitting}
             className={`
               w-full px-4 py-3 rounded-xl
@@ -320,6 +326,12 @@ export function AddClientModal({
             value={phone}
             onChange={(e) => handleChange('phone', e.target.value)}
             onBlur={() => handleBlur('phone')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                handleSubmit(e)
+              }
+            }}
             disabled={isSubmitting}
             className={`
               w-full px-4 py-3 rounded-xl
@@ -379,7 +391,8 @@ export function AddClientModal({
             {isArabic ? 'إلغاء' : 'Annuler'}
           </button>
           <button
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             disabled={isSubmitting || !!errors.full_name || !!errors.phone}
             className="
               inline-flex items-center gap-2
@@ -401,7 +414,7 @@ export function AddClientModal({
               )}
           </button>
         </div>
-      </form>
+      </div>
     </Modal>
   )
 }
