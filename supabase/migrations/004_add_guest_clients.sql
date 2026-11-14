@@ -79,8 +79,13 @@ CREATE INDEX IF NOT EXISTS idx_reservations_guest_client_id ON reservations(gues
 -- Enable RLS
 ALTER TABLE guest_clients ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Staff can view guest clients" ON guest_clients;
+DROP POLICY IF EXISTS "Staff can create guest clients" ON guest_clients;
+DROP POLICY IF EXISTS "Staff can update own guest clients" ON guest_clients;
+
 -- Policy: Staff/branch_manager/admin can view all guest clients
-CREATE POLICY IF NOT EXISTS "Staff can view guest clients"
+CREATE POLICY "Staff can view guest clients"
   ON guest_clients FOR SELECT
   USING (
     EXISTS (
@@ -91,7 +96,7 @@ CREATE POLICY IF NOT EXISTS "Staff can view guest clients"
   );
 
 -- Policy: Staff/branch_manager/admin can create guest clients
-CREATE POLICY IF NOT EXISTS "Staff can create guest clients"
+CREATE POLICY "Staff can create guest clients"
   ON guest_clients FOR INSERT
   WITH CHECK (
     EXISTS (
@@ -103,7 +108,7 @@ CREATE POLICY IF NOT EXISTS "Staff can create guest clients"
   );
 
 -- Policy: Staff/branch_manager/admin can update guest clients they created
-CREATE POLICY IF NOT EXISTS "Staff can update own guest clients"
+CREATE POLICY "Staff can update own guest clients"
   ON guest_clients FOR UPDATE
   USING (
     EXISTS (
@@ -119,9 +124,10 @@ CREATE POLICY IF NOT EXISTS "Staff can update own guest clients"
 
 -- Drop old customer-only policies if they exist
 DROP POLICY IF EXISTS "Customers can view own reservations" ON reservations;
+DROP POLICY IF EXISTS "Customers can view own reservations v2" ON reservations;
 
 -- New policy: Customers can view their own reservations (profile-based or guest-based)
-CREATE POLICY IF NOT EXISTS "Customers can view own reservations v2"
+CREATE POLICY "Customers can view own reservations v2"
   ON reservations FOR SELECT
   USING (
     -- Authenticated customer viewing their own reservation
