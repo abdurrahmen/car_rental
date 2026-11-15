@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Calendar, User, Car, MapPin, DollarSign, CheckCircle2, Loader2 } from 'lucide-react'
+import { Calendar, User, Car, MapPin, Wallet, CheckCircle2, Loader2, ChevronDown } from 'lucide-react'
 import { ClientPicker } from '@/components/reservations/ClientPicker'
 import { VehiclePicker } from '@/components/reservations/VehiclePicker'
 import { ValidationSummary } from '@/components/reservations/ValidationSummary'
@@ -356,7 +356,7 @@ export function WalkInReservationForm({
 
           {/* Notes */}
           <details className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 overflow-hidden">
-            <summary className="px-6 py-4 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors flex items-center justify-between">
+            <summary className="px-6 py-4 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors flex items-center justify-between group">
               <div className="flex items-center gap-3">
                 <StepBadge number={4} status={getStepStatus(4)} />
                 <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
@@ -366,6 +366,7 @@ export function WalkInReservationForm({
                   {isArabic ? 'اختياري' : 'Optionnel'}
                 </span>
               </div>
+              <ChevronDown className="w-5 h-5 text-neutral-400 transition-transform group-open:rotate-180" />
             </summary>
             <div className="px-6 pb-6 pt-2 space-y-4">
               <div>
@@ -492,72 +493,114 @@ export function WalkInReservationForm({
 
         {/* Sticky action bar - mobile only */}
         <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden border-t border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm p-4 shadow-2xl">
-          <div className="max-w-4xl mx-auto flex items-center gap-3">
-            {days > 0 && totalPrice > 0 && (
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                  {isArabic ? 'المبلغ الإجمالي' : 'Total'}
+          <div className="max-w-4xl mx-auto">
+            {/* Validation issues when disabled */}
+            {!isValid && attemptedSubmit && validationIssues.length > 0 && (
+              <div className="mb-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                <p className="text-xs font-semibold text-amber-900 dark:text-amber-100 mb-1.5">
+                  {isArabic ? 'معلومات مطلوبة:' : 'Informations requises :'}
                 </p>
-                <p className="text-xl font-bold text-brand-600 dark:text-brand-400">
-                  {totalPrice.toLocaleString()} DZD
-                </p>
+                <ul className="text-xs text-amber-800 dark:text-amber-200 space-y-0.5">
+                  {validationIssues.slice(0, 3).map((issue, i) => (
+                    <li key={i}>• {issue.message}</li>
+                  ))}
+                </ul>
               </div>
             )}
+            
+            <div className="flex items-center gap-3">
+              {days > 0 && totalPrice > 0 && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    {isArabic ? 'المبلغ الإجمالي' : 'Total'}
+                  </p>
+                  <p className="text-xl font-bold text-brand-600 dark:text-brand-400">
+                    {totalPrice.toLocaleString()} DZD
+                  </p>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => router.back()}
+                disabled={isPending}
+                className="px-4 py-3 rounded-xl font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50"
+              >
+                {isArabic ? 'إلغاء' : 'Annuler'}
+              </button>
+              <button
+                type="submit"
+                disabled={isPending || !isValid}
+                className={`
+                  inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold shadow-lg transition-all flex-shrink-0
+                  ${isPending || !isValid
+                    ? 'bg-neutral-300 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
+                    : 'bg-brand-600 text-white hover:bg-brand-700'}
+                `}
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>{isArabic ? 'جارٍ...' : 'En cours...'}</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>{isArabic ? 'إنشاء' : 'Créer'}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop action buttons */}
+        <div className="hidden lg:flex items-center justify-between gap-4 pt-4 col-span-2">
+          {/* Validation issues when disabled */}
+          {!isValid && attemptedSubmit && validationIssues.length > 0 && (
+            <div className="flex-1 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+              <p className="text-xs font-semibold text-amber-900 dark:text-amber-100 mb-1.5">
+                {isArabic ? 'معلومات مطلوبة:' : 'Informations requises :'}
+              </p>
+              <ul className="text-xs text-amber-800 dark:text-amber-200 space-y-0.5">
+                {validationIssues.slice(0, 3).map((issue, i) => (
+                  <li key={i}>• {issue.message}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          <div className="flex items-center gap-4 ms-auto">
             <button
               type="button"
               onClick={() => router.back()}
               disabled={isPending}
-              className="px-4 py-3 rounded-xl font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50"
+              className="px-6 py-3 rounded-xl font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50"
             >
               {isArabic ? 'إلغاء' : 'Annuler'}
             </button>
             <button
               type="submit"
               disabled={isPending || !isValid}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold bg-brand-600 text-white hover:bg-brand-700 shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+              className={`
+                inline-flex items-center gap-2 px-8 py-3 rounded-xl font-bold shadow-lg transition-all
+                ${isPending || !isValid
+                  ? 'bg-neutral-300 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
+                  : 'bg-brand-600 text-white hover:bg-brand-700'}
+              `}
             >
               {isPending ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>{isArabic ? 'جارٍ...' : 'En cours...'}</span>
+                  <span>{isArabic ? 'جارٍ الإنشاء...' : 'Création...'}</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="w-5 h-5" />
-                  <span>{isArabic ? 'إنشاء' : 'Créer'}</span>
+                  <span>{isArabic ? 'إنشاء الحجز' : 'Créer la Réservation'}</span>
                 </>
               )}
             </button>
           </div>
-        </div>
-
-        {/* Desktop action buttons */}
-        <div className="hidden lg:flex items-center justify-end gap-4 pt-4 col-span-2">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            disabled={isPending}
-            className="px-6 py-3 rounded-xl font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50"
-          >
-            {isArabic ? 'إلغاء' : 'Annuler'}
-          </button>
-          <button
-            type="submit"
-            disabled={isPending || !isValid}
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-bold bg-brand-600 text-white hover:bg-brand-700 shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isPending ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>{isArabic ? 'جارٍ الإنشاء...' : 'Création...'}</span>
-              </>
-            ) : (
-              <>
-                <CheckCircle2 className="w-5 h-5" />
-                <span>{isArabic ? 'إنشاء الحجز' : 'Créer la Réservation'}</span>
-              </>
-            )}
-          </button>
         </div>
       </form>
     </div>
