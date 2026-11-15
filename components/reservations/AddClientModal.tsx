@@ -196,16 +196,15 @@ export function AddClientModal({
     <Modal
       open={open}
       onClose={handleClose}
-      title={
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-950/50 flex items-center justify-center">
-            <UserIcon className="w-5 h-5 text-brand-600 dark:text-brand-400" />
-          </div>
-          <span>{isArabic ? 'زبون جديد' : 'Nouveau client'}</span>
-        </div>
-      }
+      title={isArabic ? 'زبون جديد' : 'Nouveau client'}
       size="md"
     >
+      {/* Icon header */}
+      <div className="flex justify-center mb-4 -mt-2">
+        <div className="w-12 h-12 rounded-full bg-brand-100 dark:bg-brand-950/50 flex items-center justify-center">
+          <UserIcon className="w-6 h-6 text-brand-600 dark:text-brand-400" />
+        </div>
+      </div>
       {/* Server error banner */}
       {serverError && (
         <div 

@@ -30,7 +30,10 @@ export function StepBadge({ number, status, className = '' }: StepBadgeProps) {
       `}
     >
       {status === 'done' ? (
-        <Check className="w-3.5 h-3.5" strokeWidth={3} />
+        <Check 
+          className="w-3.5 h-3.5 animate-apple-scale-in motion-reduce:animate-none" 
+          strokeWidth={3} 
+        />
       ) : (
         <span>{number}</span>
       )}
