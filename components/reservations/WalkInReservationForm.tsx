@@ -287,6 +287,7 @@ export function WalkInReservationForm({
                 onEndChange={setEndDate}
                 locale={locale}
                 label={isArabic ? 'فترة الإيجار' : 'Période de location'}
+                error={attemptedSubmit && (!startDate || !endDate) ? (isArabic ? 'الفترة مطلوبة' : 'La période est requise') : undefined}
               />
 
               {/* Pickup Agency */}

@@ -142,12 +142,19 @@ export function VehiclePicker({
     const isAvailable = vehicle.available !== false
 
     return (
-      <div className="flex items-center justify-between w-full gap-2">
+      <div className="flex items-center gap-3 w-full">
+        {/* Vehicle thumbnail placeholder - 56×40px */}
+        <div className="w-14 h-10 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shrink-0">
+          <Car className="w-6 h-6 text-neutral-400" />
+        </div>
+        
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <Car className="w-4 h-4 text-neutral-400 flex-shrink-0" />
-            <span className="font-medium truncate">
-              {vehicle.make} {vehicle.model} ({vehicle.year})
+            <span className="font-semibold text-neutral-900 dark:text-white truncate">
+              {vehicle.make} {vehicle.model}
+            </span>
+            <span className="text-xs text-neutral-500 shrink-0">
+              ({vehicle.year})
             </span>
           </div>
           <div className="flex items-center gap-2 mt-0.5 text-xs text-neutral-500">
@@ -155,20 +162,20 @@ export function VehiclePicker({
               {vehicle.plate_number}
             </bdi>
             <span>•</span>
-            <span>{vehicle.daily_rate.toLocaleString()} DZD/jour</span>
+            <span className="font-medium">{vehicle.daily_rate.toLocaleString()} DZD/j</span>
           </div>
         </div>
         
         {hasAvailabilityCheck && (
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             {isAvailable ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-xs font-medium">
-                <CheckCircle2 className="w-3 h-3" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-success-50 dark:bg-success-950/30 text-success-700 dark:text-success-300 text-xs font-semibold">
+                <CheckCircle2 className="w-3.5 h-3.5" />
                 {isArabic ? 'متاح' : 'Dispo'}
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-100 text-red-700 text-xs font-medium">
-                <AlertCircle className="w-3 h-3" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-danger-50 dark:bg-danger-950/30 text-danger-700 dark:text-danger-300 text-xs font-semibold">
+                <AlertCircle className="w-3.5 h-3.5" />
                 {isArabic ? 'محجوز' : 'Occupé'}
               </span>
             )}
@@ -204,6 +211,7 @@ export function VehiclePicker({
             ? 'لا توجد مركبات متاحة'
             : 'Aucun véhicule disponible'
         }
+        disabled={!startDate || !endDate}
       />
 
       {error && (

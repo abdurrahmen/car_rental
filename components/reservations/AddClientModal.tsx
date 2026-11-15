@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Loader2, AlertCircle, User as UserIcon } from 'lucide-react'
+import { Field } from '@/components/ui/Field'
 import { createGuestClient } from '@/lib/actions/guest-clients'
 import type { Language } from '@/types'
 
@@ -195,7 +196,14 @@ export function AddClientModal({
     <Modal
       open={open}
       onClose={handleClose}
-      title={isArabic ? 'زبون جديد' : 'Nouveau client'}
+      title={
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-950/50 flex items-center justify-center">
+            <UserIcon className="w-5 h-5 text-brand-600 dark:text-brand-400" />
+          </div>
+          <span>{isArabic ? 'زبون جديد' : 'Nouveau client'}</span>
+        </div>
+      }
       size="md"
     >
       {/* Server error banner */}
@@ -265,14 +273,11 @@ export function AddClientModal({
 
       <div className="space-y-4">
         {/* Full Name */}
-        <div>
-          <label 
-            htmlFor="client-name" 
-            className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2"
-          >
-            {isArabic ? 'الاسم الكامل' : 'Nom complet'}
-            <span className="text-red-500 ms-1" aria-label="required">*</span>
-          </label>
+        <Field
+          label={isArabic ? 'الاسم الكامل' : 'Nom complet'}
+          error={errors.full_name}
+          required
+        >
           <input
             ref={nameInputRef}
             id="client-name"
@@ -288,8 +293,8 @@ export function AddClientModal({
             }}
             disabled={isSubmitting}
             className={`
-              w-full px-4 py-3 rounded-xl
-              border ${errors.full_name ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
+              w-full h-11 px-4 rounded-xl
+              border ${errors.full_name ? 'border-danger-500' : 'border-neutral-300 dark:border-neutral-700'}
               bg-white dark:bg-neutral-800
               text-neutral-900 dark:text-white
               focus:ring-2 focus:ring-brand-500 focus:border-transparent
@@ -299,28 +304,18 @@ export function AddClientModal({
             placeholder={isArabic ? 'مثال: محمد بن علي' : 'Ex: Ahmed Benali'}
             autoComplete="name"
             aria-invalid={!!errors.full_name}
-            aria-describedby={errors.full_name ? 'name-error' : undefined}
           />
-          {errors.full_name && (
-            <p 
-              id="name-error" 
-              className="mt-1.5 text-xs text-red-600 dark:text-red-400"
-              role="alert"
-            >
-              {errors.full_name}
-            </p>
-          )}
-        </div>
+        </Field>
 
         {/* Phone */}
-        <div>
-          <label 
-            htmlFor="client-phone" 
-            className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2"
-          >
-            {isArabic ? 'رقم الهاتف' : 'Téléphone'}
-            <span className="text-red-500 ms-1" aria-label="required">*</span>
-          </label>
+        <Field
+          label={isArabic ? 'رقم الهاتف' : 'Téléphone'}
+          error={errors.phone}
+          helper={isArabic
+            ? 'صيغ مقبولة: 0550123456 أو +213 550 12 34 56'
+            : 'Formats acceptés : 0550 12 34 56 ou +213 550 12 34 56'}
+          required
+        >
           <input
             id="client-phone"
             type="tel"
@@ -336,8 +331,8 @@ export function AddClientModal({
             }}
             disabled={isSubmitting}
             className={`
-              w-full px-4 py-3 rounded-xl
-              border ${errors.phone ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'}
+              w-full h-11 px-4 rounded-xl
+              border ${errors.phone ? 'border-danger-500' : 'border-neutral-300 dark:border-neutral-700'}
               bg-white dark:bg-neutral-800
               text-neutral-900 dark:text-white
               focus:ring-2 focus:ring-brand-500 focus:border-transparent
@@ -348,23 +343,8 @@ export function AddClientModal({
             autoComplete="tel"
             dir="ltr"
             aria-invalid={!!errors.phone}
-            aria-describedby={errors.phone ? 'phone-error' : undefined}
           />
-          {errors.phone && (
-            <p 
-              id="phone-error" 
-              className="mt-1.5 text-xs text-red-600 dark:text-red-400"
-              role="alert"
-            >
-              {errors.phone}
-            </p>
-          )}
-          <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-            {isArabic
-              ? 'صيغ مقبولة: 0550123456 أو +213 550 12 34 56'
-              : 'Formats acceptés : 0550 12 34 56 ou +213 550 12 34 56'}
-          </p>
-        </div>
+        </Field>
 
         {/* Helper text */}
         <div className="pt-2 pb-1">

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import { User, Plus, Check } from 'lucide-react'
+import { User, Plus, Check, UserPlus } from 'lucide-react'
 import { Combobox, ComboboxOption } from '@/components/ui/Combobox'
 import { AddClientModal } from '@/components/reservations/AddClientModal'
 import { searchClients, getRecentClients } from '@/lib/actions/guest-clients'
@@ -44,6 +44,21 @@ export function ClientPicker({
           label: c.full_name,
           subtitle: c.phone_display,
           metadata: { type: c.type },
+          renderOption: () => (
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-950/50 text-brand-700 dark:text-brand-300 flex items-center justify-center text-xs font-semibold shrink-0">
+                {getInitials(c.full_name)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-neutral-900 dark:text-white truncate">
+                  {c.full_name}
+                </div>
+                <div className="text-xs text-neutral-500 dark:text-neutral-400" dir="ltr">
+                  {c.phone_display}
+                </div>
+              </div>
+            </div>
+          ),
         }))
       )
     }
@@ -71,6 +86,21 @@ export function ClientPicker({
           label: c.full_name,
           subtitle: c.phone_display,
           metadata: { type: c.type },
+          renderOption: () => (
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-950/50 text-brand-700 dark:text-brand-300 flex items-center justify-center text-xs font-semibold shrink-0">
+                {getInitials(c.full_name)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-neutral-900 dark:text-white truncate">
+                  {c.full_name}
+                </div>
+                <div className="text-xs text-neutral-500 dark:text-neutral-400" dir="ltr">
+                  {c.phone_display}
+                </div>
+              </div>
+            </div>
+          ),
         }))
       )
     } else {
@@ -79,6 +109,14 @@ export function ClientPicker({
     
     setLoading(false)
   }, [])
+
+  // Helper to extract initials from full name
+  const getInitials = (name: string): string => {
+    const parts = name.trim().split(/\s+/)
+    if (parts.length === 0) return '?'
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
+  }
 
   const handleChange = (clientId: string, option: ComboboxOption | null) => {
     if (!option) return
@@ -178,17 +216,17 @@ export function ClientPicker({
               className="
                 inline-flex items-center gap-2 px-4 py-3 rounded-xl
                 text-sm font-semibold
-                bg-neutral-100 dark:bg-neutral-800
-                text-neutral-700 dark:text-neutral-300
-                hover:bg-neutral-200 dark:hover:bg-neutral-700
+                bg-brand-50 dark:bg-brand-950/30
+                text-brand-700 dark:text-brand-300
+                hover:bg-brand-100 dark:hover:bg-brand-900/50
                 transition-colors
                 shrink-0
               "
               aria-label={isArabic ? 'إضافة زبون جديد' : 'Ajouter un nouveau client'}
             >
-              <Plus className="w-4 h-4" />
+              <UserPlus className="w-4 h-4" />
               <span className="hidden sm:inline">
-                {isArabic ? 'إضافة' : 'Ajouter'}
+                {isArabic ? 'زبون جديد' : 'Nouveau client'}
               </span>
             </button>
           </div>
