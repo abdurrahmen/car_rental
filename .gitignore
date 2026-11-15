@@ -23,7 +23,9 @@
 # misc
 .DS_Store
 *.pem
-!supabase/*.sql
+
+# all the sql files shouldn't be pushed
+*.sql
 
 # debug
 npm-debug.log*
@@ -33,6 +35,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+
+# all the sql files shouldn't be pushed 
+
 
 # vercel
 .vercel
